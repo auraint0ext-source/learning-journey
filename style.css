@@ -1,0 +1,13 @@
+/* পুরো পেজের ব্যাকগ্রাউন্ড ও ফন্ট ডিজাইন */
+body {
+    background-color: #f0f8ff; /* হালকা নীল ব্যাকগ্রাউন্ড */
+    font-family: Arial, sans-serif;
+    text-align: center; /* লেখাগুলো মাঝে নিয়ে আসবে */
+    margin-top: 100px;
+}
+
+/* লেখার কালার ও সাইজ পরিবর্তন */
+h1 {
+    color: #ff4500; /* সুন্দর কমলা-লাল রঙ */
+    font-size: 35px;
+}
