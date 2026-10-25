@@ -7,20 +7,27 @@
 </head>
 <body>
     <h1 id="welcomeText">Hellow Guys! It's a self skill Development Challange. I hope I could achive it.</h1>
-    <br>
+   <br>
+    <!-- ইউজারের নাম লেখার জন্য ইনপুট ফিল্ড -->
+    <input type="text" id="nameInput" placeholder="আপনার নাম এখানে লিখুন...">
+    <br><br>
     <!-- একটি ক্লিক করার মতো বাটন যোগ করা হলো -->
     <button onclick="updateGreeting()">Writedown your Name</button>
 
     <!-- JavaScript কোড -->
-  <script>
-    function updateGreeting() {
-        let userName = prompt("Please enter your name:");
-        if (userName) {
-            document.getElementById("welcomeText").innerHTML = "Hellow " + userName;
-            alert("Wow You have run a javascript code successfully. Congratulation! Keep it up.");
+ <script>
+        function updateGreeting() {
+            // ইনপুট বক্স থেকে ইউজারের লেখা নাম সংগ্রহ করা
+            let userName = document.getElementById("nameInput").value;
+            
+            // যদি ইনপুট খালি না থাকে, তবে হেডিং পরিবর্তন করা
+            if (userName) {
+                document.getElementById("welcomeText").innerText = "Welcome, " + userName + "! Have a great journey of learning.";
+            } else {
+                alert("Please enter your name before clicking the button.");
+            }
         }
-    }
-</script>
+    </script>
 
 </body>
 </html>
