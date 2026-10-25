@@ -6,9 +6,9 @@ body {
 }
 
 h1 {
-    color: #ff4500;
+    color: #1a0d65;
     font-size: 35px;
-    background-color: #ffffff; /* লেখার পেছনে সাদা বক্স */
+    background-color: #f6ffb4; /* লেখার পেছনে সাদা বক্স */
     display: inline-block;
     padding: 20px 40px;
     border-radius: 10px; /* বক্সের কোণাগুলো গোল করা */
