@@ -6,14 +6,17 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Hellow Guys! It's a self skill Development Challange. I hope I could achive it.</h1>
+    <h1 id="welcomeText">Hellow Guys! It's a self skill Development Challange. I hope I could achive it.</h1>
     <br>
     <!-- একটি ক্লিক করার মতো বাটন যোগ করা হলো -->
-    <button onclick="showAlerthMessage()">Click Here</button>
+    <button onclick="updateGreeting()">Writedown your Name</button>
 
     <!-- JavaScript কোড -->
     <script>
-        function showAlerthMessage() {
+        function updateGreeting() {
+            let userName = prompt("Please enter your name:");
+            if (userName) {
+                document.getElementById("welcomeText").innerHTML = "Hellow " + user
             alert("Wow You have run a javascript code successfully. Congratulation! Keep it up.");
         }
     </script>
