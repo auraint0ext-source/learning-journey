@@ -1,13 +1,16 @@
-/* পুরো পেজের ব্যাকগ্রাউন্ড ও ফন্ট ডিজাইন */
 body {
-    background-color: #f0f8ff; /* হালকা নীল ব্যাকগ্রাউন্ড */
+    background-color: #f0f8ff;
     font-family: Arial, sans-serif;
-    text-align: center; /* লেখাগুলো মাঝে নিয়ে আসবে */
+    text-align: center;
     margin-top: 100px;
 }
 
-/* লেখার কালার ও সাইজ পরিবর্তন */
 h1 {
-    color: #ff4500; /* সুন্দর কমলা-লাল রঙ */
+    color: #ff4500;
     font-size: 35px;
+    background-color: #ffffff; /* লেখার পেছনে সাদা বক্স */
+    display: inline-block;
+    padding: 20px 40px;
+    border-radius: 10px; /* বক্সের কোণাগুলো গোল করা */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* হালকা ছায়া তৈরি করা */
 }
