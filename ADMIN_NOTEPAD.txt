@@ -1,0 +1,76 @@
+================================================================================
+PRINTFLOW GLOBAL — ADMIN OPERATIONS STUDIO & STEALTH SHORTCUT NOTEPAD
+================================================================================
+
+[🔒 STEALTH ADMIN PANEL OPENING SHORTCUTS]
+Since public admin links have been removed from the customer storefront for 
+security, authorized operators can open the Admin Portal using any of these methods:
+
+1. KEYBOARD HOTKEY (STEALTH SHORTCUT):
+   -----------------------------------------------------------------------------
+   • On Mac:             ⌘ Command + Shift + A
+   • On Windows / Linux: Ctrl + Shift + A
+   -----------------------------------------------------------------------------
+   Pressing this shortcut anywhere on the customer storefront immediately 
+   triggers the secure Admin Login Modal!
+
+2. HOW TO CUSTOMIZE / CHANGE THE HOTKEY:
+   -----------------------------------------------------------------------------
+   You can change this shortcut anytime directly from inside the Admin Studio!
+   • Open Admin Studio -> Look at the top-right header -> Click "Hotkey: Shift+A"
+   • Choose your preferred modifier (Cmd/Ctrl+Shift, Cmd/Ctrl+Alt, Alt+Shift)
+   • Select any trigger letter (A, K, M, X, P, S, Z or custom letter/digit)
+   • Click "Save Hotkey" — it updates instantly and persists in your browser!
+
+3. DIRECT SECRET URL PARAMETER:
+   -----------------------------------------------------------------------------
+   • URL: http://localhost:3000/?admin=1
+   (Visiting this URL in any browser tab immediately pops open the Admin Login)
+
+4. ADMIN LOGIN CREDENTIALS:
+   -----------------------------------------------------------------------------
+   • Username: admin
+   • Password: admin123
+
+================================================================================
+[🛠️ ADMIN STUDIO TABS & OPERATIONS GUIDE]
+================================================================================
+1. 🛍️ Manage Products:
+   - Add new POD products (Title, Category, Base Price in USD, SKU, Mockups).
+   - Real-time multi-market price calculation (USD, GBP, CAD).
+   - Instant synchronization with customer storefront.
+   - 1-click in-stock / out-of-stock toggle.
+
+2. 💳 Payment Gateways & Merchant Accounts:
+   - Configure payout destination bank accounts:
+     * 🇺🇸 Chase Business Checking (•••• 4821) for USD
+     * 🇬🇧 Barclays Commercial Sterling (•••• 4109) for GBP
+     * 🇨🇦 RBC Royal Bank CAD Commercial (•••• 7311) for CAD
+     * 🅿️ PayPal Commerce Platform & Klarna BNPL
+   - Live Payment Transactions Ledger: audit incoming orders & simulate refunds.
+
+3. 🔄 Workflow Builder:
+   - Drag-and-drop automation DAG builder with Bezier curve connections.
+   - Triggers: Order Placed, Social Lead, Cart Abandoned.
+   - Run live simulation test runs.
+
+4. 💬 Social Inbox:
+   - Unified omnichannel customer support (WhatsApp, Messenger, Instagram, TikTok, X).
+   - Live order context drawer & canned AI quick replies.
+
+5. 📦 POD Orders:
+   - Real-time domestic production routing queue (Detroit, London, Toronto).
+
+6. 📡 Marketing Hub & Ads:
+   - Meta Conversions API (CAPI), TikTok Events, Google Enhanced Conversions logs.
+
+7. 📜 Execution Logs:
+   - Complete diagnostic trace and audit trail.
+
+================================================================================
+[🌐 PORTS & SERVICES REFERENCE]
+================================================================================
+• Customer Storefront:             http://localhost:3000
+• FastAPI Backend Server:          http://127.0.0.1:8000
+• Interactive API Docs (Swagger):  http://127.0.0.1:8000/docs
+================================================================================

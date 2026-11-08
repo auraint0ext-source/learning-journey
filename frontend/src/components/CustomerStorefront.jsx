@@ -1,0 +1,1752 @@
+import React, { useState, useEffect } from 'react';
+import { API_BASE } from '../config';
+import { 
+  ShoppingBag, Star, ShieldCheck, Truck, ArrowRight, X, 
+  Check, Heart, Sparkles, Plus, Minus, CreditCard, ChevronRight, CheckCircle2, Lock, Settings,
+  ShoppingCart, Landmark, Smartphone, Wallet, Building2, Copy, DollarSign, Trash2, Shield,
+  Sun, Moon
+} from 'lucide-react';
+
+export default function CustomerStorefront({ 
+  currentMarket, 
+  setCurrentMarket, 
+  markets, 
+  onOpenAdminLogin, 
+  isAdminAuthenticated, 
+  onEnterAdminStudio,
+  storeTheme = 'light',
+  onToggleStoreTheme
+}) {
+  const isLight = storeTheme === 'light';
+
+  const [products, setProducts] = useState([]);
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedSize, setSelectedSize] = useState('L');
+  const [selectedColor, setSelectedColor] = useState('Vintage Black');
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState('cart'); // 'cart' | 'checkout' | 'success'
+  const [orderPlacedData, setOrderPlacedData] = useState(null);
+
+  // Customer Form state
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [shippingAddress, setShippingAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [promoCodeInput, setPromoCodeInput] = useState('');
+  const [discountPercent, setDiscountPercent] = useState(0);
+
+  // Payment Selection state for Checkout
+  const [paymentMethod, setPaymentMethod] = useState('card'); // 'card' | 'apple_pay' | 'paypal' | 'bank_transfer'
+  const [cardForm, setCardForm] = useState({
+    number: '4242 •••• •••• 4242',
+    expiry: '12/28',
+    cvc: '884'
+  });
+
+  // Customer Payment Methods Management Modal
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentModalTab, setPaymentModalTab] = useState('saved'); // 'saved' | 'add'
+  const [addPaymentType, setAddPaymentType] = useState('card');
+  const [savedPaymentMethods, setSavedPaymentMethods] = useState(() => {
+    const saved = localStorage.getItem('printflow_customer_payment_methods');
+    if (saved) {
+      try { return JSON.parse(saved); } catch(e) {}
+    }
+    return [
+      {
+        id: 'pm_1',
+        type: 'card',
+        brand: 'Visa',
+        title: 'Visa ending in 4242',
+        subtitle: 'Expires 12/28 • Default Method',
+        isDefault: true
+      },
+      {
+        id: 'pm_2',
+        type: 'apple_pay',
+        brand: 'Apple Pay',
+        title: 'Apple Pay (Digital Wallet)',
+        subtitle: 'Biometric 1-Click Checkout',
+        isDefault: false
+      }
+    ];
+  });
+
+  const [newCardData, setNewCardData] = useState({
+    name: '',
+    number: '',
+    expiry: '',
+    cvc: '',
+    bankAccount: '',
+    bankRouting: '',
+    paypalEmail: ''
+  });
+
+  const [paymentToast, setPaymentToast] = useState(null);
+  const showPaymentToast = (msg, type = 'success') => {
+    setPaymentToast({ msg, type });
+    setTimeout(() => setPaymentToast(null), 3500);
+  };
+
+  const marketInfo = markets[currentMarket] || {
+    currency: 'USD',
+    currency_symbol: '$',
+    exchange_rate_to_usd: 1.0,
+    tax_name: 'Sales Tax',
+    tax_rate_percent: 7.5,
+    shipping_base_rate: 4.99,
+    fulfillment_hub: 'US Print Network (Detroit & Miami)'
+  };
+
+  useEffect(() => {
+    const fetchCatalog = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/ecommerce/products`);
+        if (res.ok) setProducts(await res.json());
+      } catch (err) {
+        console.error('Failed to load products:', err);
+      }
+    };
+    fetchCatalog();
+  }, []);
+
+  const getPrice = (usdPrice) => {
+    return (usdPrice * marketInfo.exchange_rate_to_usd).toFixed(2);
+  };
+
+  // Add to Cart
+  const handleAddToCart = (product, size = selectedSize, color = selectedColor) => {
+    const unitPrice = parseFloat(getPrice(product.base_price_usd));
+    setCart((prev) => {
+      const existing = prev.find((item) => item.product_id === product.id && item.size === size && item.color === color);
+      if (existing) {
+        return prev.map((item) =>
+          item.product_id === product.id && item.size === size && item.color === color
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [
+        ...prev,
+        {
+          product_id: product.id,
+          title: product.title,
+          unit_price: unitPrice,
+          image_url: product.image_url,
+          size,
+          color,
+          quantity: 1,
+        }
+      ];
+    });
+    setSelectedProduct(null);
+    setIsCartOpen(true);
+  };
+
+  const updateQuantity = (index, delta) => {
+    setCart((prev) => {
+      const updated = [...prev];
+      updated[index].quantity += delta;
+      if (updated[index].quantity <= 0) {
+        return updated.filter((_, i) => i !== index);
+      }
+      return updated;
+    });
+  };
+
+  const applyPromo = () => {
+    const code = promoCodeInput.trim().toUpperCase();
+    if (code === 'USA15OFF' || code === 'UK20OFF' || code === 'SAVE10') {
+      const disc = code === 'UK20OFF' ? 20 : code === 'USA15OFF' ? 15 : 10;
+      setDiscountPercent(disc);
+      showPaymentToast(`Promo Code Applied: ${disc}% OFF!`);
+    } else {
+      showPaymentToast('Invalid or expired promo code', 'error');
+    }
+  };
+
+  // Calculations
+  const subtotal = cart.reduce((acc, item) => acc + item.unit_price * item.quantity, 0);
+  const discountAmount = (subtotal * discountPercent) / 100;
+  const taxableSubtotal = Math.max(0, subtotal - discountAmount);
+  const taxAmount = (taxableSubtotal * marketInfo.tax_rate_percent) / 100;
+  const shippingAmount = cart.length > 0 ? marketInfo.shipping_base_rate : 0;
+  const totalAmount = (taxableSubtotal + taxAmount + shippingAmount).toFixed(2);
+
+  // Save new payment method
+  const handleSavePaymentMethod = (e) => {
+    e.preventDefault();
+    let newMethod = null;
+
+    if (addPaymentType === 'card') {
+      if (!newCardData.number) {
+        showPaymentToast('Please enter a valid card number', 'error');
+        return;
+      }
+      const last4 = newCardData.number.replace(/\s/g, '').slice(-4) || '8892';
+      newMethod = {
+        id: `pm_${Date.now()}`,
+        type: 'card',
+        brand: 'Mastercard',
+        title: `Mastercard ending in ${last4}`,
+        subtitle: `Expires ${newCardData.expiry || '08/29'} • Added Card`,
+        isDefault: true
+      };
+      setPaymentMethod('card');
+    } else if (addPaymentType === 'apple_pay') {
+      newMethod = {
+        id: `pm_${Date.now()}`,
+        type: 'apple_pay',
+        brand: 'Apple Pay',
+        title: 'Apple Pay (Digital Wallet)',
+        subtitle: 'Linked Device • Touch ID Verified',
+        isDefault: true
+      };
+      setPaymentMethod('apple_pay');
+    } else if (addPaymentType === 'paypal') {
+      if (!newCardData.paypalEmail) {
+        showPaymentToast('Please enter your PayPal email', 'error');
+        return;
+      }
+      newMethod = {
+        id: `pm_${Date.now()}`,
+        type: 'paypal',
+        brand: 'PayPal',
+        title: `PayPal (${newCardData.paypalEmail})`,
+        subtitle: 'Linked Express Checkout',
+        isDefault: true
+      };
+      setPaymentMethod('paypal');
+    } else if (addPaymentType === 'bank_transfer') {
+      const bankLabel = currentMarket === 'US' ? 'Chase ACH Checking' : currentMarket === 'UK' ? 'Barclays Faster Payments' : 'Interac e-Transfer';
+      newMethod = {
+        id: `pm_${Date.now()}`,
+        type: 'bank_transfer',
+        brand: 'Bank',
+        title: `${bankLabel} (${currentMarket})`,
+        subtitle: currentMarket === 'US' ? 'Routing: 021000021' : currentMarket === 'UK' ? 'Sort Code: 20-04-15' : 'Auto-Deposit Linked',
+        isDefault: true
+      };
+      setPaymentMethod('bank_transfer');
+    }
+
+    if (newMethod) {
+      const updated = [newMethod, ...savedPaymentMethods.map(m => ({ ...m, isDefault: false }))];
+      setSavedPaymentMethods(updated);
+      localStorage.setItem('printflow_customer_payment_methods', JSON.stringify(updated));
+      showPaymentToast(`Payment method "${newMethod.title}" added and set as default!`);
+      setPaymentModalTab('saved');
+      setNewCardData({
+        name: '',
+        number: '',
+        expiry: '',
+        cvc: '',
+        bankAccount: '',
+        bankRouting: '',
+        paypalEmail: ''
+      });
+    }
+  };
+
+  const handleSetDefaultPayment = (id) => {
+    const updated = savedPaymentMethods.map(m => {
+      const isDef = m.id === id;
+      if (isDef) {
+        setPaymentMethod(m.type);
+      }
+      return { ...m, isDefault: isDef };
+    });
+    setSavedPaymentMethods(updated);
+    localStorage.setItem('printflow_customer_payment_methods', JSON.stringify(updated));
+    showPaymentToast('Default payment method updated!');
+  };
+
+  const handleDeleteSavedPayment = (id) => {
+    const updated = savedPaymentMethods.filter(m => m.id !== id);
+    setSavedPaymentMethods(updated);
+    localStorage.setItem('printflow_customer_payment_methods', JSON.stringify(updated));
+    showPaymentToast('Payment method removed.');
+  };
+
+  // Complete Order
+  const handleCompleteOrder = async (e) => {
+    e.preventDefault();
+    if (cart.length === 0) return;
+
+    setIsCheckingOut(true);
+    const payload = {
+      customer_name: customerName || 'Alex Customer',
+      customer_email: customerEmail || 'customer@example.com',
+      customer_phone: '+1-555-0199',
+      target_country: currentMarket,
+      shipping_address: shippingAddress || (currentMarket === 'UK' ? '221B Baker St' : currentMarket === 'CA' ? '100 King St W' : '350 5th Ave'),
+      city: city || (currentMarket === 'UK' ? 'London' : currentMarket === 'CA' ? 'Toronto' : 'New York'),
+      postal_code: postalCode || (currentMarket === 'UK' ? 'NW1 6XE' : currentMarket === 'CA' ? 'M5X 1A9' : '10118'),
+      payment_method: paymentMethod,
+      payment_details: {
+        method: paymentMethod,
+        card_brand: paymentMethod === 'card' ? 'Visa' : null,
+        last4: paymentMethod === 'card' ? '4242' : null,
+        bank_type: paymentMethod === 'bank_transfer'
+          ? (currentMarket === 'US' ? 'Chase ACH Direct' : currentMarket === 'UK' ? 'Barclays FPS' : 'Interac e-Transfer')
+          : null
+      },
+      items: cart.map((c) => ({
+        product_id: c.product_id,
+        title: `${c.title} (${c.size}, ${c.color})`,
+        quantity: c.quantity,
+        unit_price: c.unit_price,
+        mockup_url: c.image_url
+      }))
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/api/ecommerce/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        const orderData = await res.json();
+        setOrderPlacedData(orderData);
+        setCheckoutStep('success');
+        setCart([]);
+      }
+    } catch (err) {
+      alert('Failed to place order: ' + err.message);
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
+
+  const filteredProducts = activeCategory === 'All' 
+    ? products 
+    : products.filter((p) => p.category.toLowerCase().includes(activeCategory.toLowerCase()));
+
+  return (
+    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${
+      isLight ? 'bg-[#f8f9fa] text-slate-900' : 'bg-slate-950 text-slate-100'
+    }`}>
+      {/* 1. Customer Top Announcement Bar */}
+      <div className={`text-[11px] py-1.5 px-4 sm:px-8 lg:px-12 flex items-center justify-between w-full transition-colors ${
+        isLight 
+          ? 'bg-slate-100 border-b border-slate-200 text-slate-700' 
+          : 'bg-gradient-to-r from-indigo-950 via-purple-950 to-indigo-950 border-b border-indigo-500/20 text-white'
+      }`}>
+        <div className="flex items-center space-x-2 mx-auto sm:mx-0">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span className={`font-semibold ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
+            Printed Domestically in USA, UK & Canada • Zero Customs Duties • Fast 2-Day Local Production
+          </span>
+        </div>
+        <div className={`hidden sm:flex items-center space-x-3 text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+          <span>🇺🇸 Detroit Facility</span>
+          <span>•</span>
+          <span>🇬🇧 London Facility</span>
+          <span>•</span>
+          <span>🇨🇦 Toronto Facility</span>
+        </div>
+      </div>
+
+      {/* 2. Customer Navigation Header */}
+      <nav className={`sticky top-0 z-40 w-full transition-colors ${
+        isLight 
+          ? 'bg-white/95 backdrop-blur border-b border-slate-200/90 shadow-sm' 
+          : 'bg-slate-900/95 backdrop-blur border-b border-slate-800 shadow-sm'
+      }`}>
+        <div className="w-full px-4 sm:px-8 lg:px-12 h-14 flex items-center justify-between">
+          <div className="flex items-center space-x-8">
+            <div className="flex items-center space-x-2.5 cursor-pointer">
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-white text-base shadow-sm ${
+                isLight ? 'bg-slate-900' : 'bg-gradient-to-tr from-indigo-500 to-purple-600 shadow-indigo-500/20'
+              }`}>
+                P
+              </div>
+              <span className={`font-extrabold text-lg tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                PrintFlow
+              </span>
+            </div>
+
+            <div className={`hidden lg:flex items-center space-x-6 text-xs font-semibold ${
+              isLight ? 'text-slate-600' : 'text-slate-300'
+            }`}>
+              {['All', 'Apparel', 'Home & Living', 'Wall Art', 'Accessories'].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat === 'All' ? 'All' : cat)}
+                  className={`transition ${
+                    activeCategory === cat
+                      ? isLight ? 'text-slate-900 border-b-2 border-slate-900 pb-0.5 font-bold' : 'text-indigo-400 border-b-2 border-indigo-500 pb-0.5'
+                      : isLight ? 'hover:text-slate-900' : 'hover:text-white'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2.5 ml-auto">
+            {/* Quick Theme Toggle Pill for Store Preview */}
+            <button
+              onClick={() => onToggleStoreTheme && onToggleStoreTheme()}
+              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition ${
+                isLight 
+                  ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300' 
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+              title={`Storefront Theme: currently ${storeTheme.toUpperCase()} mode. Click to toggle.`}
+            >
+              {isLight ? <Moon className="w-3.5 h-3.5 text-indigo-600" /> : <Sun className="w-3.5 h-3.5 text-amber-400" />}
+              <span className="hidden md:inline">{isLight ? 'Dark' : 'Light'}</span>
+            </button>
+
+            {/* Customer Add / Manage Payment Method Button */}
+            <button
+              onClick={() => setIsPaymentModalOpen(true)}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition shadow-sm ${
+                isLight 
+                  ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-300' 
+                  : 'bg-slate-800/90 hover:bg-slate-800 text-slate-200 hover:text-white border-slate-700 hover:border-emerald-500/50'
+              }`}
+              title="Add or Manage your saved Payment Methods"
+            >
+              <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="hidden sm:inline">Add Payment Method</span>
+            </button>
+
+            {/* Cart Button */}
+            <button
+              onClick={() => {
+                setCheckoutStep('cart');
+                setIsCartOpen(true);
+              }}
+              className={`relative flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs shadow-sm transition border ${
+                isLight
+                  ? 'bg-slate-900 hover:bg-slate-800 text-white border-slate-900'
+                  : 'bg-indigo-600 hover:bg-indigo-500 text-white border-indigo-500/40 shadow-indigo-600/30'
+              }`}
+              title="View your shopping cart"
+            >
+              <ShoppingCart className="w-3.5 h-3.5" />
+              <span>Your Cart</span>
+              <span className={`ml-1 px-1.5 py-0.2 rounded-full font-extrabold text-[10px] ${
+                isLight ? 'bg-white text-slate-900' : 'bg-white text-indigo-700'
+              }`}>
+                {cart.reduce((a, b) => a + b.quantity, 0)}
+              </span>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* 3. Hero Banner */}
+      <section className={`relative overflow-hidden py-10 sm:py-12 border-b transition-colors ${
+        isLight
+          ? 'bg-white border-slate-200'
+          : 'bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 border-slate-800/80'
+      }`}>
+        {!isLight && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[250px] bg-indigo-600/10 blur-[90px] rounded-full pointer-events-none animate-pulse"></div>
+        )}
+
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4">
+          {/* Live production status badge */}
+          <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold shadow-xs border ${
+            isLight
+              ? 'bg-slate-100 border-slate-200 text-slate-700'
+              : 'bg-slate-900/90 border-indigo-500/30 text-slate-300 shadow-inner'
+          }`}>
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span>Live Production Hub:</span>
+            <span className={isLight ? 'text-emerald-700 font-bold' : 'text-emerald-400 font-bold'}>
+              {marketInfo.fulfillment_hub}
+            </span>
+          </div>
+
+          <h1 className={`text-3xl sm:text-5xl font-black tracking-tight leading-tight max-w-2xl mx-auto ${
+            isLight ? 'text-slate-900' : 'text-white'
+          }`}>
+            Custom Goods Printed{' '}
+            <span className={isLight ? 'text-indigo-600' : 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400'}>
+              Domestically.
+            </span>
+          </h1>
+
+          <p className={`text-xs sm:text-sm max-w-lg mx-auto leading-relaxed ${
+            isLight ? 'text-slate-600' : 'text-slate-400'
+          }`}>
+            Premium vintage apparel, gallery canvas wall art, and ceramic goods printed locally in {marketInfo.country_name || currentMarket}. No cross-border delays or customs fees.
+          </p>
+
+          {/* Interactive Regional Hub & Courier Switcher */}
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+            {[
+              { code: 'US', label: '🇺🇸 United States', courier: 'USPS Ground Advantage (2 Days)' },
+              { code: 'UK', label: '🇬🇧 United Kingdom', courier: 'Royal Mail Tracked 24 (2 Days)' },
+              { code: 'CA', label: '🇨🇦 Canada', courier: 'Canada Post Expedited (2 Days)' }
+            ].map(hub => {
+              const isSelected = currentMarket === hub.code;
+              return (
+                <button
+                  key={hub.code}
+                  type="button"
+                  onClick={() => setCurrentMarket(hub.code)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 border shadow-xs ${
+                    isSelected
+                      ? isLight 
+                        ? 'bg-slate-900 text-white border-slate-900 shadow-sm' 
+                        : 'bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-600/30'
+                      : isLight 
+                        ? 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50' 
+                        : 'bg-slate-900/80 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200'
+                  }`}
+                  title={`Switch preview to ${hub.label}`}
+                >
+                  <span>{hub.label}</span>
+                  <span className="opacity-40">•</span>
+                  <span className={`text-[10px] font-mono font-medium ${isLight ? (isSelected ? 'text-emerald-300' : 'text-emerald-700') : 'text-emerald-300'}`}>
+                    {hub.courier}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Trust Value Props */}
+          <div className={`flex flex-wrap items-center justify-center gap-6 pt-3 text-[11px] border-t max-w-xl mx-auto ${
+            isLight ? 'border-slate-200 text-slate-600' : 'border-slate-800/60 text-slate-400'
+          }`}>
+            <div className="flex items-center space-x-1.5">
+              <Truck className={`w-3.5 h-3.5 ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`} />
+              <span>Local Domestic Couriers</span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <ShieldCheck className={`w-3.5 h-3.5 ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`} />
+              <span>Certified Archival Eco Inks</span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+              <span>4.9 / 5 Verified Rating</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Products Grid */}
+      <main id="catalog-grid" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1">
+        {/* Category Filter Pills */}
+        <div className="flex items-center justify-between mb-8 overflow-x-auto pb-2">
+          <div className="flex items-center space-x-2">
+            {['All', 'Apparel', 'Home & Living', 'Wall Art', 'Accessories'].map((cat) => {
+              const isSelected = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap shadow-xs ${
+                    isSelected
+                      ? isLight
+                        ? 'bg-slate-900 text-white shadow-sm'
+                        : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                      : isLight
+                        ? 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                        : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className={`text-xs hidden sm:block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+            Showing in <strong className={`font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>{marketInfo.currency} ({marketInfo.currency_symbol})</strong>
+          </div>
+        </div>
+
+        {/* Product Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProducts.map((p) => {
+            const price = getPrice(p.base_price_usd);
+            return (
+              <div
+                key={p.id}
+                className={`rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between group ${
+                  isLight
+                    ? 'bg-white border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300'
+                    : 'bg-slate-900 border border-slate-800 hover:border-indigo-500/50 shadow-xl'
+                }`}
+              >
+                <div>
+                  <div className={`relative aspect-square overflow-hidden ${isLight ? 'bg-slate-100' : 'bg-slate-950'}`}>
+                    <img
+                      src={p.image_url}
+                      alt={p.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <span className={`absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border shadow-xs ${
+                      isLight
+                        ? 'bg-white/95 backdrop-blur text-slate-800 border-slate-200'
+                        : 'bg-slate-900/90 backdrop-blur text-indigo-300 border-indigo-500/30'
+                    }`}>
+                      {p.category}
+                    </span>
+                    <span className={`absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-xs ${
+                      isLight
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-slate-900/80 backdrop-blur text-emerald-400 border-emerald-500/30'
+                    }`}>
+                      Local Hub: {currentMarket}
+                    </span>
+                  </div>
+
+                  <div className="p-5 space-y-2">
+                    <div className="flex items-center space-x-1 text-amber-400 text-xs">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="w-3 h-3 fill-current" />
+                      ))}
+                      <span className={`text-[10px] ml-1 ${isLight ? 'text-slate-400' : 'text-slate-400'}`}>(48)</span>
+                    </div>
+
+                    <h3 className={`font-bold text-sm line-clamp-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                      {p.title}
+                    </h3>
+                    <p className={`text-xs line-clamp-2 leading-relaxed ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                      {p.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className={`p-5 pt-0 border-t mt-2 ${isLight ? 'border-slate-100' : 'border-slate-800/80'}`}>
+                  <div className="flex items-baseline justify-between mb-4 pt-3">
+                    <div className="space-y-0.5">
+                      <span className={`text-[10px] uppercase font-semibold ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                        Price ({marketInfo.currency})
+                      </span>
+                      <div className={`text-xl font-black font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                        {marketInfo.currency_symbol}{price}
+                      </div>
+                    </div>
+                    <span className={`text-[10px] ${isLight ? 'text-slate-400' : 'text-slate-500'}`}>
+                      +{marketInfo.currency_symbol}{marketInfo.shipping_base_rate} ship
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setSelectedProduct(p);
+                      setSelectedSize('L');
+                      setSelectedColor('Vintage Black');
+                    }}
+                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center space-x-2 border shadow-xs ${
+                      isLight
+                        ? 'bg-slate-900 hover:bg-slate-800 text-white border-slate-900'
+                        : 'bg-slate-800 hover:bg-indigo-600 text-white border-slate-700 hover:border-indigo-500'
+                    }`}
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                    <span>Select Options & Buy</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </main>
+
+      {/* 5. Product Quick-View & Customizer Modal */}
+      {selectedProduct && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className={`rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col md:flex-row border ${
+            isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-slate-800 text-white'
+          }`}>
+            <div className={`md:w-1/2 p-6 flex items-center justify-center ${isLight ? 'bg-slate-100' : 'bg-slate-950'}`}>
+              <img
+                src={selectedProduct.image_url}
+                alt={selectedProduct.title}
+                className="max-h-72 object-cover rounded-2xl shadow-md"
+              />
+            </div>
+
+            <div className="md:w-1/2 p-6 flex flex-col justify-between space-y-4">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`}>
+                    {selectedProduct.category}
+                  </span>
+                  <button onClick={() => setSelectedProduct(null)} className={`p-1 rounded-lg ${isLight ? 'text-slate-400 hover:text-slate-900' : 'text-slate-400 hover:text-white'}`}>
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <h3 className={`text-lg font-bold mt-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                  {selectedProduct.title}
+                </h3>
+                <div className={`text-2xl font-black font-mono mt-1 ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`}>
+                  {marketInfo.currency_symbol}{getPrice(selectedProduct.base_price_usd)}
+                </div>
+                <p className={`text-xs mt-2 leading-relaxed ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                  {selectedProduct.description}
+                </p>
+
+                {/* Size Selection */}
+                {selectedProduct.category === 'Apparel' && (
+                  <div className="mt-4">
+                    <label className={`text-xs font-semibold block mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                      Select Size:
+                    </label>
+                    <div className="flex space-x-2">
+                      {['S', 'M', 'L', 'XL', '2XL'].map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => setSelectedSize(s)}
+                          className={`w-9 h-9 rounded-xl text-xs font-bold transition flex items-center justify-center ${
+                            selectedSize === s
+                              ? isLight ? 'bg-slate-900 text-white shadow-sm' : 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                              : isLight ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                          }`}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Color Selection */}
+                <div className="mt-4">
+                  <label className={`text-xs font-semibold block mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                    Color:
+                  </label>
+                  <div className="flex space-x-2">
+                    {['Vintage Black', 'Heather Grey', 'Forest Green', 'Natural'].map((col) => (
+                      <button
+                        key={col}
+                        onClick={() => setSelectedColor(col)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${
+                          selectedColor === col
+                            ? isLight ? 'bg-slate-900 text-white font-bold' : 'bg-white text-slate-900 font-bold'
+                            : isLight ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        }`}
+                      >
+                        {col}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className={`pt-4 border-t flex items-center space-x-3 ${isLight ? 'border-slate-200' : 'border-slate-800'}`}>
+                <button
+                  onClick={() => handleAddToCart(selectedProduct)}
+                  className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 shadow-md ${
+                    isLight 
+                      ? 'bg-slate-900 hover:bg-slate-800 text-white' 
+                      : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
+                  }`}
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Add to Bag</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Slide-Out Customer Shopping Cart & Checkout Drawer */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex justify-end">
+          <div className={`w-full max-w-md h-full flex flex-col justify-between shadow-2xl p-6 overflow-y-auto border-l ${
+            isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-slate-800 text-white'
+          }`}>
+            {/* Drawer Header */}
+            <div className={`flex items-center justify-between pb-4 border-b ${isLight ? 'border-slate-200' : 'border-slate-800'}`}>
+              <div className="flex items-center space-x-2">
+                <ShoppingBag className={`w-5 h-5 ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`} />
+                <h2 className={`font-bold text-base ${isLight ? 'text-slate-900' : 'text-white'}`}>Your Shopping Cart</h2>
+              </div>
+              <button onClick={() => setIsCartOpen(false)} className={`p-1 rounded-lg ${isLight ? 'text-slate-400 hover:text-slate-800' : 'text-slate-400 hover:text-white'}`}>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Cart Body */}
+            {checkoutStep === 'cart' && (
+              <div className="flex-1 overflow-y-auto py-4 space-y-4">
+                {cart.length === 0 ? (
+                  <div className={`text-center py-12 text-xs ${isLight ? 'text-slate-400' : 'text-slate-500'}`}>
+                    Your cart is currently empty.
+                  </div>
+                ) : (
+                  cart.map((item, idx) => (
+                    <div key={idx} className={`rounded-xl p-3 flex space-x-3 text-xs border ${
+                      isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'
+                    }`}>
+                      <img src={item.image_url} alt="" className={`w-16 h-16 rounded-lg object-cover ${isLight ? 'bg-slate-200' : 'bg-slate-900'}`} />
+                      <div className="flex-1 space-y-1">
+                        <h4 className={`font-bold line-clamp-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>{item.title}</h4>
+                        <div className={`text-[11px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                          {item.size && `Size: ${item.size} • `}{item.color}
+                        </div>
+                        <div className={`font-mono font-bold ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>
+                          {marketInfo.currency_symbol}{(item.unit_price * item.quantity).toFixed(2)}
+                        </div>
+                        <div className="flex items-center space-x-2 pt-1">
+                          <button
+                            onClick={() => updateQuantity(idx, -1)}
+                            className={`w-5 h-5 rounded flex items-center justify-center border ${
+                              isLight ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300' : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+                            }`}
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className={`font-bold font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>{item.quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(idx, 1)}
+                            className={`w-5 h-5 rounded flex items-center justify-center border ${
+                              isLight ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300' : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+                            }`}
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Checkout Form */}
+            {checkoutStep === 'checkout' && (
+              <form onSubmit={handleCompleteOrder} className="flex-1 overflow-y-auto py-4 space-y-3 text-xs">
+                <div className={`text-xs font-bold uppercase tracking-wider mb-2 ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`}>
+                  Customer Shipping & Delivery Details
+                </div>
+
+                <div>
+                  <label className={`block mb-1 ${isLight ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>Destination Country / Market *</label>
+                  <select
+                    value={currentMarket}
+                    onChange={(e) => setCurrentMarket(e.target.value)}
+                    className={`w-full rounded-lg px-3 py-2 font-semibold text-xs border focus:outline-none ${
+                      isLight
+                        ? 'bg-white border-slate-300 text-slate-900 focus:border-slate-900'
+                        : 'bg-slate-800 border-slate-700 text-white focus:border-indigo-500'
+                    }`}
+                  >
+                    <option value="US">🇺🇸 United States (USPS Domestic Dispatch • Detroit Facility)</option>
+                    <option value="UK">🇬🇧 United Kingdom (Royal Mail Tracked 24 • London Facility)</option>
+                    <option value="CA">🇨🇦 Canada (Canada Post Expedited • Toronto Facility)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={`block mb-1 ${isLight ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. John Doe"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className={`w-full rounded-lg px-3 py-2 border ${
+                      isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-800 border-slate-700 text-white'
+                    }`}
+                  />
+                </div>
+
+                <div>
+                  <label className={`block mb-1 ${isLight ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>Email Address (for POD tracking link)</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="john@example.com"
+                    value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
+                    className={`w-full rounded-lg px-3 py-2 border ${
+                      isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-800 border-slate-700 text-white'
+                    }`}
+                  />
+                </div>
+
+                <div>
+                  <label className={`block mb-1 ${isLight ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>Delivery Address</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Street and house number"
+                    value={shippingAddress}
+                    onChange={(e) => setShippingAddress(e.target.value)}
+                    className={`w-full rounded-lg px-3 py-2 border ${
+                      isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-800 border-slate-700 text-white'
+                    }`}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className={`block mb-1 ${isLight ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>City</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="City"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className={`w-full rounded-lg px-3 py-2 border ${
+                        isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-800 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block mb-1 ${isLight ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>Postal Code</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Postal Code"
+                      value={postalCode}
+                      onChange={(e) => setPostalCode(e.target.value)}
+                      className={`w-full rounded-lg px-3 py-2 border ${
+                        isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-800 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                {/* Promo Code Input */}
+                <div className="pt-2">
+                  <label className={`block mb-1 ${isLight ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>Have a Promo Voucher?</label>
+                  <div className="flex space-x-1.5">
+                    <input
+                      type="text"
+                      placeholder="e.g. USA15OFF / UK20OFF"
+                      value={promoCodeInput}
+                      onChange={(e) => setPromoCodeInput(e.target.value)}
+                      className={`flex-1 rounded-lg px-3 py-1.5 uppercase font-mono border ${
+                        isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-800 border-slate-700 text-white'
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={applyPromo}
+                      className={`px-3 py-1.5 rounded-lg font-bold text-xs ${
+                        isLight ? 'bg-slate-900 hover:bg-slate-800 text-white' : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                      }`}
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. Select Payment Method */}
+                <div className={`pt-3 border-t space-y-2.5 ${isLight ? 'border-slate-200' : 'border-slate-800'}`}>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`}>
+                      Select Payment Method
+                    </span>
+                    <span className={`text-[10px] flex items-center space-x-1 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                      <Lock className="w-3 h-3 text-emerald-600" />
+                      <span>SSL 256-Bit</span>
+                    </span>
+                  </div>
+
+                  {/* Payment Options Grid */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('card')}
+                      className={`p-2.5 rounded-xl border text-left transition flex items-center space-x-2 ${
+                        paymentMethod === 'card'
+                          ? isLight ? 'bg-indigo-50 border-indigo-600 text-slate-900 shadow-xs' : 'bg-indigo-950/70 border-indigo-500 text-white shadow-sm'
+                          : isLight ? 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                      }`}
+                    >
+                      <CreditCard className="w-4 h-4 text-indigo-600 shrink-0" />
+                      <div>
+                        <div className="font-bold text-[11px] leading-tight">Card (Stripe)</div>
+                        <div className={`text-[9px] ${isLight ? 'text-slate-500' : 'text-slate-500'}`}>Visa, MC, Amex</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('apple_pay')}
+                      className={`p-2.5 rounded-xl border text-left transition flex items-center space-x-2 ${
+                        paymentMethod === 'apple_pay'
+                          ? isLight ? 'bg-emerald-50 border-emerald-600 text-slate-900 shadow-xs' : 'bg-indigo-950/70 border-indigo-500 text-white shadow-sm'
+                          : isLight ? 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                      }`}
+                    >
+                      <Smartphone className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <div>
+                        <div className="font-bold text-[11px] leading-tight">Apple Pay</div>
+                        <div className={`text-[9px] ${isLight ? 'text-slate-500' : 'text-slate-500'}`}>1-Click Express</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('paypal')}
+                      className={`p-2.5 rounded-xl border text-left transition flex items-center space-x-2 ${
+                        paymentMethod === 'paypal'
+                          ? isLight ? 'bg-sky-50 border-sky-600 text-slate-900 shadow-xs' : 'bg-indigo-950/70 border-indigo-500 text-white shadow-sm'
+                          : isLight ? 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                      }`}
+                    >
+                      <Wallet className="w-4 h-4 text-sky-600 shrink-0" />
+                      <div>
+                        <div className="font-bold text-[11px] leading-tight">PayPal</div>
+                        <div className={`text-[9px] ${isLight ? 'text-slate-500' : 'text-slate-500'}`}>Wallet & Pay in 4</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('bank_transfer')}
+                      className={`p-2.5 rounded-xl border text-left transition flex items-center space-x-2 ${
+                        paymentMethod === 'bank_transfer'
+                          ? isLight ? 'bg-amber-50 border-amber-600 text-slate-900 shadow-xs' : 'bg-indigo-950/70 border-indigo-500 text-white shadow-sm'
+                          : isLight ? 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                      }`}
+                    >
+                      <Landmark className="w-4 h-4 text-amber-600 shrink-0" />
+                      <div>
+                        <div className="font-bold text-[11px] leading-tight">
+                          {currentMarket === 'US' ? 'ACH Transfer' : currentMarket === 'UK' ? 'Faster Payments' : 'Interac e-Transfer'}
+                        </div>
+                        <div className={`text-[9px] ${isLight ? 'text-slate-500' : 'text-slate-500'}`}>Direct Domestic Bank</div>
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Sub-Panel: Card Form */}
+                  {paymentMethod === 'card' && (
+                    <div className={`p-3 rounded-xl border space-y-2 ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'}`}>
+                      <div className={`flex justify-between items-center text-[10px] pb-1 border-b ${isLight ? 'border-slate-200 text-slate-600' : 'border-slate-800 text-slate-400'}`}>
+                        <span>Card Details</span>
+                        <div className="flex space-x-1.5 font-mono text-[9px]">
+                          <span className={`px-1 rounded ${isLight ? 'bg-white text-slate-700 border border-slate-200' : 'bg-slate-800 text-slate-300'}`}>VISA</span>
+                          <span className={`px-1 rounded ${isLight ? 'bg-white text-slate-700 border border-slate-200' : 'bg-slate-800 text-slate-300'}`}>MC</span>
+                          <span className={`px-1 rounded ${isLight ? 'bg-white text-slate-700 border border-slate-200' : 'bg-slate-800 text-slate-300'}`}>AMEX</span>
+                        </div>
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Card Number: 4242 •••• •••• 4242"
+                        value={cardForm.number}
+                        onChange={(e) => setCardForm({ ...cardForm, number: e.target.value })}
+                        className={`w-full rounded-lg px-2.5 py-1.5 font-mono text-[11px] border ${
+                          isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                        }`}
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          placeholder="MM/YY: 12/28"
+                          value={cardForm.expiry}
+                          onChange={(e) => setCardForm({ ...cardForm, expiry: e.target.value })}
+                          className={`w-full rounded-lg px-2.5 py-1.5 font-mono text-[11px] border ${
+                            isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                          }`}
+                        />
+                        <input
+                          type="text"
+                          placeholder="CVC: 884"
+                          value={cardForm.cvc}
+                          onChange={(e) => setCardForm({ ...cardForm, cvc: e.target.value })}
+                          className={`w-full rounded-lg px-2.5 py-1.5 font-mono text-[11px] border ${
+                            isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sub-Panel: Apple Pay */}
+                  {paymentMethod === 'apple_pay' && (
+                    <div className={`p-3 rounded-xl border text-center space-y-2 ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'}`}>
+                      <p className={`text-[11px] ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Pay directly with Apple Touch ID or Face ID</p>
+                      <div className="w-full py-2 rounded-xl bg-black text-white font-bold text-xs flex items-center justify-center space-x-2 border border-slate-700">
+                        <span>🍏 Pay with Apple Pay</span>
+                      </div>
+                      <p className="text-[10px] text-emerald-600">Encrypted token verified by Stripe Gateway</p>
+                    </div>
+                  )}
+
+                  {/* Sub-Panel: PayPal */}
+                  {paymentMethod === 'paypal' && (
+                    <div className={`p-3 rounded-xl border text-center space-y-2 ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'}`}>
+                      <p className={`text-[11px] ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Pay via PayPal Wallet or 4 bi-weekly installments</p>
+                      <div className="w-full py-2 rounded-xl bg-amber-400 text-slate-950 font-black text-xs">
+                        🅿️ PayPal Checkout
+                      </div>
+                      <p className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                        Or 4 interest-free payments of {marketInfo.currency_symbol}{(parseFloat(totalAmount || 0)/4).toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Sub-Panel: Bank Transfer Coordinates */}
+                  {paymentMethod === 'bank_transfer' && (
+                    <div className={`p-3 rounded-xl border space-y-1.5 ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'}`}>
+                      <div className={`flex justify-between items-center text-[10px] font-bold pb-1 border-b ${
+                        isLight ? 'border-slate-200 text-amber-700' : 'border-slate-800 text-amber-400'
+                      }`}>
+                        <span>
+                          {currentMarket === 'US' ? '🇺🇸 JPMorgan Chase ACH Direct' : currentMarket === 'UK' ? '🇬🇧 Barclays Faster Payments' : '🇨🇦 RBC Interac e-Transfer'}
+                        </span>
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded ${isLight ? 'bg-amber-100 text-amber-800' : 'bg-amber-500/20 text-amber-300'}`}>Merchant Account</span>
+                      </div>
+                      {currentMarket === 'US' && (
+                        <div className={`text-[11px] space-y-0.5 font-mono ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                          <div>Bank: JPMorgan Chase Bank, N.A.</div>
+                          <div>Routing Number: <strong className={isLight ? 'text-slate-900' : 'text-white'}>021000021</strong></div>
+                          <div>Account Number: <strong className={isLight ? 'text-slate-900' : 'text-white'}>•••• 8920</strong></div>
+                          <div>Memo/Ref: <span className={isLight ? 'text-indigo-600' : 'text-indigo-400'}>ORD-US-PRINTFLOW</span></div>
+                        </div>
+                      )}
+                      {currentMarket === 'UK' && (
+                        <div className={`text-[11px] space-y-0.5 font-mono ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                          <div>Bank: Barclays Bank UK PLC</div>
+                          <div>Sort Code: <strong className={isLight ? 'text-slate-900' : 'text-white'}>20-04-15</strong></div>
+                          <div>Account Number: <strong className={isLight ? 'text-slate-900' : 'text-white'}>•••• 4109</strong></div>
+                          <div>Status: Instant FPS Clearance</div>
+                        </div>
+                      )}
+                      {currentMarket === 'CA' && (
+                        <div className={`text-[11px] space-y-0.5 font-mono ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                          <div>Bank: RBC Royal Bank of Canada</div>
+                          <div>Interac Email: <strong className={isLight ? 'text-slate-900' : 'text-white'}>payments@printflow.store</strong></div>
+                          <div>Institution: 003 • Transit: 00021</div>
+                          <div>Auto-Deposit Enabled</div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </form>
+            )}
+
+            {/* Success Step */}
+            {checkoutStep === 'success' && orderPlacedData && (
+              <div className="flex-1 flex flex-col items-center justify-center text-center py-8 space-y-4">
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                  isLight ? 'bg-emerald-100 text-emerald-600' : 'bg-emerald-500/20 text-emerald-400'
+                }`}>
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <h3 className={`text-lg font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>Order Confirmed!</h3>
+                <p className={`text-xs max-w-xs ${isLight ? 'text-slate-600' : 'text-slate-300'}`}>
+                  Thank you! Your order <strong className={`font-mono ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`}>{orderPlacedData.order_number}</strong> has been routed to our production facility.
+                </p>
+
+                <div className={`rounded-xl p-4 w-full text-left text-xs space-y-2 border ${
+                  isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'
+                }`}>
+                  <div className="flex justify-between">
+                    <span className={isLight ? 'text-slate-500' : 'text-slate-400'}>POD Hub:</span>
+                    <span className={`font-medium text-right ${isLight ? 'text-slate-900' : 'text-white'}`}>{orderPlacedData.pod_fulfillment_hub}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={isLight ? 'text-slate-500' : 'text-slate-400'}>Total Paid:</span>
+                    <span className={`font-mono font-bold ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>{orderPlacedData.currency} {orderPlacedData.total_amount}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={isLight ? 'text-slate-500' : 'text-slate-400'}>Status:</span>
+                    <span className={isLight ? 'text-emerald-700' : 'text-emerald-400'}>{orderPlacedData.status}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className={isLight ? 'text-slate-500' : 'text-slate-400'}>Payment Rail:</span>
+                    <span className={`font-bold capitalize ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>
+                      {orderPlacedData.payment_method ? orderPlacedData.payment_method.replace('_', ' ') : 'Card'} (Settled)
+                    </span>
+                  </div>
+                  {orderPlacedData.transaction_id && (
+                    <div className="flex justify-between">
+                      <span className={isLight ? 'text-slate-500' : 'text-slate-400'}>Transaction ID:</span>
+                      <span className={`font-mono text-[10px] ${isLight ? 'text-indigo-600' : 'text-indigo-300'}`}>{orderPlacedData.transaction_id}</span>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => {
+                    setCheckoutStep('cart');
+                    setIsCartOpen(false);
+                  }}
+                  className={`w-full py-2.5 rounded-xl text-xs font-bold ${
+                    isLight ? 'bg-slate-900 hover:bg-slate-800 text-white' : 'bg-slate-800 hover:bg-slate-700 text-white'
+                  }`}
+                >
+                  Continue Shopping
+                </button>
+              </div>
+            )}
+
+            {/* Drawer Footer with Totals */}
+            {checkoutStep !== 'success' && (
+              <div className={`pt-4 space-y-3 border-t ${isLight ? 'border-slate-200' : 'border-slate-800'}`}>
+                <div className="space-y-1.5 text-xs">
+                  <div className={`flex justify-between ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                    <span>Subtotal</span>
+                    <span className={`font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>{marketInfo.currency_symbol}{subtotal.toFixed(2)}</span>
+                  </div>
+                  {discountPercent > 0 && (
+                    <div className="flex justify-between text-pink-600 font-medium">
+                      <span>Promo Discount ({discountPercent}%)</span>
+                      <span className="font-mono">-{marketInfo.currency_symbol}{discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className={`flex justify-between ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                    <span>{marketInfo.tax_name} ({marketInfo.tax_rate_percent}%)</span>
+                    <span className={`font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>{marketInfo.currency_symbol}{taxAmount.toFixed(2)}</span>
+                  </div>
+                  <div className={`flex justify-between ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                    <span>Domestic Shipping</span>
+                    <span className={`font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>{marketInfo.currency_symbol}{shippingAmount.toFixed(2)}</span>
+                  </div>
+                  <div className={`flex justify-between text-sm font-bold pt-2 border-t ${
+                    isLight ? 'border-slate-200 text-slate-900' : 'border-slate-800 text-white'
+                  }`}>
+                    <span>Total ({marketInfo.currency})</span>
+                    <span className={`font-mono ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>{marketInfo.currency_symbol}{totalAmount}</span>
+                  </div>
+                </div>
+
+                {checkoutStep === 'cart' ? (
+                  <button
+                    disabled={cart.length === 0}
+                    onClick={() => setCheckoutStep('checkout')}
+                    className={`w-full py-3 rounded-xl font-bold text-xs shadow-sm transition flex items-center justify-center space-x-2 disabled:opacity-40 ${
+                      isLight ? 'bg-slate-900 hover:bg-slate-800 text-white' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
+                    }`}
+                  >
+                    <span>Proceed to Checkout</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <div className="flex space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => setCheckoutStep('cart')}
+                      className={`px-4 py-3 rounded-xl font-bold text-xs ${
+                        isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-700' : 'bg-slate-800 text-slate-300'
+                      }`}
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isCheckingOut}
+                      onClick={handleCompleteOrder}
+                      className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition flex items-center justify-center space-x-2"
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      <span>{isCheckingOut ? 'Routing to Hub...' : `Pay ${marketInfo.currency_symbol}${totalAmount}`}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 7. Customer Reviews Section */}
+      <section className={`py-16 border-t transition-colors ${
+        isLight ? 'bg-slate-100/70 border-slate-200' : 'bg-slate-900/40 border-slate-800'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+          <div className="space-y-2">
+            <h2 className={`text-2xl font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>What Our Customers Say</h2>
+            <p className={`text-xs ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Verified domestic reviews from the United States, United Kingdom, and Canada</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+            <div className={`rounded-2xl p-6 space-y-3 border shadow-xs ${
+              isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
+            }`}>
+              <div className="flex text-amber-400">
+                {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-current" />)}
+              </div>
+              <p className={`text-xs leading-relaxed ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                "The Heavyweight Vintage Hoodie arrived in only 3 days via USPS from the Detroit facility! The DTG print quality is extraordinary."
+              </p>
+              <div className={`text-[11px] font-medium ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                — Emily R., <span className={isLight ? 'text-slate-900 font-bold' : 'text-white'}>Brooklyn, New York 🇺🇸</span>
+              </div>
+            </div>
+
+            <div className={`rounded-2xl p-6 space-y-3 border shadow-xs ${
+              isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
+            }`}>
+              <div className="flex text-amber-400">
+                {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-current" />)}
+              </div>
+              <p className={`text-xs leading-relaxed ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                "So glad it was fulfilled by Prodigi in Hampshire. Zero import taxes or Royal Mail customs hold-ups. The ceramic mug is beautiful!"
+              </p>
+              <div className={`text-[11px] font-medium ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                — James W., <span className={isLight ? 'text-slate-900 font-bold' : 'text-white'}>London, UK 🇬🇧</span>
+              </div>
+            </div>
+
+            <div className={`rounded-2xl p-6 space-y-3 border shadow-xs ${
+              isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
+            }`}>
+              <div className="flex text-amber-400">
+                {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-current" />)}
+              </div>
+              <p className={`text-xs leading-relaxed ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                "Shipped from Toronto directly to Vancouver via Canada Post. The museum canvas colors are vibrant and crystal clear."
+              </p>
+              <div className={`text-[11px] font-medium ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                — Sophie L., <span className={isLight ? 'text-slate-900 font-bold' : 'text-white'}>Vancouver, BC 🇨🇦</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. Footer */}
+      <footer className={`py-10 text-xs border-t transition-colors ${
+        isLight ? 'bg-white border-slate-200 text-slate-500' : 'bg-slate-950 border-slate-800 text-slate-500'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+            <div>
+              <div className="flex items-center justify-center md:justify-start space-x-2">
+                <span className={`font-extrabold text-base ${isLight ? 'text-slate-900' : 'text-white'}`}>PrintFlow Studio</span>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                  isLight ? 'bg-slate-100 text-slate-600' : 'bg-slate-800 text-slate-400'
+                }`}>Domestic POD</span>
+              </div>
+              <p className={`text-[11px] mt-1 ${isLight ? 'text-slate-500' : 'text-slate-500'}`}>
+                Local direct-to-garment & archival printing facilities in USA (Detroit), UK (London) & Canada (Toronto).
+              </p>
+            </div>
+
+            <div className={`flex items-center space-x-6 text-[11px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+              <a href="#catalog-grid" className={`transition ${isLight ? 'hover:text-slate-900' : 'hover:text-white'}`}>Shop Catalog</a>
+              <span className={`cursor-pointer transition ${isLight ? 'hover:text-slate-900' : 'hover:text-white'}`}>Shipping & Returns</span>
+              <span className={`cursor-pointer transition ${isLight ? 'hover:text-slate-900' : 'hover:text-white'}`}>Privacy & SAIF</span>
+            </div>
+          </div>
+
+          <div className={`pt-6 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] ${
+            isLight ? 'border-slate-100' : 'border-slate-900'
+          }`}>
+            <p>© 2026 PrintFlow Global Ltd. All rights reserved.</p>
+
+            {/* Zero visible admin link for normal shoppers. Only authenticated staff in preview mode can return */}
+            <div>
+              {isAdminAuthenticated && (
+                <button
+                  onClick={onEnterAdminStudio}
+                  className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg transition shadow-xs font-semibold text-[11px] border ${
+                    isLight 
+                      ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300' 
+                      : 'bg-indigo-950/60 border-indigo-500/40 text-indigo-300 hover:text-white hover:bg-indigo-900/60'
+                  }`}
+                  title="Switch back to Operations Control Studio"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>Return to Admin Studio</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* 9. Customer Payment Toast */}
+      {paymentToast && (
+        <div className={`fixed bottom-6 right-6 z-50 flex items-center space-x-2 px-4 py-3 rounded-xl shadow-2xl border text-xs font-semibold ${
+          paymentToast.type === 'error'
+            ? 'bg-rose-950/90 text-rose-200 border-rose-500/40'
+            : 'bg-emerald-950/90 text-emerald-200 border-emerald-500/40'
+        }`}>
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <span>{paymentToast.msg}</span>
+        </div>
+      )}
+
+      {/* 10. Customer Payment Methods Management Modal */}
+      {isPaymentModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
+          <div className={`rounded-2xl w-full max-w-lg p-6 shadow-2xl relative my-8 space-y-5 border ${
+            isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-slate-800 text-white'
+          }`}>
+            {/* Modal Header */}
+            <div className={`flex items-center justify-between pb-4 border-b ${isLight ? 'border-slate-200' : 'border-slate-800'}`}>
+              <div className="flex items-center space-x-2.5">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center border ${
+                  isLight ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-emerald-600/20 text-emerald-400 border-emerald-500/30'
+                }`}>
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className={`text-base font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>Customer Payment Methods</h3>
+                  <div className={`flex items-center space-x-1.5 text-[11px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                    <Shield className="w-3 h-3 text-emerald-600" />
+                    <span>Bank-Grade 256-Bit SSL Encryption</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsPaymentModalOpen(false)}
+                className={`p-1 rounded-lg ${isLight ? 'text-slate-400 hover:text-slate-800' : 'text-slate-400 hover:text-white'}`}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Subtabs: Saved Methods vs + Add New Method */}
+            <div className={`flex p-1 rounded-xl border text-xs font-semibold ${
+              isLight ? 'bg-slate-100 border-slate-200' : 'bg-slate-950 border-slate-800'
+            }`}>
+              <button
+                type="button"
+                onClick={() => setPaymentModalTab('saved')}
+                className={`flex-1 py-2 rounded-lg transition ${
+                  paymentModalTab === 'saved'
+                    ? isLight ? 'bg-white text-slate-900 shadow-sm font-bold' : 'bg-indigo-600 text-white shadow'
+                    : isLight ? 'text-slate-600 hover:text-slate-900' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Saved Methods ({savedPaymentMethods.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentModalTab('add')}
+                className={`flex-1 py-2 rounded-lg transition ${
+                  paymentModalTab === 'add'
+                    ? isLight ? 'bg-white text-slate-900 shadow-sm font-bold' : 'bg-indigo-600 text-white shadow'
+                    : isLight ? 'text-slate-600 hover:text-slate-900' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                + Add Payment Method
+              </button>
+            </div>
+
+            {/* View 1: Saved Payment Methods */}
+            {paymentModalTab === 'saved' && (
+              <div className="space-y-3">
+                {savedPaymentMethods.length === 0 ? (
+                  <div className={`py-8 text-center text-xs ${isLight ? 'text-slate-400' : 'text-slate-500'}`}>
+                    No payment methods saved yet. Click "+ Add Payment Method" below to add one!
+                  </div>
+                ) : (
+                  savedPaymentMethods.map((m) => (
+                    <div
+                      key={m.id}
+                      className={`p-3.5 rounded-xl border flex items-center justify-between transition ${
+                        m.isDefault 
+                          ? isLight ? 'bg-emerald-50/50 border-emerald-300 shadow-xs' : 'bg-slate-950 border-emerald-500/50 shadow-sm'
+                          : isLight ? 'bg-slate-50 border-slate-200 hover:border-slate-300' : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                          isLight ? 'bg-white border border-slate-200 text-slate-700' : 'bg-slate-800 text-slate-300'
+                        }`}>
+                          {m.type === 'card' && <CreditCard className="w-4 h-4 text-indigo-600" />}
+                          {m.type === 'apple_pay' && <Smartphone className="w-4 h-4 text-emerald-600" />}
+                          {m.type === 'paypal' && <Wallet className="w-4 h-4 text-sky-600" />}
+                          {m.type === 'bank_transfer' && <Landmark className="w-4 h-4 text-amber-600" />}
+                        </div>
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <span className={`font-bold text-xs ${isLight ? 'text-slate-900' : 'text-white'}`}>{m.title}</span>
+                            {m.isDefault && (
+                              <span className={`px-1.5 py-0.2 rounded-full font-bold text-[9px] border ${
+                                isLight ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                              }`}>
+                                DEFAULT
+                              </span>
+                            )}
+                          </div>
+                          <span className={`text-[10px] block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>{m.subtitle}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        {!m.isDefault && (
+                          <button
+                            type="button"
+                            onClick={() => handleSetDefaultPayment(m.id)}
+                            className={`text-[11px] px-2.5 py-1 rounded-lg transition font-semibold ${
+                              isLight ? 'bg-slate-200 hover:bg-slate-300 text-slate-800' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                            }`}
+                          >
+                            Set Default
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteSavedPayment(m.id)}
+                          className={`p-1.5 rounded-lg transition ${
+                            isLight ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50' : 'text-slate-500 hover:text-rose-400 hover:bg-rose-950/30'
+                          }`}
+                          title="Remove method"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentModalTab('add')}
+                  className={`w-full py-2.5 rounded-xl border border-dashed text-xs font-semibold flex items-center justify-center space-x-1.5 transition ${
+                    isLight
+                      ? 'border-slate-300 hover:border-slate-500 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      : 'border-slate-700 hover:border-indigo-500 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Another Card or Bank Rail</span>
+                </button>
+              </div>
+            )}
+
+            {/* View 2: Add New Payment Method Form */}
+            {paymentModalTab === 'add' && (
+              <form onSubmit={handleSavePaymentMethod} className="space-y-4 text-xs">
+                {/* Method Selector Pills */}
+                <div className="grid grid-cols-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setAddPaymentType('card')}
+                    className={`p-2 rounded-xl border text-center transition flex flex-col items-center space-y-1 ${
+                      addPaymentType === 'card'
+                        ? isLight ? 'bg-indigo-50 border-indigo-600 text-slate-900' : 'bg-indigo-950/70 border-indigo-500 text-white'
+                        : isLight ? 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-white' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <CreditCard className="w-4 h-4 text-indigo-600" />
+                    <span className="text-[10px] font-bold">Card</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAddPaymentType('apple_pay')}
+                    className={`p-2 rounded-xl border text-center transition flex flex-col items-center space-y-1 ${
+                      addPaymentType === 'apple_pay'
+                        ? isLight ? 'bg-emerald-50 border-emerald-600 text-slate-900' : 'bg-indigo-950/70 border-indigo-500 text-white'
+                        : isLight ? 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-white' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Smartphone className="w-4 h-4 text-emerald-600" />
+                    <span className="text-[10px] font-bold">Apple Pay</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAddPaymentType('paypal')}
+                    className={`p-2 rounded-xl border text-center transition flex flex-col items-center space-y-1 ${
+                      addPaymentType === 'paypal'
+                        ? isLight ? 'bg-sky-50 border-sky-600 text-slate-900' : 'bg-indigo-950/70 border-indigo-500 text-white'
+                        : isLight ? 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-white' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Wallet className="w-4 h-4 text-sky-600" />
+                    <span className="text-[10px] font-bold">PayPal</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAddPaymentType('bank_transfer')}
+                    className={`p-2 rounded-xl border text-center transition flex flex-col items-center space-y-1 ${
+                      addPaymentType === 'bank_transfer'
+                        ? isLight ? 'bg-amber-50 border-amber-600 text-slate-900' : 'bg-indigo-950/70 border-indigo-500 text-white'
+                        : isLight ? 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-white' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Landmark className="w-4 h-4 text-amber-600" />
+                    <span className="text-[10px] font-bold">Bank ACH</span>
+                  </button>
+                </div>
+
+                {/* Subform: Card */}
+                {addPaymentType === 'card' && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className={`block mb-1 ${isLight ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>Name on Card</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Alex Morgan"
+                        value={newCardData.name}
+                        onChange={(e) => setNewCardData({ ...newCardData, name: e.target.value })}
+                        className={`w-full rounded-xl px-3 py-2 border ${
+                          isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+                        }`}
+                      />
+                    </div>
+
+                    <div>
+                      <label className={`block mb-1 ${isLight ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>Card Number</label>
+                      <input
+                        type="text"
+                        placeholder="5500 •••• •••• 8892"
+                        value={newCardData.number}
+                        onChange={(e) => setNewCardData({ ...newCardData, number: e.target.value })}
+                        className={`w-full rounded-xl px-3 py-2 font-mono border ${
+                          isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+                        }`}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className={`block mb-1 ${isLight ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>Expiration (MM/YY)</label>
+                        <input
+                          type="text"
+                          placeholder="08/29"
+                          value={newCardData.expiry}
+                          onChange={(e) => setNewCardData({ ...newCardData, expiry: e.target.value })}
+                          className={`w-full rounded-xl px-3 py-2 font-mono border ${
+                            isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+                          }`}
+                        />
+                      </div>
+                      <div>
+                        <label className={`block mb-1 ${isLight ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>CVC / CVV</label>
+                        <input
+                          type="text"
+                          placeholder="419"
+                          value={newCardData.cvc}
+                          onChange={(e) => setNewCardData({ ...newCardData, cvc: e.target.value })}
+                          className={`w-full rounded-xl px-3 py-2 font-mono border ${
+                            isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Subform: Apple Pay */}
+                {addPaymentType === 'apple_pay' && (
+                  <div className={`p-4 rounded-xl text-center space-y-3 border ${
+                    isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'
+                  }`}>
+                    <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-300'}`}>
+                      Click below to link this browser session with your Apple Wallet for one-touch checkout across all your POD orders.
+                    </p>
+                    <div className="p-3 bg-black text-white font-bold rounded-xl flex items-center justify-center space-x-2 border border-slate-700">
+                      <span>🍏 Connect Apple Wallet</span>
+                    </div>
+                    <p className="text-[10px] text-emerald-600">Zero card numbers exposed to merchant</p>
+                  </div>
+                )}
+
+                {/* Subform: PayPal */}
+                {addPaymentType === 'paypal' && (
+                  <div className="space-y-3">
+                    <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-300'}`}>
+                      Enter your PayPal registered email to link your account:
+                    </p>
+                    <div>
+                      <label className={`block mb-1 ${isLight ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>PayPal Email Address</label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="yourname@example.com"
+                        value={newCardData.paypalEmail}
+                        onChange={(e) => setNewCardData({ ...newCardData, paypalEmail: e.target.value })}
+                        className={`w-full rounded-xl px-3 py-2 border ${
+                          isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Subform: Bank Transfer */}
+                {addPaymentType === 'bank_transfer' && (
+                  <div className="space-y-3">
+                    <div className={`p-3 rounded-xl border ${
+                      isLight ? 'bg-amber-50 border-amber-200' : 'bg-slate-950 border-slate-800'
+                    }`}>
+                      <span className={`font-bold text-xs block mb-1 ${isLight ? 'text-amber-800' : 'text-amber-400'}`}>
+                        {currentMarket === 'US' ? '🇺🇸 Link US ACH Checking' : currentMarket === 'UK' ? '🇬🇧 UK Open Banking / Sort Code' : '🇨🇦 Canada Interac Direct'}
+                      </span>
+                      <p className={`text-[11px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                        {currentMarket === 'US'
+                          ? 'Provide your domestic bank account for automatic direct-debit clearing.'
+                          : currentMarket === 'UK'
+                          ? 'Authorize instant Faster Payments clearance directly from your UK bank.'
+                          : 'Connect your Canadian financial institution for instant e-Transfer.'}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className={`block mb-1 ${isLight ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
+                          {currentMarket === 'US' ? 'Routing (ABA)' : currentMarket === 'UK' ? 'Sort Code' : 'Institution & Transit'}
+                        </label>
+                        <input
+                          type="text"
+                          placeholder={currentMarket === 'US' ? '021000021' : currentMarket === 'UK' ? '20-04-15' : '003-00021'}
+                          value={newCardData.bankRouting}
+                          onChange={(e) => setNewCardData({ ...newCardData, bankRouting: e.target.value })}
+                          className={`w-full rounded-xl px-3 py-2 font-mono border ${
+                            isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+                          }`}
+                        />
+                      </div>
+                      <div>
+                        <label className={`block mb-1 ${isLight ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>Account Number</label>
+                        <input
+                          type="text"
+                          placeholder="•••• 8920"
+                          value={newCardData.bankAccount}
+                          onChange={(e) => setNewCardData({ ...newCardData, bankAccount: e.target.value })}
+                          className={`w-full rounded-xl px-3 py-2 font-mono border ${
+                            isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className={`flex justify-end space-x-2 pt-3 border-t ${isLight ? 'border-slate-200' : 'border-slate-800'}`}>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentModalTab('saved')}
+                    className={`px-4 py-2 rounded-xl ${isLight ? 'text-slate-600 hover:text-slate-900' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition shadow-sm"
+                  >
+                    Save & Set as Default
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
