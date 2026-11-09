@@ -75,6 +75,58 @@ export default function CustomerStorefront({
     spacious: 'py-20',
   }[cfg.catalogPadding || 'normal'] || 'py-12';
 
+  // Mega Menu Typography & Spacing Dynamic Calculations
+  const menuBarFontSizeClass = {
+    xs: 'text-[11px]',
+    sm: 'text-xs',
+    base: 'text-[13px]',
+    lg: 'text-sm'
+  }[cfg.menuBarFontSize || 'sm'] || 'text-xs';
+
+  const menuBarItemSpacingClass = {
+    compact: 'space-x-1',
+    normal: 'space-x-1 sm:space-x-1.5',
+    relaxed: 'space-x-2 sm:space-x-2.5'
+  }[cfg.menuBarItemSpacing || 'normal'] || 'space-x-1 sm:space-x-1.5';
+
+  const dropdownPaddingClass = {
+    compact: 'py-4',
+    normal: 'py-6',
+    spacious: 'py-8'
+  }[cfg.dropdownPadding || 'normal'] || 'py-6';
+
+  const dropdownColumnGapClass = {
+    compact: 'gap-4',
+    normal: 'gap-6',
+    spacious: 'gap-8'
+  }[cfg.dropdownColumnGap || 'normal'] || 'gap-6';
+
+  const dropdownHeadingFontSizeClass = {
+    xs: 'text-[10px]',
+    sm: 'text-[11px]',
+    base: 'text-xs',
+    lg: 'text-sm'
+  }[cfg.dropdownHeadingFontSize || 'sm'] || 'text-[11px]';
+
+  const dropdownItemFontSizeClass = {
+    xs: 'text-[11px]',
+    sm: 'text-xs',
+    base: 'text-[13px]',
+    lg: 'text-sm'
+  }[cfg.dropdownItemFontSize || 'sm'] || 'text-xs';
+
+  const dropdownItemSpacingClass = {
+    compact: 'space-y-0.5',
+    normal: 'space-y-1',
+    spacious: 'space-y-2'
+  }[cfg.dropdownItemSpacing || 'normal'] || 'space-y-1';
+
+  const dropdownItemPaddingClass = {
+    compact: 'py-1 px-1.5',
+    normal: 'py-1.5 px-2',
+    spacious: 'py-2 px-2.5'
+  }[cfg.dropdownItemSpacing || 'normal'] || 'py-1.5 px-2';
+
   const [products, setProducts] = useState(DEFAULT_CATALOG_PRODUCTS);
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortBy, setSortBy] = useState('featured'); // 'featured' | 'price_asc' | 'price_desc' | 'popular' | 'newest'
@@ -725,8 +777,8 @@ export default function CustomerStorefront({
             style={{ backgroundColor: isLight ? '#ffffff' : undefined }}
             onMouseLeave={handleMenuMouseLeave}
           >
-            <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto text-xs font-semibold py-1">
-              <div className="flex items-center space-x-1 sm:space-x-1.5">
+            <div className={`w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto ${menuBarFontSizeClass} font-semibold py-1`}>
+              <div className={`flex items-center ${menuBarItemSpacingClass}`}>
                 <button
                   onClick={() => { setActiveCategory('All'); setSearchQuery(''); setActiveMegaMenu(null); }}
                   className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap ${
@@ -807,15 +859,15 @@ export default function CustomerStorefront({
                   onMouseEnter={handlePanelMouseEnter}
                   onMouseLeave={handleMenuMouseLeave}
                 >
-                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                  <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${dropdownPaddingClass}`}>
+                    <div className={`grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 ${dropdownColumnGapClass}`}>
                       {/* Subcategory Columns */}
                       {cols.map((col, cIdx) => (
                         <div key={cIdx} className="space-y-2.5">
-                          <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-500 pb-1.5 border-b border-slate-200 dark:border-slate-800">
+                          <h4 className={`${dropdownHeadingFontSizeClass} font-extrabold uppercase tracking-wider text-indigo-500 pb-1.5 border-b border-slate-200 dark:border-slate-800`}>
                             {col.heading}
                           </h4>
-                          <ul className="space-y-1">
+                          <ul className={dropdownItemSpacingClass}>
                             {col.items.map((item, iIdx) => (
                               <li key={iIdx}>
                                 <button
@@ -826,7 +878,7 @@ export default function CustomerStorefront({
                                     const el = document.getElementById('catalog-grid');
                                     if (el) el.scrollIntoView({ behavior: 'smooth' });
                                   }}
-                                  className={`text-xs text-left w-full py-1.5 px-2 rounded-lg transition flex items-center justify-between group ${
+                                  className={`${dropdownItemFontSizeClass} text-left w-full ${dropdownItemPaddingClass} rounded-lg transition flex items-center justify-between group ${
                                     isLight 
                                       ? 'text-slate-700 hover:text-indigo-600 hover:bg-slate-100' 
                                       : 'text-slate-300 hover:text-indigo-400 hover:bg-slate-800'

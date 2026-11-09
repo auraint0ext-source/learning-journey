@@ -553,6 +553,132 @@ export default function AdminStorefrontEditor({
 
                 {config.showMegaMenu !== false && (
                   <div className="space-y-4 pt-2">
+                    {/* Mega Menu Dropdown Font Size & Spacing Controls */}
+                    <div className="p-4 bg-slate-900/90 border border-indigo-500/30 rounded-xl space-y-4">
+                      <div className="flex items-center space-x-2 pb-2 border-b border-slate-800">
+                        <Type className="w-4 h-4 text-indigo-400" />
+                        <span className="text-xs font-bold text-white uppercase tracking-wider">
+                          Dropdown Typography & Spacing (ড্রপডাউন ফন্ট সাইজ ও স্পেসিং)
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                        {/* 1. Dropdown Items Font Size */}
+                        <div>
+                          <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
+                            Submenu Item Font Size (আইটেম ফন্ট):
+                          </label>
+                          <select
+                            value={config.dropdownItemFontSize || 'sm'}
+                            onChange={(e) => handleFieldChange('dropdownItemFontSize', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-medium focus:border-indigo-500"
+                          >
+                            <option value="xs">Extra Small (11px)</option>
+                            <option value="sm">Small (12px - Vista Default)</option>
+                            <option value="base">Medium (13px)</option>
+                            <option value="lg">Large (14px)</option>
+                          </select>
+                        </div>
+
+                        {/* 2. Column Heading Font Size */}
+                        <div>
+                          <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
+                            Column Heading Size (কলাম হেডিং):
+                          </label>
+                          <select
+                            value={config.dropdownHeadingFontSize || 'sm'}
+                            onChange={(e) => handleFieldChange('dropdownHeadingFontSize', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-medium focus:border-indigo-500"
+                          >
+                            <option value="xs">Tiny (10px)</option>
+                            <option value="sm">Small (11px - Default)</option>
+                            <option value="base">Medium (12px)</option>
+                            <option value="lg">Large (13px)</option>
+                          </select>
+                        </div>
+
+                        {/* 3. Dropdown Vertical Padding */}
+                        <div>
+                          <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
+                            Flyout Padding (ড্রপডাউন প্যাডিং):
+                          </label>
+                          <select
+                            value={config.dropdownPadding || 'normal'}
+                            onChange={(e) => handleFieldChange('dropdownPadding', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-medium focus:border-indigo-500"
+                          >
+                            <option value="compact">Compact (কম ফাঁকা - 16px)</option>
+                            <option value="normal">Normal (স্ট্যান্ডার্ড - 24px)</option>
+                            <option value="spacious">Spacious (বেশি ফাঁকা - 32px)</option>
+                          </select>
+                        </div>
+
+                        {/* 4. Submenu Item Vertical Spacing */}
+                        <div>
+                          <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
+                            Item Spacing / Gap (আইটেমগুলোর ফাঁক):
+                          </label>
+                          <select
+                            value={config.dropdownItemSpacing || 'normal'}
+                            onChange={(e) => handleFieldChange('dropdownItemSpacing', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-medium focus:border-indigo-500"
+                          >
+                            <option value="compact">Compact (ঘন / Tight)</option>
+                            <option value="normal">Normal (স্ট্যান্ডার্ড)</option>
+                            <option value="spacious">Spacious (ছড়ানো / Relaxed)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Secondary Row: Top Menu Bar Font & Spacing */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-800 text-xs">
+                        <div>
+                          <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
+                            Menu Bar Item Size (মূল মেনু ফন্ট):
+                          </label>
+                          <select
+                            value={config.menuBarFontSize || 'sm'}
+                            onChange={(e) => handleFieldChange('menuBarFontSize', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-medium focus:border-indigo-500"
+                          >
+                            <option value="xs">Extra Small (11px)</option>
+                            <option value="sm">Small (12px - Default)</option>
+                            <option value="base">Medium (13px)</option>
+                            <option value="lg">Large (14px)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
+                            Menu Bar Tab Spacing (মেনু ট্যাব দূরত্ব):
+                          </label>
+                          <select
+                            value={config.menuBarItemSpacing || 'normal'}
+                            onChange={(e) => handleFieldChange('menuBarItemSpacing', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-medium focus:border-indigo-500"
+                          >
+                            <option value="compact">Compact (কাছাকাছি)</option>
+                            <option value="normal">Normal (স্ট্যান্ডার্ড)</option>
+                            <option value="relaxed">Relaxed (ছড়িয়ে রাখা)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
+                            Column Horizontal Gap (কলামের মধ্যকার গ্যাপ):
+                          </label>
+                          <select
+                            value={config.dropdownColumnGap || 'normal'}
+                            onChange={(e) => handleFieldChange('dropdownColumnGap', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-medium focus:border-indigo-500"
+                          >
+                            <option value="compact">Compact Gap (16px)</option>
+                            <option value="normal">Normal Gap (24px)</option>
+                            <option value="spacious">Spacious Gap (32px)</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
                     {/* WordPress-Style Menu Actions Bar */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-slate-900 border border-slate-800 rounded-xl">
                       <div className="flex items-center space-x-2">

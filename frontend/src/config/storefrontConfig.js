@@ -328,8 +328,17 @@ export const DEFAULT_STOREFRONT_CONFIG = {
   showSearchBar: true,
   searchPlaceholder: 'Search 100+ custom products: Christmas cards, calendars, business cards, banners, hoodies...',
   showMegaMenu: true,
-  megaMenuVersion: 3,
+  megaMenuVersion: 4,
   megaMenuCategories: VISTA_MEGA_MENU_CATEGORIES,
+
+  // Mega Menu Dropdown Typography, Spacing & Layout Controls
+  menuBarFontSize: 'sm',          // 'xs' (11px) | 'sm' (12px, default) | 'base' (13px) | 'lg' (14px)
+  menuBarItemSpacing: 'normal',   // 'compact' | 'normal' | 'relaxed'
+  dropdownHeadingFontSize: 'sm',  // 'xs' (10px) | 'sm' (11px, default) | 'base' (12px) | 'lg' (13px)
+  dropdownItemFontSize: 'sm',     // 'xs' (11px) | 'sm' (12px, default) | 'base' (13px) | 'lg' (14px)
+  dropdownPadding: 'normal',      // 'compact' (py-4) | 'normal' (py-6, default) | 'spacious' (py-8)
+  dropdownItemSpacing: 'normal',  // 'compact' | 'normal' | 'spacious'
+  dropdownColumnGap: 'normal',    // 'compact' (gap-4) | 'normal' (gap-6) | 'spacious' (gap-8)
 
   // 8. Vista Top Picks / Visual Categories
   showTopPicks: true,
