@@ -11,7 +11,8 @@ import LogsViewer from './components/LogsViewer';
 import AdminProductManager from './components/AdminProductManager';
 import AdminPayments from './components/AdminPayments';
 import AdminShortcutModal from './components/AdminShortcutModal';
-import AdminStorefrontEditor, { DEFAULT_STOREFRONT_CONFIG } from './components/AdminStorefrontEditor';
+import AdminStorefrontEditor from './components/AdminStorefrontEditor';
+import { DEFAULT_STOREFRONT_CONFIG } from './config/storefrontConfig';
 
 export default function App() {
   // viewMode is 'store' (for regular customers) or 'admin' (for operations staff)
@@ -49,15 +50,15 @@ export default function App() {
     if (saved) {
       try { 
         const parsed = JSON.parse(saved);
-        // Ensure latest VistaPrint Mega Menu v2 categories are applied
-        const megaMenuCats = (!parsed.megaMenuVersion || parsed.megaMenuVersion < 2)
+        // Ensure latest VistaPrint Mega Menu v3 multi-column categories are applied
+        const megaMenuCats = (!parsed.megaMenuVersion || parsed.megaMenuVersion < 3 || !parsed.megaMenuCategories?.[0]?.columns)
           ? DEFAULT_STOREFRONT_CONFIG.megaMenuCategories
           : (parsed.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories);
 
         return { 
           ...DEFAULT_STOREFRONT_CONFIG, 
           ...parsed, 
-          megaMenuVersion: 2,
+          megaMenuVersion: 3,
           megaMenuCategories: megaMenuCats,
           heroAlignment: 'left' 
         };

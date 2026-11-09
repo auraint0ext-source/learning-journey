@@ -4,12 +4,66 @@ import {
   Package, Plus, Trash2, CheckCircle2, AlertCircle, RefreshCw, 
   ExternalLink, DollarSign, Tag, Layers, ToggleLeft, ToggleRight,
   Sparkles, Image as ImageIcon, Box, Truck, Sun, Moon, Palette, HelpCircle,
-  Barcode, ScanBarcode, Printer, Copy, Check, Search, X, QrCode, Zap
+  Barcode, ScanBarcode, Printer, Copy, Check, Search, X, QrCode, Zap, Edit3, Save
 } from 'lucide-react';
 
 const PRESET_MOCKUPS = [
   {
-    name: 'Cyberpunk Heavyweight Hoodie',
+    name: 'Custom Christmas & Holiday Photo Cards (Pack of 25)',
+    category: 'Holiday',
+    price: 24.99,
+    sku: 'XMAS-CRD-01',
+    supplier: 'Prodigi (UK) / Gelato (USA & CA)',
+    image: 'https://images.unsplash.com/photo-1543258103-a62bdc069871?w=800&auto=format&fit=crop&q=80',
+    description: 'Personalized holiday greeting cards printed on premium 16pt cardstock. Includes white envelopes and edge-to-edge photo reproduction.'
+  },
+  {
+    name: 'Embossed Gold Foil Luxury Festive Cards (Pack of 25)',
+    category: 'Holiday',
+    price: 32.50,
+    sku: 'FOIL-CRD-02',
+    supplier: 'Duplium (Canada) / Gelato (USA)',
+    image: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=800&auto=format&fit=crop&w=800&q=80',
+    description: 'Real metallic gold foil accents that catch the festive light. Heavyweight velvety soft-touch stock with coordinating gold-lined envelopes.'
+  },
+  {
+    name: '2026 Custom Wall Calendar (11x8.5 in Spiral)',
+    category: 'Gifts',
+    price: 21.99,
+    sku: 'CAL-WALL-26',
+    supplier: 'Prodigi (USA & UK) / Duplium (CA)',
+    image: 'https://images.unsplash.com/photo-1506784365847-bbad939e9335?w=800&auto=format&fit=crop&q=80',
+    description: '12-month personalized wall calendar with 250 GSM heavy satin pages, wire-o binding, and drilled hole for effortless hanging.'
+  },
+  {
+    name: 'Outdoor Heavy-Duty Vinyl Banner (4x2 ft)',
+    category: 'Signs & Banners',
+    price: 34.00,
+    sku: 'BAN-OUT-01',
+    supplier: 'Prodigi / Gelato (USA & Canada)',
+    image: 'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=800&auto=format&fit=crop&q=80',
+    description: 'Weatherproof 13oz scrim vinyl banner with reinforced welded hems and brass hanging grommets every 2 feet. UV-cured fade resistant inks.'
+  },
+  {
+    name: 'Corrugated Lawn & Yard Signs with H-Stakes (Pack of 3)',
+    category: 'Signs & Banners',
+    price: 28.00,
+    sku: 'SGN-YARD-03',
+    supplier: 'SwiftPOD (USA)',
+    image: 'https://images.unsplash.com/photo-1582561424760-0321d75e81fa?w=800&auto=format&fit=crop&q=80',
+    description: 'Fluted 4mm weatherproof polypropylene yard signs with sturdy galvanized steel H-stakes. Double-sided vivid full-color printing.'
+  },
+  {
+    name: 'Premium Matte Soft-Touch Business Cards (Pack of 100)',
+    category: 'Marketing',
+    price: 19.99,
+    sku: 'CARD-MATTE-10',
+    supplier: 'Prodigi / Gelato (USA, UK, CA)',
+    image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&auto=format&fit=crop&q=80',
+    description: 'Ultra-thick 16pt cardstock with silky soft-touch lamination and crisp edge-to-edge printing. Sharp typography & saturated colors.'
+  },
+  {
+    name: 'Cyberpunk Heavyweight Hoodie (350 GSM)',
     category: 'Apparel',
     price: 48.00,
     sku: 'HOOD-CYBER-09',
@@ -18,31 +72,13 @@ const PRESET_MOCKUPS = [
     description: 'Ultra-soft 350 GSM fleece hoodie with high-density direct-to-film front & back art.'
   },
   {
-    name: 'Retro Wave Ceramic Mug (15oz)',
-    category: 'Home & Living',
-    price: 18.50,
-    sku: 'MUG-RETRO-15',
-    supplier: 'District Photo (USA) / Prodigi (UK)',
-    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&fit=crop&q=80',
-    description: 'Microwave and dishwasher-safe 15oz ceramic mug with archival sublimation wrap print.'
-  },
-  {
-    name: 'Tokyo Neon Canvas Art (24x36)',
-    category: 'Wall Art',
-    price: 64.00,
-    sku: 'ART-CANVAS-04',
-    supplier: 'Canvas On Demand (USA) / Gelato (Canada)',
-    image: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80',
-    description: 'Acid-free, museum-grade 1.5 inch gallery wrapped canvas with certified archival UV inks.'
-  },
-  {
-    name: 'Minimalist Embroidered Dad Cap',
+    name: 'Die-Cut Weatherproof Vinyl Stickers (Pack of 50)',
     category: 'Accessories',
-    price: 24.00,
-    sku: 'CAP-EMB-02',
-    supplier: 'SwiftPOD (USA)',
-    image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=800&auto=format&fit=crop&q=80',
-    description: '100% chino cotton twill unstructured cap with 6-panel low profile embroidery.'
+    price: 14.99,
+    sku: 'STK-VINYL-50',
+    supplier: 'StickerApp / Gelato',
+    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80',
+    description: 'Thick 6mil weatherproof vinyl with glossy UV laminate. Laser contour cut precisely to your custom artwork shape.'
   }
 ];
 
@@ -134,14 +170,30 @@ export default function AdminProductManager({
   const [scanResultToast, setScanResultToast] = useState(null);
   const [copiedBarcode, setCopiedBarcode] = useState(false);
 
+  // Category Tabs Filter
+  const [selectedCategoryTab, setSelectedCategoryTab] = useState('All');
+
+  // Edit Product State
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    title: '',
+    category: 'Holiday',
+    base_price_usd: 24.99,
+    image_url: '',
+    sku: '',
+    supplier: '',
+    description: '',
+    in_stock: true
+  });
+
   // Form state
   const [formData, setFormData] = useState({
     title: '',
-    category: 'Apparel',
-    base_price_usd: 29.99,
-    image_url: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80',
+    category: 'Holiday',
+    base_price_usd: 24.99,
+    image_url: 'https://images.unsplash.com/photo-1543258103-a62bdc069871?w=800&auto=format&fit=crop&q=80',
     sku: `POD-${Math.floor(1000 + Math.random() * 9000)}`,
-    supplier: 'Printify / Monster Digital',
+    supplier: 'Prodigi / Gelato',
     description: '',
     in_stock: true
   });
@@ -229,6 +281,54 @@ export default function AdminProductManager({
     }
   };
 
+  const handleOpenEdit = (product) => {
+    setEditingProduct(product);
+    setEditFormData({
+      title: product.title,
+      category: product.category,
+      base_price_usd: product.base_price_usd,
+      image_url: product.image_url,
+      sku: product.sku,
+      supplier: product.supplier,
+      description: product.description,
+      in_stock: product.in_stock
+    });
+  };
+
+  const handleUpdateProduct = async (e) => {
+    e.preventDefault();
+    if (!editFormData.title || !editFormData.sku || editFormData.base_price_usd <= 0) {
+      showToast('Please provide valid title, SKU, and base price', 'error');
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/ecommerce/products/${editingProduct.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...editFormData,
+          base_price_usd: parseFloat(editFormData.base_price_usd)
+        })
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        showToast(`Product "${updated.title}" successfully updated!`, 'success');
+        setEditingProduct(null);
+        fetchProducts();
+      } else {
+        const err = await res.json();
+        showToast(err.detail || 'Failed to update product', 'error');
+      }
+    } catch (err) {
+      showToast(`Error updating product: ${err.message}`, 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleDeleteProduct = async (product) => {
     if (!window.confirm(`Are you sure you want to delete "${product.title}" (${product.sku})?`)) return;
 
@@ -300,8 +400,22 @@ export default function AdminProductManager({
     window.print();
   };
 
-  // Filter products by search / barcode query
+  // Filter products by category tab & search / barcode query
   const filteredProducts = products.filter(p => {
+    // 1. Category Tab Filter
+    if (selectedCategoryTab !== 'All') {
+      const cat = (p.category || '').toLowerCase();
+      const tab = selectedCategoryTab.toLowerCase();
+      if (tab === 'holiday' && !cat.includes('holiday')) return false;
+      if (tab === 'gifts' && !cat.includes('gift') && !cat.includes('home')) return false;
+      if (tab === 'signs & banners' && !cat.includes('sign') && !cat.includes('banner')) return false;
+      if (tab === 'marketing' && !cat.includes('marketing')) return false;
+      if (tab === 'apparel' && !cat.includes('apparel')) return false;
+      if (tab === 'accessories' && !cat.includes('access') && !cat.includes('pack')) return false;
+      if (tab === 'wall art' && !cat.includes('wall')) return false;
+    }
+
+    // 2. Search / Barcode query
     if (!barcodeSearchQuery) return true;
     const q = barcodeSearchQuery.toLowerCase().trim();
     const barcodeNum = getBarcodeNumber(p.sku, p.id).replace(/\s/g, '');
@@ -492,6 +606,32 @@ export default function AdminProductManager({
           </div>
         </div>
 
+        {/* VistaPrint Category Tabs Filter */}
+        <div className="px-6 py-2.5 bg-slate-950/40 border-b border-slate-800 flex items-center space-x-1.5 overflow-x-auto text-xs font-semibold">
+          {[
+            { key: 'All', label: 'All Products' },
+            { key: 'Holiday', label: '🎄 Holiday & Christmas Cards' },
+            { key: 'Gifts', label: '📅 Calendars & Gifts' },
+            { key: 'Marketing', label: '💼 Business Cards & Print' },
+            { key: 'Signs & Banners', label: '🪧 Signs & Banners' },
+            { key: 'Apparel', label: '👕 Clothing & Apparel' },
+            { key: 'Accessories', label: '🏷️ Labels & Stickers' },
+            { key: 'Wall Art', label: '🖼️ Wall Art & Canvas' }
+          ].map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setSelectedCategoryTab(tab.key)}
+              className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
+                selectedCategoryTab === tab.key
+                  ? 'bg-indigo-600 text-white font-bold shadow'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
         {loading ? (
           <div className="py-16 text-center text-slate-400 flex flex-col items-center justify-center space-y-3">
             <RefreshCw className="w-8 h-8 animate-spin text-indigo-500" />
@@ -604,6 +744,15 @@ export default function AdminProductManager({
 
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end space-x-1.5">
+                          {/* Edit Product Action Button */}
+                          <button
+                            onClick={() => handleOpenEdit(product)}
+                            className="p-1.5 rounded-lg text-amber-300 hover:text-white bg-amber-950/50 hover:bg-amber-600 border border-amber-500/30 transition"
+                            title="Edit Product Details & Customizations"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+
                           {/* Barcode Action Button */}
                           <button
                             onClick={() => setSelectedBarcodeProduct(product)}
@@ -801,10 +950,14 @@ export default function AdminProductManager({
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
                   >
-                    <option value="Apparel">Apparel</option>
-                    <option value="Home & Living">Home & Living</option>
-                    <option value="Wall Art">Wall Art</option>
-                    <option value="Accessories">Accessories</option>
+                    <option value="Holiday">Holiday & Christmas Cards</option>
+                    <option value="Gifts">Calendars & Gifts</option>
+                    <option value="Marketing">Business Cards & Print</option>
+                    <option value="Signs & Banners">Signs, Banners & Posters</option>
+                    <option value="Apparel">Clothing, Bags & Apparel</option>
+                    <option value="Accessories">Labels, Stickers & Packaging</option>
+                    <option value="Wall Art">Wall Art & Fine Canvas</option>
+                    <option value="Home & Living">Home & Living Drinkware</option>
                   </select>
                 </div>
 
@@ -922,6 +1075,181 @@ export default function AdminProductManager({
                 >
                   {actionLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
                   <span>Publish to Storefront</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Edit Product & Customization Modal */}
+      {editingProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-xl p-6 shadow-2xl relative my-8 space-y-4 text-white">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+                  <Edit3 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Edit Product #{editingProduct.id}</h3>
+                  <p className="text-[11px] text-slate-400">Update pricing, description, stock status, and fulfillment partner</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setEditingProduct(null)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateProduct} className="space-y-3.5 text-xs">
+              <div>
+                <label className="block text-slate-300 font-medium mb-1">Product Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={editFormData.title}
+                  onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-medium mb-1">Category</label>
+                  <select
+                    value={editFormData.category}
+                    onChange={(e) => setEditFormData({ ...editFormData, category: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                  >
+                    <option value="Holiday">Holiday & Christmas Cards</option>
+                    <option value="Gifts">Calendars & Gifts</option>
+                    <option value="Marketing">Business Cards & Print</option>
+                    <option value="Signs & Banners">Signs, Banners & Posters</option>
+                    <option value="Apparel">Clothing, Bags & Apparel</option>
+                    <option value="Accessories">Labels, Stickers & Packaging</option>
+                    <option value="Wall Art">Wall Art & Fine Canvas</option>
+                    <option value="Home & Living">Home & Living Drinkware</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-medium mb-1">Base Price (USD) *</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2 text-slate-500 font-bold">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="1"
+                      required
+                      value={editFormData.base_price_usd}
+                      onChange={(e) => setEditFormData({ ...editFormData, base_price_usd: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-medium mb-1">SKU Code *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editFormData.sku}
+                    onChange={(e) => setEditFormData({ ...editFormData, sku: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono uppercase focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-medium mb-1">Supplier / Fulfillment Hub</label>
+                  <input
+                    type="text"
+                    value={editFormData.supplier}
+                    onChange={(e) => setEditFormData({ ...editFormData, supplier: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-medium mb-1">Image / Mockup URL</label>
+                  <div className="flex space-x-2">
+                    <input
+                      type="url"
+                      value={editFormData.image_url}
+                      onChange={(e) => setEditFormData({ ...editFormData, image_url: e.target.value })}
+                      className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                    />
+                    {editFormData.image_url && (
+                      <img src={editFormData.image_url} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0 border border-slate-700" />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-medium mb-1">Product Description</label>
+                <textarea
+                  rows="2"
+                  value={editFormData.description}
+                  onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                ></textarea>
+              </div>
+
+              {/* In-Stock Toggle */}
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-white">Storefront Stock Status</span>
+                  <p className="text-[10px] text-slate-400">Controls whether customers can add this item to their cart</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditFormData({ ...editFormData, in_stock: !editFormData.in_stock })}
+                  className="flex items-center space-x-1.5 text-xs font-bold"
+                >
+                  {editFormData.in_stock ? (
+                    <span className="text-emerald-400 flex items-center space-x-1">
+                      <ToggleRight className="w-6 h-6" />
+                      <span>In Stock & Active</span>
+                    </span>
+                  ) : (
+                    <span className="text-slate-500 flex items-center space-x-1">
+                      <ToggleLeft className="w-6 h-6" />
+                      <span>Out of Stock</span>
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              {/* Price Preview */}
+              <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                <span className="text-slate-400">Converted Local Prices:</span>
+                <div className="flex items-center space-x-3 font-semibold text-white">
+                  <span>🇺🇸 ${parseFloat(editFormData.base_price_usd || 0).toFixed(2)}</span>
+                  <span>🇬🇧 £{(parseFloat(editFormData.base_price_usd || 0) * 0.79).toFixed(2)}</span>
+                  <span>🇨🇦 CA${(parseFloat(editFormData.base_price_usd || 0) * 1.36).toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setEditingProduct(null)}
+                  className="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionLoading}
+                  className="flex items-center space-x-1.5 px-5 py-2 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition shadow-lg"
+                >
+                  {actionLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                  <span>Save Changes</span>
                 </button>
               </div>
             </form>

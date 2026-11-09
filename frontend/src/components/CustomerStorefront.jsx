@@ -7,239 +7,8 @@ import {
   Sun, Moon, SlidersHorizontal, Search, ChevronDown, Layers, Briefcase, Shirt, Coffee, Image, Tag, BadgePercent, Package, Quote
 } from 'lucide-react';
 
-import { DEFAULT_STOREFRONT_CONFIG } from './AdminStorefrontEditor';
-
-const DEFAULT_CATALOG_PRODUCTS = [
-  // 1. Marketing & Business Collateral
-  {
-    id: 1,
-    title: 'Premium Matte Soft-Touch Business Cards (Pack of 100)',
-    description: 'Ultra-thick 16pt cardstock with silky soft-touch lamination and crisp edge-to-edge printing. Sharp text & rich saturated colors.',
-    category: 'Marketing',
-    base_price_usd: 19.99,
-    image_url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-MKT-001',
-    supplier: 'Prodigi / Gelato',
-    in_stock: true
-  },
-  {
-    id: 2,
-    title: 'Tri-Fold Glossy Marketing Brochures (Pack of 50)',
-    description: 'Professional 100lb glossy book paper with double-sided aqueous coating. Precision tri-fold scoring for crisp presentation.',
-    category: 'Marketing',
-    base_price_usd: 28.50,
-    image_url: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-MKT-002',
-    supplier: 'Printify / Gelato',
-    in_stock: true
-  },
-  {
-    id: 3,
-    title: 'Custom Full-Color Promotional Flyers & Postcards (Pack of 100)',
-    description: 'Heavyweight 14pt glossy cardstock. Perfect for brand announcements, event handouts, and domestic direct mail campaigns.',
-    category: 'Marketing',
-    base_price_usd: 22.00,
-    image_url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-MKT-003',
-    supplier: 'SwiftPOD',
-    in_stock: true
-  },
-  {
-    id: 4,
-    title: 'Branded Presentation Pocket Folders (Pack of 25)',
-    description: 'Custom printed presentation folders with dual interior utility pockets and die-cut business card slot.',
-    category: 'Marketing',
-    base_price_usd: 34.00,
-    image_url: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-MKT-004',
-    supplier: 'Prodigi',
-    in_stock: true
-  },
-
-  // 2. Clothing & Bags (Apparel)
-  {
-    id: 5,
-    title: 'Heavyweight Unisex POD Vintage Hoodie',
-    description: 'Premium 350 GSM cotton fleece with custom direct-to-garment (DTG) print. Optimized for US, UK & CA domestic fulfillment.',
-    category: 'Apparel',
-    base_price_usd: 48.00,
-    image_url: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-HD-001',
-    supplier: 'Printify / SwiftPOD',
-    in_stock: true
-  },
-  {
-    id: 6,
-    title: 'Eco-Friendly Organic Cotton Graphic Vintage T-Shirt',
-    description: '100% ringspun combed organic cotton. Sustainable water-based inks printed via local facilities in Detroit, Birmingham & Toronto.',
-    category: 'Apparel',
-    base_price_usd: 26.50,
-    image_url: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-TEE-002',
-    supplier: 'Monster Digital / SwiftPOD',
-    in_stock: true
-  },
-  {
-    id: 7,
-    title: 'Vintage Washed Cotton Twill Embroidered Dad Cap',
-    description: 'Low-profile 6-panel unstructured cap with high-density 3D puff or flat embroidery. Adjustable brass buckle closure.',
-    category: 'Apparel',
-    base_price_usd: 24.00,
-    image_url: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-CAP-004',
-    supplier: 'Spoke Custom / SwiftPOD',
-    in_stock: true
-  },
-  {
-    id: 8,
-    title: 'Heavy-Duty Organic Canvas Tote Bag',
-    description: '12oz 100% certified organic cotton canvas with reinforced cross-stitched handles. Crisp direct-to-film (DTF) color print.',
-    category: 'Apparel',
-    base_price_usd: 18.00,
-    image_url: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-TOT-007',
-    supplier: 'Printful / Gelato',
-    in_stock: true
-  },
-
-  // 3. Canvas & Wall Art
-  {
-    id: 9,
-    title: 'Museum-Grade Stretched Canvas Art (18x24 in)',
-    description: 'Acid-free certified artist canvas with FSC certified pine stretcher bars. UV-resistant giclée pigment printing.',
-    category: 'Wall Art',
-    base_price_usd: 59.00,
-    image_url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-CANV-004',
-    supplier: 'Duplium / Prodigi',
-    in_stock: true
-  },
-  {
-    id: 10,
-    title: 'Archival Museum Matte Fine Art Poster (18x24 in)',
-    description: '250 GSM archival museum-grade paper with smooth matte finish. Vivid pigment-based inks resistant to fading for 100+ years.',
-    category: 'Wall Art',
-    base_price_usd: 32.00,
-    image_url: 'https://images.unsplash.com/photo-1582561424760-0321d75e81fa?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-POS-008',
-    supplier: 'Prodigi',
-    in_stock: true
-  },
-  {
-    id: 11,
-    title: 'Modern Wood Framed Gallery Art Print (12x18 in)',
-    description: 'Solid natural oak or black wood frame with shatterproof optical plexiglass and acid-free gallery matting.',
-    category: 'Wall Art',
-    base_price_usd: 52.00,
-    image_url: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-FRM-009',
-    supplier: 'Gelato / Prodigi',
-    in_stock: true
-  },
-  {
-    id: 12,
-    title: 'Ultra-HD Brushed Metal Photo Art Print (16x20 in)',
-    description: 'Direct-infused dye sublimation on brushed aluminum plate. Waterproof, scratch-resistant with floating wall mount.',
-    category: 'Wall Art',
-    base_price_usd: 68.00,
-    image_url: 'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-MTL-010',
-    supplier: 'Prodigi',
-    in_stock: true
-  },
-
-  // 4. Mugs & Drinkware (Home & Living)
-  {
-    id: 13,
-    title: 'Minimalist Matte Ceramic Coffee Mug (15oz)',
-    description: 'Durable high-gloss ceramic mug, microwave and dishwasher safe. Sublimation printed with vibrant photo-realistic colors.',
-    category: 'Home & Living',
-    base_price_usd: 16.00,
-    image_url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-MUG-003',
-    supplier: 'Prodigi / District Photo',
-    in_stock: true
-  },
-  {
-    id: 14,
-    title: 'Double-Wall Insulated Stainless Steel Tumbler (20oz)',
-    description: 'Vacuum insulated 18/8 food-grade stainless steel with splash-proof lid. Keeps drinks cold for 24h, hot for 8h.',
-    category: 'Home & Living',
-    base_price_usd: 26.50,
-    image_url: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-TMB-011',
-    supplier: 'Printify / SPOKE',
-    in_stock: true
-  },
-  {
-    id: 15,
-    title: 'Rustic Enamel Steel Camp Mug (12oz)',
-    description: 'Lightweight rolled rim steel with genuine campfire enamel finish. Shatterproof design for outdoor and travel use.',
-    category: 'Home & Living',
-    base_price_usd: 19.00,
-    image_url: 'https://images.unsplash.com/photo-1577937927133-66ef06acdf18?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-CMP-012',
-    supplier: 'Gelato / Printful',
-    in_stock: true
-  },
-  {
-    id: 16,
-    title: 'Vacuum Insulated Thermal Sport Water Bottle (24oz)',
-    description: 'Ergonomic stainless steel hydro bottle with leakproof spout lid and carry handle. 360-degree cylindrical UV wrap print.',
-    category: 'Home & Living',
-    base_price_usd: 29.00,
-    image_url: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-BTL-013',
-    supplier: 'Printify / SPOKE',
-    in_stock: true
-  },
-
-  // 5. Labels & Stickers & Packaging (Accessories)
-  {
-    id: 17,
-    title: 'Tough Armor Custom Phone Case',
-    description: 'Dual-layer polycarbonate shell with shock-absorbing TPU liner. Available for iPhone and Samsung Galaxy series.',
-    category: 'Accessories',
-    base_price_usd: 22.00,
-    image_url: 'https://images.unsplash.com/photo-1586105251261-72a756497a11?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-CASE-005',
-    supplier: 'Printful / Spoke Custom',
-    in_stock: true
-  },
-  {
-    id: 18,
-    title: 'Custom Die-Cut Vinyl Stickers (Pack of 50)',
-    description: 'Thick 6mil weatherproof vinyl with glossy UV laminate. Laser contour cut precisely to your custom artwork shape.',
-    category: 'Accessories',
-    base_price_usd: 14.99,
-    image_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-STK-014',
-    supplier: 'StickerApp / Gelato',
-    in_stock: true
-  },
-  {
-    id: 19,
-    title: 'Custom Product Roll Labels (Roll of 250)',
-    description: 'Waterproof BOPP material with metallic or matte finish. Ideal for custom jar labels, packaging seals, and branded boxes.',
-    category: 'Accessories',
-    base_price_usd: 36.00,
-    image_url: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-LBL-015',
-    supplier: 'Printful / Prodigi',
-    in_stock: true
-  },
-  {
-    id: 20,
-    title: 'Custom Printed Corrugated Shipping Mailer Boxes (Pack of 25)',
-    description: 'Durable E-flute corrugated cardboard printed inside and out with eco-friendly water-based inks. Instant tab lock.',
-    category: 'Accessories',
-    base_price_usd: 45.00,
-    image_url: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=600&q=80',
-    sku: 'POD-BOX-016',
-    supplier: 'Packlane / Gelato',
-    in_stock: true
-  }
-];
+import { DEFAULT_STOREFRONT_CONFIG } from '../config/storefrontConfig';
+import { DEFAULT_CATALOG_PRODUCTS } from '../config/catalogProducts';
 
 export default function CustomerStorefront({ 
   currentMarket, 
@@ -659,37 +428,74 @@ export default function CustomerStorefront({
     if (activeCategory === 'All') {
       list = [...products];
     } else if (activeCategory.toLowerCase() === 'deals') {
-      list = [...products];
+      list = products.filter((p) => 
+        p.base_price_usd < 25 || 
+        (p.tags && (p.tags.includes('holiday') || p.tags.includes('stickers') || p.tags.includes('business cards'))) ||
+        p.category === 'Holiday'
+      );
     } else if (activeCategory.toLowerCase() === 'holiday') {
       list = products.filter((p) => 
-        p.category.toLowerCase().includes('marketing') || 
-        p.title.toLowerCase().includes('card') || 
-        p.title.toLowerCase().includes('flyer') ||
-        p.title.toLowerCase().includes('poster')
+        p.category.toLowerCase() === 'holiday' || 
+        (p.tags && p.tags.includes('holiday')) ||
+        p.title.toLowerCase().includes('holiday') || 
+        p.title.toLowerCase().includes('christmas') ||
+        p.title.toLowerCase().includes('card')
       );
     } else if (activeCategory.toLowerCase() === 'gifts') {
       list = products.filter((p) => 
+        p.category.toLowerCase() === 'gifts' ||
         p.category.toLowerCase().includes('home') || 
         p.category.toLowerCase().includes('wall') ||
+        (p.tags && (p.tags.includes('gifts') || p.tags.includes('calendar') || p.tags.includes('mug'))) ||
+        p.title.toLowerCase().includes('calendar') ||
         p.title.toLowerCase().includes('mug') || 
+        p.title.toLowerCase().includes('tumbler') ||
         p.title.toLowerCase().includes('tote') ||
         p.title.toLowerCase().includes('canvas')
+      );
+    } else if (activeCategory.toLowerCase().includes('sign') || activeCategory.toLowerCase().includes('banner')) {
+      list = products.filter((p) => 
+        p.category.toLowerCase().includes('sign') ||
+        p.category.toLowerCase().includes('banner') ||
+        (p.tags && (p.tags.includes('signs') || p.tags.includes('banner') || p.tags.includes('yard sign'))) ||
+        p.title.toLowerCase().includes('banner') ||
+        p.title.toLowerCase().includes('sign')
+      );
+    } else if (activeCategory.toLowerCase() === 'apparel') {
+      list = products.filter((p) => 
+        p.category.toLowerCase() === 'apparel' ||
+        (p.tags && (p.tags.includes('apparel') || p.tags.includes('clothing') || p.tags.includes('hoodie'))) ||
+        p.title.toLowerCase().includes('hoodie') ||
+        p.title.toLowerCase().includes('shirt') ||
+        p.title.toLowerCase().includes('cap')
+      );
+    } else if (activeCategory.toLowerCase() === 'accessories') {
+      list = products.filter((p) => 
+        p.category.toLowerCase() === 'accessories' ||
+        (p.tags && (p.tags.includes('accessories') || p.tags.includes('stickers') || p.tags.includes('packaging'))) ||
+        p.title.toLowerCase().includes('sticker') ||
+        p.title.toLowerCase().includes('box') ||
+        p.title.toLowerCase().includes('case') ||
+        p.title.toLowerCase().includes('label')
       );
     } else {
       list = products.filter((p) => 
         p.category.toLowerCase().includes(activeCategory.toLowerCase()) ||
-        p.title.toLowerCase().includes(activeCategory.toLowerCase())
+        p.title.toLowerCase().includes(activeCategory.toLowerCase()) ||
+        (p.tags && p.tags.some(t => t.toLowerCase().includes(activeCategory.toLowerCase())))
       );
     }
 
-    // Vista Live Search query filter
+    // Vista Live Search query filter (smart keyword and exact matching)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      list = list.filter((p) => 
-        (p.title && p.title.toLowerCase().includes(q)) ||
-        (p.category && p.category.toLowerCase().includes(q)) ||
-        (p.description && p.description.toLowerCase().includes(q))
-      );
+      const queryWords = q.replace(/[()",.\-–—/]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+      
+      list = list.filter((p) => {
+        const text = `${p.title} ${p.category} ${p.description} ${(p.tags || []).join(' ')} ${p.sku}`.toLowerCase();
+        if (text.includes(q)) return true;
+        return queryWords.some(w => text.includes(w));
+      });
     }
 
     if (sortBy === 'price_asc') {
@@ -697,7 +503,6 @@ export default function CustomerStorefront({
     } else if (sortBy === 'price_desc') {
       list.sort((a, b) => b.base_price_usd - a.base_price_usd);
     } else if (sortBy === 'popular') {
-      // Sort by popularity index or ratings
       list.sort((a, b) => (b.id % 5) - (a.id % 5) || b.id - a.id);
     } else if (sortBy === 'newest') {
       list.sort((a, b) => b.id - a.id);
@@ -878,13 +683,16 @@ export default function CustomerStorefront({
 
         {/* VistaPrint Full-Width Mega Menu Bar */}
         {cfg.showMegaMenu !== false && (
-          <div className={`border-t relative ${
-            isLight ? 'bg-slate-50/90 border-slate-200/90' : 'bg-slate-950/80 border-slate-800'
-          }`}>
+          <div 
+            className={`border-t relative ${
+              isLight ? 'bg-slate-50/95 border-slate-200/90' : 'bg-slate-950/80 border-slate-800'
+            }`}
+            onMouseLeave={() => setActiveMegaMenu(null)}
+          >
             <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto text-xs font-semibold py-1">
-              <div className="flex items-center space-x-1 sm:space-x-2">
+              <div className="flex items-center space-x-1 sm:space-x-1.5">
                 <button
-                  onClick={() => { setActiveCategory('All'); setSearchQuery(''); }}
+                  onClick={() => { setActiveCategory('All'); setSearchQuery(''); setActiveMegaMenu(null); }}
                   className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap ${
                     activeCategory === 'All' && !searchQuery
                       ? isLight ? 'bg-slate-900 text-white font-bold' : 'bg-indigo-600 text-white font-bold'
@@ -901,16 +709,15 @@ export default function CustomerStorefront({
                     <div 
                       key={idx}
                       className="relative"
-                      onMouseEnter={() => setActiveMegaMenu(idx)}
-                      onMouseLeave={() => setActiveMegaMenu(null)}
                     >
                       <button
+                        onMouseEnter={() => setActiveMegaMenu(idx)}
                         onClick={() => {
                           setActiveCategory(menu.categoryKey);
                           setActiveMegaMenu(isOpen ? null : idx);
                         }}
                         className={`px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 whitespace-nowrap ${
-                          isCatActive
+                          isOpen || isCatActive
                             ? isLight ? 'bg-slate-900 text-white font-bold' : 'bg-indigo-600 text-white font-bold'
                             : isLight ? 'text-slate-700 hover:bg-slate-200/60' : 'text-slate-300 hover:bg-slate-800'
                         }`}
@@ -927,52 +734,6 @@ export default function CustomerStorefront({
                         )}
                         <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                       </button>
-
-                      {/* Vista Mega Menu Dropdown */}
-                      {isOpen && (
-                        <div className={`absolute top-full left-0 z-50 w-72 p-3.5 rounded-2xl shadow-2xl border transition-all animate-in fade-in slide-in-from-top-1 ${
-                          isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-slate-800 text-white'
-                        }`}>
-                          <div className="text-[11px] font-bold text-indigo-500 uppercase tracking-wider mb-2 flex items-center justify-between">
-                            <span>Popular {menu.title}</span>
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400">Domestic POD</span>
-                          </div>
-                          <div className="space-y-1">
-                            {(menu.subcategories || []).map((sub, sIdx) => (
-                              <button
-                                key={sIdx}
-                                onClick={() => {
-                                  setActiveCategory(menu.categoryKey);
-                                  setSearchQuery(sub);
-                                  setActiveMegaMenu(null);
-                                  const el = document.getElementById('catalog-grid');
-                                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                }}
-                                className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition flex items-center justify-between ${
-                                  isLight ? 'hover:bg-slate-100 text-slate-700 hover:text-slate-900' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
-                                }`}
-                              >
-                                <span>{sub}</span>
-                                <ArrowRight className="w-3 h-3 opacity-40" />
-                              </button>
-                            ))}
-                          </div>
-                          <div className="pt-2.5 mt-2.5 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center text-[10px]">
-                            <button
-                              onClick={() => {
-                                setActiveCategory(menu.categoryKey);
-                                setSearchQuery('');
-                                setActiveMegaMenu(null);
-                                const el = document.getElementById('catalog-grid');
-                                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                              }}
-                              className="font-bold text-indigo-600 hover:underline"
-                            >
-                              Explore all in {menu.title} →
-                            </button>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   );
                 })}
@@ -989,6 +750,128 @@ export default function CustomerStorefront({
                 </div>
               )}
             </div>
+
+            {/* VistaPrint Full-Width Mega Flyout Panel */}
+            {activeMegaMenu !== null && (cfg.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories)[activeMegaMenu] && (() => {
+              const currentMenu = (cfg.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories)[activeMegaMenu];
+              const cols = currentMenu.columns || [
+                { heading: 'Popular Items', items: currentMenu.subcategories || [] }
+              ];
+              const promo = currentMenu.promo;
+
+              return (
+                <div 
+                  className={`absolute top-full left-0 right-0 z-50 border-b border-t shadow-2xl backdrop-blur-2xl transition-all duration-200 animate-in fade-in slide-in-from-top-1 ${
+                    isLight 
+                      ? 'bg-white/98 border-slate-200 text-slate-900 shadow-slate-300/60' 
+                      : 'bg-slate-900/98 border-slate-800 text-white shadow-black/80'
+                  }`}
+                  onMouseEnter={() => setActiveMegaMenu(activeMegaMenu)}
+                  onMouseLeave={() => setActiveMegaMenu(null)}
+                >
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                      {/* Subcategory Columns */}
+                      {cols.map((col, cIdx) => (
+                        <div key={cIdx} className="space-y-2.5">
+                          <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-500 pb-1.5 border-b border-slate-200 dark:border-slate-800">
+                            {col.heading}
+                          </h4>
+                          <ul className="space-y-1">
+                            {col.items.map((item, iIdx) => (
+                              <li key={iIdx}>
+                                <button
+                                  onClick={() => {
+                                    setActiveCategory(currentMenu.categoryKey);
+                                    setSearchQuery(item);
+                                    setActiveMegaMenu(null);
+                                    const el = document.getElementById('catalog-grid');
+                                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                  }}
+                                  className={`text-xs text-left w-full py-1.5 px-2 rounded-lg transition flex items-center justify-between group ${
+                                    isLight 
+                                      ? 'text-slate-700 hover:text-indigo-600 hover:bg-slate-100' 
+                                      : 'text-slate-300 hover:text-indigo-400 hover:bg-slate-800'
+                                  }`}
+                                >
+                                  <span className="font-medium group-hover:translate-x-0.5 transition-transform">{item}</span>
+                                  <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-indigo-500 ml-1 shrink-0" />
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+
+                      {/* Featured Promotional Visual Card */}
+                      {promo && (
+                        <div className={`p-4 rounded-2xl border flex flex-col justify-between shadow-sm ${
+                          isLight ? 'bg-gradient-to-br from-indigo-50/60 via-white to-indigo-50/20 border-indigo-100' : 'bg-gradient-to-br from-indigo-950/40 to-slate-900 border-indigo-900/40'
+                        }`}>
+                          <div>
+                            <div className="relative aspect-[16/10] rounded-xl overflow-hidden mb-3 shadow-md">
+                              <img src={promo.image} alt={promo.title} className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
+                              {promo.code && (
+                                <span className="absolute top-2 left-2 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-500 text-white shadow-md">
+                                  CODE: {promo.code}
+                                </span>
+                              )}
+                            </div>
+                            <h4 className="text-sm font-bold text-slate-900 dark:text-white leading-snug">
+                              {promo.title}
+                            </h4>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                              {promo.subtitle}
+                            </p>
+                          </div>
+
+                          <div className="pt-3 mt-3 border-t border-slate-200/60 dark:border-slate-800">
+                            <button
+                              onClick={() => {
+                                setActiveCategory(currentMenu.categoryKey);
+                                setSearchQuery('');
+                                setActiveMegaMenu(null);
+                                const el = document.getElementById('catalog-grid');
+                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                              }}
+                              className="w-full py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow"
+                            >
+                              <span>{promo.ctaText || 'Shop All'}</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Bottom Quick Row */}
+                    <div className="pt-3 mt-4 border-t border-slate-200/70 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+                      <div className="flex items-center space-x-4">
+                        <span className="flex items-center space-x-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>100% Domestic Fulfillment in USA, UK & CA</span>
+                        </span>
+                        <span>•</span>
+                        <span>Dispatched within 24-48 Hours</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setActiveCategory(currentMenu.categoryKey);
+                          setSearchQuery('');
+                          setActiveMegaMenu(null);
+                          const el = document.getElementById('catalog-grid');
+                          if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className="font-bold text-indigo-600 hover:underline flex items-center space-x-1"
+                      >
+                        <span>View all {currentMenu.title} products</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
       </nav>

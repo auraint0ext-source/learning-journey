@@ -46,6 +46,28 @@ def create_product(product_in: ProductBase, db: Session = Depends(get_db)):
     db.refresh(new_product)
     return new_product
 
+@router.put("/products/{product_id}", response_model=ProductResponse)
+def update_product(product_id: int, product_in: ProductBase, db: Session = Depends(get_db)):
+    """
+    Updates an existing Print-on-Demand product details, pricing, stock, or description.
+    """
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    product.title = product_in.title
+    product.description = product_in.description
+    product.category = product_in.category
+    product.base_price_usd = product_in.base_price_usd
+    product.image_url = product_in.image_url
+    product.sku = product_in.sku
+    product.supplier = product_in.supplier
+    product.in_stock = product_in.in_stock
+    
+    db.commit()
+    db.refresh(product)
+    return product
+
 @router.delete("/products/{product_id}")
 def delete_product(product_id: int, db: Session = Depends(get_db)):
     """
