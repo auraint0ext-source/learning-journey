@@ -654,9 +654,33 @@ export default function CustomerStorefront({
   };
 
   const filteredProducts = React.useMemo(() => {
-    let list = activeCategory === 'All' 
-      ? [...products] 
-      : products.filter((p) => p.category.toLowerCase().includes(activeCategory.toLowerCase()));
+    let list = [...products];
+
+    if (activeCategory === 'All') {
+      list = [...products];
+    } else if (activeCategory.toLowerCase() === 'deals') {
+      list = [...products];
+    } else if (activeCategory.toLowerCase() === 'holiday') {
+      list = products.filter((p) => 
+        p.category.toLowerCase().includes('marketing') || 
+        p.title.toLowerCase().includes('card') || 
+        p.title.toLowerCase().includes('flyer') ||
+        p.title.toLowerCase().includes('poster')
+      );
+    } else if (activeCategory.toLowerCase() === 'gifts') {
+      list = products.filter((p) => 
+        p.category.toLowerCase().includes('home') || 
+        p.category.toLowerCase().includes('wall') ||
+        p.title.toLowerCase().includes('mug') || 
+        p.title.toLowerCase().includes('tote') ||
+        p.title.toLowerCase().includes('canvas')
+      );
+    } else {
+      list = products.filter((p) => 
+        p.category.toLowerCase().includes(activeCategory.toLowerCase()) ||
+        p.title.toLowerCase().includes(activeCategory.toLowerCase())
+      );
+    }
 
     // Vista Live Search query filter
     if (searchQuery.trim()) {
@@ -885,13 +909,22 @@ export default function CustomerStorefront({
                           setActiveCategory(menu.categoryKey);
                           setActiveMegaMenu(isOpen ? null : idx);
                         }}
-                        className={`px-3 py-1.5 rounded-lg transition flex items-center space-x-1 whitespace-nowrap ${
+                        className={`px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 whitespace-nowrap ${
                           isCatActive
                             ? isLight ? 'bg-slate-900 text-white font-bold' : 'bg-indigo-600 text-white font-bold'
                             : isLight ? 'text-slate-700 hover:bg-slate-200/60' : 'text-slate-300 hover:bg-slate-800'
                         }`}
                       >
                         <span>{menu.title}</span>
+                        {menu.badge && (
+                          <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full leading-none ${
+                            menu.badge.includes('%') || menu.badge.toLowerCase().includes('sale')
+                              ? 'bg-rose-500/20 text-rose-500 border border-rose-500/30'
+                              : 'bg-amber-500/20 text-amber-500 border border-amber-500/30'
+                          }`}>
+                            {menu.badge}
+                          </span>
+                        )}
                         <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                       </button>
 
@@ -1474,12 +1507,17 @@ export default function CustomerStorefront({
           {/* Category Filter Pills */}
           {cfg.showCategoryPills !== false && (
             <div className="flex items-center space-x-2 overflow-x-auto pb-1 max-w-full">
-              {['All', 'Marketing', 'Apparel', 'Home & Living', 'Wall Art', 'Accessories'].map((cat) => {
-                const isSelected = activeCategory === cat;
+              {['All', 'Deals', 'Holiday Cards', 'Business Cards', 'Apparel', 'Gifts & Home', 'Wall Art', 'Packaging'].map((cat) => {
+                const catKey = cat === 'Holiday Cards' ? 'Holiday' 
+                  : cat === 'Business Cards' ? 'Marketing'
+                  : cat === 'Gifts & Home' ? 'Gifts'
+                  : cat === 'Packaging' ? 'Accessories'
+                  : cat;
+                const isSelected = activeCategory.toLowerCase() === catKey.toLowerCase();
                 return (
                   <button
                     key={cat}
-                    onClick={() => setActiveCategory(cat)}
+                    onClick={() => setActiveCategory(catKey)}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap shadow-xs ${
                       isSelected
                         ? isLight

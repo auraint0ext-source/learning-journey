@@ -49,7 +49,18 @@ export default function App() {
     if (saved) {
       try { 
         const parsed = JSON.parse(saved);
-        return { ...DEFAULT_STOREFRONT_CONFIG, ...parsed, heroAlignment: 'left' };
+        // Ensure latest VistaPrint Mega Menu v2 categories are applied
+        const megaMenuCats = (!parsed.megaMenuVersion || parsed.megaMenuVersion < 2)
+          ? DEFAULT_STOREFRONT_CONFIG.megaMenuCategories
+          : (parsed.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories);
+
+        return { 
+          ...DEFAULT_STOREFRONT_CONFIG, 
+          ...parsed, 
+          megaMenuVersion: 2,
+          megaMenuCategories: megaMenuCats,
+          heroAlignment: 'left' 
+        };
       } catch(e) {}
     }
     return DEFAULT_STOREFRONT_CONFIG;

@@ -4,7 +4,8 @@ import {
   Sliders, Sparkles, CheckCircle2, Save, RotateCcw, Eye, 
   Layers, MessageSquare, Truck, ShieldCheck, Star, Palette,
   Smartphone, Monitor, Megaphone, Shield, RefreshCw, Search,
-  Briefcase, Shirt, Coffee, Image, Tag, BadgePercent, Check, Package
+  Briefcase, Shirt, Coffee, Image, Tag, BadgePercent, Check, Package,
+  Plus, Trash2, ArrowUp, ArrowDown, ChevronUp, ChevronDown
 } from 'lucide-react';
 
 export const DEFAULT_STOREFRONT_CONFIG = {
@@ -79,31 +80,63 @@ export const DEFAULT_STOREFRONT_CONFIG = {
   showSearchBar: true,
   searchPlaceholder: 'Search 100+ custom products: Business cards, hoodies, mugs, canvases...',
   showMegaMenu: true,
+  megaMenuVersion: 2,
   megaMenuCategories: [
     {
-      title: 'Marketing & Business',
+      id: 'menu-deals',
+      title: 'Deals',
+      categoryKey: 'Deals',
+      badge: '25% OFF',
+      subcategories: ['Holiday Specials (25% Off)', 'Bulk Wholesale Tiers', 'Clearance & Overstock', 'Free Shipping Packs']
+    },
+    {
+      id: 'menu-holiday',
+      title: 'Holiday & Christmas Cards',
+      categoryKey: 'Holiday',
+      badge: 'Festive',
+      subcategories: ['Custom Christmas Cards', 'Holiday Family Photo Cards', 'New Year Greeting Cards', 'Gold Foil Accent Cards']
+    },
+    {
+      id: 'menu-calendars',
+      title: 'Calendars & Gifts',
+      categoryKey: 'Gifts',
+      badge: '',
+      subcategories: ['Custom Wall Calendars', 'Desk Easel Calendars', 'Personalized Photo Mugs', 'Gallery Stretched Canvas', 'Custom Printed Totes']
+    },
+    {
+      id: 'menu-business-cards',
+      title: 'Business Cards',
       categoryKey: 'Marketing',
-      subcategories: ['Business Cards', 'Postcards & Flyers', 'Brochures', 'Presentation Folders']
+      badge: 'Popular',
+      subcategories: ['Standard Matte Business Cards', 'Premium Soft-Touch 16pt', 'Raised Foil & Embossed Cards', 'Square & Rounded Corner Cards']
     },
     {
-      title: 'Clothing & Bags',
+      id: 'menu-postcards',
+      title: 'Postcards & Print Advertising',
+      categoryKey: 'Marketing',
+      badge: '',
+      subcategories: ['Promotional Direct Mail Postcards', 'Tri-Fold Marketing Brochures', 'Full-Color Event Flyers', 'Branded Presentation Folders']
+    },
+    {
+      id: 'menu-clothing',
+      title: 'Clothing, Bags & Apparel',
       categoryKey: 'Apparel',
-      subcategories: ['Heavyweight Hoodies', 'Vintage T-Shirts', 'Embroidered Caps', 'Canvas Tote Bags']
+      badge: '',
+      subcategories: ['Heavyweight Vintage Hoodies', 'Eco Organic Cotton Graphic Tees', 'Embroidered Dad Caps', 'Heavy-Duty Canvas Tote Bags']
     },
     {
-      title: 'Canvas & Wall Art',
+      id: 'menu-signs',
+      title: 'Signs, Banners & Posters',
       categoryKey: 'Wall Art',
-      subcategories: ['Gallery Stretched Canvas', 'Archival Matte Posters', 'Framed Photo Art', 'Metal Prints']
+      badge: '',
+      subcategories: ['Archival Museum Matte Posters', 'Modern Wood Framed Gallery Prints', 'Museum Stretched Canvas Art', 'Ultra-HD Brushed Metal Prints']
     },
     {
-      title: 'Mugs & Drinkware',
-      categoryKey: 'Home & Living',
-      subcategories: ['Ceramic Coffee Mugs', 'Stainless Tumblers', 'Camp Mugs', 'Insulated Bottles']
-    },
-    {
-      title: 'Labels & Stickers',
+      id: 'menu-packaging',
+      title: 'Labels, Stickers & Packaging',
       categoryKey: 'Accessories',
-      subcategories: ['Die-Cut Vinyl Stickers', 'Roll Labels', 'Shipping Mailer Boxes', 'Packaging Tape']
+      badge: '',
+      subcategories: ['Contour Die-Cut Vinyl Stickers', 'Custom Product Roll Labels', 'Corrugated Shipping Mailer Boxes', 'Tough Armor Custom Phone Cases']
     }
   ],
 
@@ -297,6 +330,51 @@ export default function AdminStorefrontEditor({
       cats[index] = { ...cats[index], [field]: value };
       return { ...prev, megaMenuCategories: cats };
     });
+  };
+
+  const handleAddMenuItem = () => {
+    setConfig(prev => {
+      const cats = [...(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories)];
+      const newItem = {
+        id: `menu-${Date.now()}`,
+        title: 'New Custom Menu',
+        categoryKey: 'Marketing',
+        badge: '',
+        subcategories: ['Featured Items', 'Bestsellers', 'New Arrivals']
+      };
+      return { ...prev, megaMenuCategories: [...cats, newItem] };
+    });
+    showToast('New menu item added! You can now customize title, category & sub-items.');
+  };
+
+  const handleDeleteMenuItem = (index) => {
+    setConfig(prev => {
+      const cats = [...(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories)];
+      cats.splice(index, 1);
+      return { ...prev, megaMenuCategories: cats };
+    });
+    showToast('Menu item removed.');
+  };
+
+  const handleMoveMenuItem = (index, direction) => {
+    setConfig(prev => {
+      const cats = [...(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories)];
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= cats.length) return prev;
+      const temp = cats[index];
+      cats[index] = cats[targetIndex];
+      cats[targetIndex] = temp;
+      return { ...prev, megaMenuCategories: cats };
+    });
+  };
+
+  const handleResetMenuToDefaults = () => {
+    setConfig(prev => ({
+      ...prev,
+      megaMenuVersion: 2,
+      megaMenuCategories: DEFAULT_STOREFRONT_CONFIG.megaMenuCategories
+    }));
+    showToast('Mega Menu restored to VistaPrint standard categories.');
   };
 
   const handlePromoSlideChange = (index, field, value) => {
@@ -740,39 +818,178 @@ export default function AdminStorefrontEditor({
                 </div>
 
                 {config.showMegaMenu !== false && (
-                  <div className="space-y-3 pt-2">
-                    <label className="block text-[11px] text-slate-400 font-semibold">
-                      Configure Mega Menu Categories & Sub-items:
-                    </label>
-                    <div className="space-y-2.5">
-                      {(config.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories).map((cat, idx) => (
-                        <div key={idx} className="p-3 bg-slate-900 border border-slate-800 rounded-lg space-y-2 text-xs">
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-indigo-300">Category #{idx + 1}</span>
-                            <span className="text-[10px] text-slate-500 font-mono">Key: {cat.categoryKey}</span>
-                          </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <label className="block text-[10px] text-slate-400 mb-0.5">Display Title:</label>
-                              <input
-                                type="text"
-                                value={cat.title}
-                                onChange={(e) => handleMegaMenuCategoryChange(idx, 'title', e.target.value)}
-                                className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-white text-xs"
-                              />
+                  <div className="space-y-4 pt-2">
+                    {/* WordPress-Style Menu Actions Bar */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-slate-900 border border-slate-800 rounded-xl">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs font-bold text-white">
+                          Navigation Menu Items ({(config.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories).length})
+                        </span>
+                        <span className="text-[10px] text-indigo-400 bg-indigo-950/60 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">
+                          WordPress Style
+                        </span>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <button
+                          type="button"
+                          onClick={handleResetMenuToDefaults}
+                          className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center space-x-1"
+                          title="Restore default VistaPrint menu structure"
+                        >
+                          <RotateCcw className="w-3 h-3 text-slate-400" />
+                          <span>Reset Vista Defaults</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleAddMenuItem}
+                          className="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/30 transition flex items-center space-x-1.5"
+                          title="Add a new custom menu item"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>+ Add Menu Item</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Draggable / Reorderable Menu Cards */}
+                    <div className="space-y-3">
+                      {(config.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories).map((cat, idx) => {
+                        const totalCats = (config.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories).length;
+                        return (
+                          <div 
+                            key={cat.id || idx} 
+                            className="p-3.5 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl space-y-3 text-xs transition shadow-sm"
+                          >
+                            {/* Card Header: Reorder Up/Down, Index, Title, and Delete Button */}
+                            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                              <div className="flex items-center space-x-2">
+                                {/* Order Controls (WordPress style) */}
+                                <div className="flex items-center space-x-0.5 bg-slate-950 rounded border border-slate-800 p-0.5">
+                                  <button
+                                    type="button"
+                                    disabled={idx === 0}
+                                    onClick={() => handleMoveMenuItem(idx, -1)}
+                                    className={`p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition ${idx === 0 ? 'opacity-30 cursor-not-allowed' : ''}`}
+                                    title="Move item up (বাম দিকে নিন)"
+                                  >
+                                    <ArrowUp className="w-3 h-3" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    disabled={idx === totalCats - 1}
+                                    onClick={() => handleMoveMenuItem(idx, 1)}
+                                    className={`p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition ${idx === totalCats - 1 ? 'opacity-30 cursor-not-allowed' : ''}`}
+                                    title="Move item down (ডান দিকে নিন)"
+                                  >
+                                    <ArrowDown className="w-3 h-3" />
+                                  </button>
+                                </div>
+
+                                <span className="font-mono text-[10px] text-slate-500">#{idx + 1}</span>
+                                <span className="font-extrabold text-white text-xs">{cat.title}</span>
+
+                                {cat.badge && (
+                                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                    {cat.badge}
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="flex items-center space-x-2">
+                                <span className="text-[10px] text-slate-500 font-mono hidden sm:inline">
+                                  Key: {cat.categoryKey}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteMenuItem(idx)}
+                                  className="p-1 rounded text-rose-400 hover:text-rose-300 hover:bg-rose-950/50 transition border border-rose-900/30"
+                                  title={`Delete menu item "${cat.title}"`}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </div>
+
+                            {/* Card Inputs */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                              <div>
+                                <label className="block text-[10px] text-slate-400 mb-1 font-semibold">
+                                  Menu Title (মেনুর নাম):
+                                </label>
+                                <input
+                                  type="text"
+                                  value={cat.title}
+                                  onChange={(e) => handleMegaMenuCategoryChange(idx, 'title', e.target.value)}
+                                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-bold text-xs focus:border-indigo-500 focus:outline-none"
+                                  placeholder="e.g. Deals, Holiday Cards"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[10px] text-slate-400 mb-1 font-semibold">
+                                  Category Key (ফিল্টার কিওয়ার্ড):
+                                </label>
+                                <select
+                                  value={cat.categoryKey}
+                                  onChange={(e) => handleMegaMenuCategoryChange(idx, 'categoryKey', e.target.value)}
+                                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 text-xs focus:border-indigo-500 focus:outline-none"
+                                >
+                                  <option value="Deals">🔥 Deals (প্রোমো ছাড়)</option>
+                                  <option value="Holiday">🎄 Holiday Cards (ক্রিসমাস ও হলিডে)</option>
+                                  <option value="Gifts">🎁 Gifts & Calendars (ক্যালেন্ডার ও গিফট)</option>
+                                  <option value="Marketing">💼 Marketing & Business (বিজনেস কার্ড)</option>
+                                  <option value="Apparel">👕 Clothing & Bags (টি-শার্ট ও হুডি)</option>
+                                  <option value="Wall Art">🖼️ Signs & Wall Art (ব্যানার ও আর্ট)</option>
+                                  <option value="Accessories">🏷️ Labels & Stickers (স্টিকার ও বক্স)</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                <label className="block text-[10px] text-slate-400 mb-1 font-semibold">
+                                  Badge Label (ঐচ্ছিক ব্যাজ):
+                                </label>
+                                <input
+                                  type="text"
+                                  value={cat.badge || ''}
+                                  onChange={(e) => handleMegaMenuCategoryChange(idx, 'badge', e.target.value)}
+                                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-amber-300 text-xs focus:border-indigo-500 focus:outline-none font-semibold"
+                                  placeholder="e.g. 25% OFF, Sale, Hot"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Subcategories Editor */}
                             <div>
-                              <label className="block text-[10px] text-slate-400 mb-0.5">Subcategories (comma-separated):</label>
+                              <div className="flex items-center justify-between mb-1">
+                                <label className="text-[10px] text-slate-400 font-semibold">
+                                  Dropdown Subcategories (সাবমেনু আইটেমসমূহ - কমা দিয়ে লিখুন):
+                                </label>
+                                <span className="text-[9px] text-slate-500">{(cat.subcategories || []).length} sub-items</span>
+                              </div>
                               <input
                                 type="text"
                                 value={(cat.subcategories || []).join(', ')}
-                                onChange={(e) => handleMegaMenuCategoryChange(idx, 'subcategories', e.target.value.split(',').map(s => s.trim()))}
-                                className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-slate-200 text-xs"
+                                onChange={(e) => handleMegaMenuCategoryChange(idx, 'subcategories', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 text-xs focus:border-indigo-500 focus:outline-none"
+                                placeholder="e.g. Christmas Cards, Photo Cards, New Year Cards"
                               />
+
+                              {/* Live Pills of Subcategories */}
+                              {(cat.subcategories || []).length > 0 && (
+                                <div className="flex flex-wrap gap-1.5 pt-1.5">
+                                  {(cat.subcategories || []).map((sub, sIdx) => (
+                                    <span key={sIdx} className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[10px] bg-slate-950 border border-slate-800 text-slate-300">
+                                      <span>{sub}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -1584,9 +1801,14 @@ export default function AdminStorefrontEditor({
               <div className={`px-2 py-1 border-b flex items-center space-x-2.5 text-[8px] font-semibold overflow-x-auto ${
                 storeTheme === 'light' ? 'bg-slate-50 text-slate-700 border-slate-200' : 'bg-slate-900/80 text-slate-300 border-slate-800'
               }`}>
-                {(config.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories).slice(0, 4).map((c, i) => (
-                  <span key={i} className="whitespace-nowrap hover:text-indigo-400 cursor-pointer">
-                    {c.title}
+                {(config.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories).slice(0, 6).map((c, i) => (
+                  <span key={i} className="whitespace-nowrap hover:text-indigo-400 cursor-pointer flex items-center space-x-1">
+                    <span>{c.title}</span>
+                    {c.badge && (
+                      <span className="text-[6px] px-1 py-0.2 rounded-full font-bold bg-amber-500/20 text-amber-500">
+                        {c.badge}
+                      </span>
+                    )}
                   </span>
                 ))}
               </div>
