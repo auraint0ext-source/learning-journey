@@ -163,6 +163,25 @@ export default function AdminStorefrontEditor({
 
         {/* Action Controls */}
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Quick Toggle 3D Luxury Background */}
+          <button
+            type="button"
+            onClick={() => {
+              const nextVal = config.enableLuxury3dBackground === false ? true : false;
+              handleFieldChange('enableLuxury3dBackground', nextVal);
+              showToast(nextVal ? '3D Luxury Background Enabled! Click Publish Changes to apply.' : '3D Luxury Background Disabled.');
+            }}
+            className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition shadow-sm ${
+              config.enableLuxury3dBackground !== false
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 hover:bg-amber-500/30'
+                : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+            }`}
+            title="Toggle 3D Luxury Boutique Parallax Background On/Off"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>3D Background: {config.enableLuxury3dBackground !== false ? 'ON' : 'OFF'}</span>
+          </button>
+
           <button
             type="button"
             onClick={handleReset}
@@ -198,6 +217,7 @@ export default function AdminStorefrontEditor({
       <div className="flex space-x-1.5 bg-slate-900 p-1.5 rounded-2xl border border-slate-800 overflow-x-auto">
         {[
           { id: 'hero', label: 'Hero & Titles (শিরোনাম)', icon: Type },
+          { id: 'background', label: '✨ 3D Luxury Background (থ্রিডি ব্যাকগ্রাউন্ড)', icon: Sparkles },
           { id: 'megamenu', label: 'Mega Menu & Search (মেনু ও সার্চ)', icon: Layers },
           { id: 'promoslider', label: 'Promo Slider & SAVE 25% (স্লাইডার ও ছাড়)', icon: BadgePercent },
           { id: 'vistaspec', label: 'Categories & Bulk Tiers (ভিস্তা ক্যাটাগরি ও ছাড়)', icon: Grid },
@@ -206,7 +226,6 @@ export default function AdminStorefrontEditor({
           { id: 'badges', label: 'Trust Badges & Couriers', icon: ShieldCheck },
           { id: 'reviews', label: 'Customer Reviews', icon: Star },
           { id: 'footer', label: 'Footer & Branding', icon: Sliders },
-          { id: 'background', label: '3D Luxury Background (থ্রিডি ব্যাকগ্রাউন্ড)', icon: Sparkles },
         ].map(tab => {
           const Icon = tab.icon;
           const isActive = activeSection === tab.id;
