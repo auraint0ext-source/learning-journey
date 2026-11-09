@@ -772,12 +772,12 @@ export default function CustomerStorefront({
         {cfg.showMegaMenu !== false && (
           <div 
             className={`relative ${
-              isLight ? 'bg-white border-t border-slate-100 border-b border-slate-200/60' : 'bg-slate-950/80 border-t border-b border-slate-800'
+              isLight ? 'bg-white border-t border-slate-100' : 'bg-slate-950/80 border-t border-slate-800'
             }`}
             style={{ backgroundColor: isLight ? '#ffffff' : undefined }}
             onMouseLeave={handleMenuMouseLeave}
           >
-            <div className={`w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto ${menuBarFontSizeClass} font-semibold py-1`}>
+            <div className={`w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto no-scrollbar ${menuBarFontSizeClass} font-semibold py-1`}>
               <div className={`flex items-center ${menuBarItemSpacingClass}`}>
                 <button
                   onClick={() => { setActiveCategory('All'); setSearchQuery(''); setActiveMegaMenu(null); }}
@@ -1480,7 +1480,7 @@ export default function CustomerStorefront({
           {/* Category Filter Pills */}
           {cfg.showCategoryPills !== false && (
             <div className="flex flex-col space-y-2.5 max-w-full">
-              <div className="flex items-center space-x-2 overflow-x-auto pb-1 max-w-full">
+              <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar pb-1 max-w-full">
                 {[
                   { label: 'All Products', key: 'All' },
                   { label: '🎄 Holiday Cards', key: 'Holiday' },
@@ -1515,7 +1515,7 @@ export default function CustomerStorefront({
 
               {/* Subcategory quick chips if category is selected */}
               {activeCategory !== 'All' && (
-                <div className="flex items-center space-x-1.5 overflow-x-auto text-[11px]">
+                <div className="flex items-center space-x-1.5 overflow-x-auto no-scrollbar text-[11px]">
                   <span className="text-slate-400 font-semibold shrink-0">Filter by:</span>
                   {(activeCategory === 'Holiday' ? ['All Holiday Cards', 'Christmas Photo Cards', 'Gold Foil Cards', 'Corporate Greetings', 'New Year Cards', 'Hanukkah Blessing', 'Event Invitations'] :
                     activeCategory === 'Gifts' ? ['All Gifts', 'Wall Calendars', 'Desk Calendars', 'Square Calendars', 'Ceramic Mugs', 'Steel Tumblers', 'Jigsaw Puzzles', 'Holiday Ornaments'] :
