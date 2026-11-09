@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { API_BASE } from '../config';
 import { 
   ShoppingBag, Star, ShieldCheck, Truck, ArrowRight, X, 
   Check, Heart, Sparkles, Plus, Minus, CreditCard, ChevronRight, CheckCircle2, Lock, Settings,
   ShoppingCart, Landmark, Smartphone, Wallet, Building2, Copy, DollarSign, Trash2, Shield,
-  Sun, Moon, SlidersHorizontal
+  Sun, Moon, SlidersHorizontal, Search, ChevronDown, Layers, Briefcase, Shirt, Coffee, Image, Tag, BadgePercent, Package
 } from 'lucide-react';
 
 import { DEFAULT_STOREFRONT_CONFIG } from './AdminStorefrontEditor';
@@ -77,14 +77,26 @@ export default function CustomerStorefront({
   const [products, setProducts] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortBy, setSortBy] = useState('featured'); // 'featured' | 'price_asc' | 'price_desc' | 'popular' | 'newest'
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeMegaMenu, setActiveMegaMenu] = useState(null); // active mega menu category index or null
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState('L');
   const [selectedColor, setSelectedColor] = useState('Vintage Black');
+  const [selectedFinish, setSelectedFinish] = useState('Matte');
+  const [modalQuantity, setModalQuantity] = useState(1);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState('cart'); // 'cart' | 'checkout' | 'success'
   const [orderPlacedData, setOrderPlacedData] = useState(null);
+
+  // Bulk Discount calculation based on Vista tiered pricing
+  const getBulkDiscountPercent = (qty) => {
+    if (qty >= (cfg.bulkTier3Qty || 25)) return cfg.bulkTier3Discount || 25;
+    if (qty >= (cfg.bulkTier2Qty || 10)) return cfg.bulkTier2Discount || 15;
+    if (qty >= (cfg.bulkTier1Qty || 5)) return cfg.bulkTier1Discount || 10;
+    return 0;
+  };
 
   // Customer Form state
   const [customerName, setCustomerName] = useState('');
@@ -174,15 +186,18 @@ export default function CustomerStorefront({
     return (usdPrice * marketInfo.exchange_rate_to_usd).toFixed(2);
   };
 
-  // Add to Cart
-  const handleAddToCart = (product, size = selectedSize, color = selectedColor) => {
-    const unitPrice = parseFloat(getPrice(product.base_price_usd));
+  // Add to Cart with bulk discount support
+  const handleAddToCart = (product, size = selectedSize, color = selectedColor, qty = modalQuantity, finish = selectedFinish) => {
+    const rawPrice = parseFloat(getPrice(product.base_price_usd));
+    const bulkDiscount = getBulkDiscountPercent(qty);
+    const unitPrice = parseFloat((rawPrice * (1 - bulkDiscount / 100)).toFixed(2));
+
     setCart((prev) => {
-      const existing = prev.find((item) => item.product_id === product.id && item.size === size && item.color === color);
+      const existing = prev.find((item) => item.product_id === product.id && item.size === size && item.color === color && item.finish === finish);
       if (existing) {
         return prev.map((item) =>
-          item.product_id === product.id && item.size === size && item.color === color
-            ? { ...item, quantity: item.quantity + 1 }
+          item.product_id === product.id && item.size === size && item.color === color && item.finish === finish
+            ? { ...item, quantity: item.quantity + qty }
             : item
         );
       }
@@ -195,7 +210,8 @@ export default function CustomerStorefront({
           image_url: product.image_url,
           size,
           color,
-          quantity: 1,
+          finish,
+          quantity: qty,
         }
       ];
     });
@@ -385,6 +401,16 @@ export default function CustomerStorefront({
       ? [...products] 
       : products.filter((p) => p.category.toLowerCase().includes(activeCategory.toLowerCase()));
 
+    // Vista Live Search query filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter((p) => 
+        (p.title && p.title.toLowerCase().includes(q)) ||
+        (p.category && p.category.toLowerCase().includes(q)) ||
+        (p.description && p.description.toLowerCase().includes(q))
+      );
+    }
+
     if (sortBy === 'price_asc') {
       list.sort((a, b) => a.base_price_usd - b.base_price_usd);
     } else if (sortBy === 'price_desc') {
@@ -396,7 +422,7 @@ export default function CustomerStorefront({
       list.sort((a, b) => b.id - a.id);
     }
     return list;
-  }, [products, activeCategory, sortBy]);
+  }, [products, activeCategory, searchQuery, sortBy]);
 
   return (
     <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${
@@ -424,46 +450,75 @@ export default function CustomerStorefront({
         </div>
       )}
 
-      {/* 2. Customer Navigation Header */}
+      {/* 2. Customer Navigation Header with VistaPrint Global Search */}
       <nav className={`sticky top-0 z-40 w-full transition-colors ${
         isLight 
-          ? 'bg-white/95 backdrop-blur border-b border-slate-200/90 shadow-sm' 
-          : 'bg-slate-900/95 backdrop-blur border-b border-slate-800 shadow-sm'
+          ? 'bg-white/95 backdrop-blur border-b border-slate-200/90 shadow-xs' 
+          : 'bg-slate-900/95 backdrop-blur border-b border-slate-800 shadow-xs'
       }`}>
-        <div className="w-full px-4 sm:px-8 lg:px-12 h-14 flex items-center justify-between">
-          <div className="flex items-center space-x-8">
-            <div className="flex items-center space-x-2.5 cursor-pointer">
-              <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-white text-base shadow-sm ${
-                isLight ? 'bg-slate-900' : 'bg-gradient-to-tr from-indigo-500 to-purple-600 shadow-indigo-500/20'
-              }`}>
-                P
-              </div>
-              <span className={`font-extrabold text-lg tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
+        <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-4">
+          {/* Logo & Brand Identity */}
+          <div 
+            className="flex items-center space-x-3 flex-shrink-0 cursor-pointer" 
+            onClick={() => { setActiveCategory('All'); setSearchQuery(''); }}
+          >
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-white text-base shadow-sm ${
+              isLight ? 'bg-slate-900' : 'bg-gradient-to-tr from-indigo-500 to-purple-600 shadow-indigo-500/20'
+            }`}>
+              P
+            </div>
+            <div>
+              <span className={`font-black text-lg tracking-tight block leading-none ${isLight ? 'text-slate-900' : 'text-white'}`}>
                 {cfg.brandName || 'PrintFlow'}
               </span>
-            </div>
-
-            <div className={`hidden lg:flex items-center space-x-6 text-xs font-semibold ${
-              isLight ? 'text-slate-600' : 'text-slate-300'
-            }`}>
-              {['All', 'Apparel', 'Home & Living', 'Wall Art', 'Accessories'].map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat === 'All' ? 'All' : cat)}
-                  className={`transition ${
-                    activeCategory === cat
-                      ? isLight ? 'text-slate-900 border-b-2 border-slate-900 pb-0.5 font-bold' : 'text-indigo-400 border-b-2 border-indigo-500 pb-0.5'
-                      : isLight ? 'hover:text-slate-900' : 'hover:text-white'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
+              <span className={`text-[10px] font-bold uppercase tracking-wider block mt-0.5 ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`}>
+                {cfg.badgeTag || 'Domestic POD'}
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2.5 ml-auto">
-            {/* Quick Theme Toggle Pill for Store Preview */}
+          {/* Center: VistaPrint Global Search Bar */}
+          {cfg.showSearchBar !== false && (
+            <div className="hidden md:flex flex-1 max-w-xl mx-2 relative">
+              <div className="relative w-full">
+                <Search className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none ${
+                  isLight ? 'text-slate-400' : 'text-slate-500'
+                }`} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={cfg.searchPlaceholder || 'Search 100+ custom products: Business cards, hoodies, mugs, canvases...'}
+                  className={`w-full pl-10 pr-9 py-2 rounded-xl text-xs font-medium border transition outline-none ${
+                    isLight
+                      ? 'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'
+                      : 'bg-slate-950 border-slate-800 text-slate-200 focus:bg-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-900/30'
+                  }`}
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700"
+                    title="Clear search"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Right Action Icons: Currency Selector, Theme Toggle, Payment Modal, Cart */}
+          <div className="flex items-center space-x-2 flex-shrink-0">
+            {/* Currency Selector Pill */}
+            <div className={`hidden sm:flex items-center px-2.5 py-1.5 rounded-xl text-xs font-semibold border ${
+              isLight ? 'bg-slate-50 border-slate-200 text-slate-700' : 'bg-slate-800 border-slate-700 text-slate-300'
+            }`}>
+              <span className="mr-1">{currentMarket === 'US' ? '🇺🇸' : currentMarket === 'UK' ? '🇬🇧' : '🇨🇦'}</span>
+              <span className="font-mono">{marketInfo.currency} ({marketInfo.currency_symbol})</span>
+            </div>
+
+            {/* Quick Theme Toggle */}
             <button
               onClick={() => onToggleStoreTheme && onToggleStoreTheme()}
               className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition ${
@@ -474,7 +529,7 @@ export default function CustomerStorefront({
               title={`Storefront Theme: currently ${storeTheme.toUpperCase()} mode. Click to toggle.`}
             >
               {isLight ? <Moon className="w-3.5 h-3.5 text-indigo-600" /> : <Sun className="w-3.5 h-3.5 text-amber-400" />}
-              <span className="hidden md:inline">{isLight ? 'Dark' : 'Light'}</span>
+              <span className="hidden lg:inline">{isLight ? 'Dark' : 'Light'}</span>
             </button>
 
             {/* Customer Add / Manage Payment Method Button */}
@@ -488,7 +543,7 @@ export default function CustomerStorefront({
               title="Add or Manage your saved Payment Methods"
             >
               <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="hidden sm:inline">Add Payment Method</span>
+              <span className="hidden xl:inline">Payment Methods</span>
             </button>
 
             {/* Cart Button */}
@@ -505,7 +560,7 @@ export default function CustomerStorefront({
               title="View your shopping cart"
             >
               <ShoppingCart className="w-3.5 h-3.5" />
-              <span>Your Cart</span>
+              <span>Cart</span>
               <span className={`ml-1 px-1.5 py-0.2 rounded-full font-extrabold text-[10px] ${
                 isLight ? 'bg-white text-slate-900' : 'bg-white text-indigo-700'
               }`}>
@@ -514,6 +569,138 @@ export default function CustomerStorefront({
             </button>
           </div>
         </div>
+
+        {/* Mobile Search Bar (when on small screens) */}
+        {cfg.showSearchBar !== false && (
+          <div className="md:hidden px-4 pb-2.5">
+            <div className="relative w-full">
+              <Search className={`w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 ${
+                isLight ? 'text-slate-400' : 'text-slate-500'
+              }`} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search products..."
+                className={`w-full pl-8 pr-8 py-1.5 rounded-xl text-xs font-medium border ${
+                  isLight ? 'bg-slate-50 border-slate-200 text-slate-800' : 'bg-slate-950 border-slate-800 text-slate-200'
+                }`}
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400">
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* VistaPrint Full-Width Mega Menu Bar */}
+        {cfg.showMegaMenu !== false && (
+          <div className={`border-t relative ${
+            isLight ? 'bg-slate-50/90 border-slate-200/90' : 'bg-slate-950/80 border-slate-800'
+          }`}>
+            <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto text-xs font-semibold py-1">
+              <div className="flex items-center space-x-1 sm:space-x-2">
+                <button
+                  onClick={() => { setActiveCategory('All'); setSearchQuery(''); }}
+                  className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap ${
+                    activeCategory === 'All' && !searchQuery
+                      ? isLight ? 'bg-slate-900 text-white font-bold' : 'bg-indigo-600 text-white font-bold'
+                      : isLight ? 'text-slate-700 hover:bg-slate-200/60' : 'text-slate-300 hover:bg-slate-800'
+                  }`}
+                >
+                  All Products
+                </button>
+
+                {(cfg.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories).map((menu, idx) => {
+                  const isOpen = activeMegaMenu === idx;
+                  const isCatActive = activeCategory.toLowerCase() === menu.categoryKey.toLowerCase();
+                  return (
+                    <div 
+                      key={idx}
+                      className="relative"
+                      onMouseEnter={() => setActiveMegaMenu(idx)}
+                      onMouseLeave={() => setActiveMegaMenu(null)}
+                    >
+                      <button
+                        onClick={() => {
+                          setActiveCategory(menu.categoryKey);
+                          setActiveMegaMenu(isOpen ? null : idx);
+                        }}
+                        className={`px-3 py-1.5 rounded-lg transition flex items-center space-x-1 whitespace-nowrap ${
+                          isCatActive
+                            ? isLight ? 'bg-slate-900 text-white font-bold' : 'bg-indigo-600 text-white font-bold'
+                            : isLight ? 'text-slate-700 hover:bg-slate-200/60' : 'text-slate-300 hover:bg-slate-800'
+                        }`}
+                      >
+                        <span>{menu.title}</span>
+                        <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      {/* Vista Mega Menu Dropdown */}
+                      {isOpen && (
+                        <div className={`absolute top-full left-0 z-50 w-72 p-3.5 rounded-2xl shadow-2xl border transition-all animate-in fade-in slide-in-from-top-1 ${
+                          isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-slate-800 text-white'
+                        }`}>
+                          <div className="text-[11px] font-bold text-indigo-500 uppercase tracking-wider mb-2 flex items-center justify-between">
+                            <span>Popular {menu.title}</span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400">Domestic POD</span>
+                          </div>
+                          <div className="space-y-1">
+                            {(menu.subcategories || []).map((sub, sIdx) => (
+                              <button
+                                key={sIdx}
+                                onClick={() => {
+                                  setActiveCategory(menu.categoryKey);
+                                  setSearchQuery(sub);
+                                  setActiveMegaMenu(null);
+                                  const el = document.getElementById('catalog-grid');
+                                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                }}
+                                className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition flex items-center justify-between ${
+                                  isLight ? 'hover:bg-slate-100 text-slate-700 hover:text-slate-900' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+                                }`}
+                              >
+                                <span>{sub}</span>
+                                <ArrowRight className="w-3 h-3 opacity-40" />
+                              </button>
+                            ))}
+                          </div>
+                          <div className="pt-2.5 mt-2.5 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center text-[10px]">
+                            <button
+                              onClick={() => {
+                                setActiveCategory(menu.categoryKey);
+                                setSearchQuery('');
+                                setActiveMegaMenu(null);
+                                const el = document.getElementById('catalog-grid');
+                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                              }}
+                              className="font-bold text-indigo-600 hover:underline"
+                            >
+                              Explore all in {menu.title} →
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Live Search Active Feedback */}
+              {searchQuery && (
+                <div className="hidden lg:flex items-center space-x-1.5 text-xs">
+                  <span className="text-slate-400">Search:</span>
+                  <span className="font-bold text-indigo-500 bg-indigo-500/10 px-2 py-0.5 rounded-full flex items-center space-x-1">
+                    <span>"{searchQuery}"</span>
+                    <button onClick={() => setSearchQuery('')} className="hover:text-red-400 ml-1">×</button>
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* 3. Hero Banner */}
@@ -602,6 +789,33 @@ export default function CustomerStorefront({
             </div>
           )}
 
+          {/* Vista Quick Action CTAs */}
+          <div className={`flex flex-wrap items-center ${cfg.heroAlignment === 'left' ? 'justify-start' : 'justify-center'} gap-3 pt-2`}>
+            <button
+              onClick={() => {
+                const el = document.getElementById('category-showcase') || document.getElementById('catalog-grid');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow-md ${
+                isLight ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-600/30'
+              }`}
+            >
+              <span>Explore Popular Products</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => {
+                const el = document.getElementById('catalog-grid');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className={`px-4 py-2.5 rounded-xl text-xs font-semibold border transition ${
+                isLight ? 'bg-white hover:bg-slate-50 text-slate-800 border-slate-300' : 'bg-slate-900 hover:bg-slate-800 text-slate-200 border-slate-700'
+              }`}
+            >
+              <span>View Full Domestic Catalog</span>
+            </button>
+          </div>
+
           {/* Trust Value Props (Toggleable & Editable from Admin Editor) */}
           {cfg.showTrustProps !== false && (
             <div className={`flex flex-wrap items-center ${
@@ -625,6 +839,135 @@ export default function CustomerStorefront({
           )}
         </div>
       </section>
+
+      {/* 3.1 VistaPrint-Style "Explore Popular Categories" 6-Tile Grid */}
+      {cfg.showCategoryShowcase !== false && (
+        <section id="category-showcase" className={`border-b transition-colors py-10 sm:py-14 ${
+          isLight ? 'bg-white border-slate-200' : 'bg-slate-900/60 border-slate-800/80'
+        }`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+                    Bestselling Formats
+                  </span>
+                </div>
+                <h2 className={`text-xl sm:text-2xl font-black tracking-tight mt-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                  {cfg.categoryShowcaseTitle || 'Explore Popular Categories'}
+                </h2>
+                <p className={`text-xs mt-0.5 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                  {cfg.categoryShowcaseSubtitle || 'Custom printed domestically with guaranteed archival finishes and zero customs delay'}
+                </p>
+              </div>
+
+              <div className="hidden sm:block">
+                <span className={`text-xs font-semibold ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`}>
+                  {currentMarket === 'US' ? '🇺🇸 Shipped from Detroit' : currentMarket === 'UK' ? '🇬🇧 Shipped from London' : '🇨🇦 Shipped from Toronto'}
+                </span>
+              </div>
+            </div>
+
+            {/* 6 Category Tiles */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+              {(cfg.categoryShowcaseCards || DEFAULT_STOREFRONT_CONFIG.categoryShowcaseCards).map((card, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => {
+                    setActiveCategory(card.category);
+                    setSearchQuery('');
+                    const el = document.getElementById('catalog-grid');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className={`group relative rounded-2xl overflow-hidden border p-3 flex flex-col justify-between transition-all duration-300 cursor-pointer shadow-xs hover:shadow-xl hover:-translate-y-1 ${
+                    isLight 
+                      ? 'bg-white border-slate-200/90 hover:border-indigo-400' 
+                      : 'bg-slate-900 border-slate-800 hover:border-indigo-500/50 shadow-slate-950'
+                  }`}
+                >
+                  <div className="relative aspect-square rounded-xl overflow-hidden mb-3 bg-slate-100 dark:bg-slate-950">
+                    <img
+                      src={card.image}
+                      alt={card.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    {card.badge && (
+                      <span className={`absolute top-2 left-2 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs backdrop-blur-md ${
+                        isLight ? 'bg-white/95 text-slate-900 border border-slate-200' : 'bg-slate-900/90 text-indigo-300 border border-indigo-500/30'
+                      }`}>
+                        {card.badge}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className={`font-bold text-xs line-clamp-1 group-hover:text-indigo-500 transition-colors ${
+                      isLight ? 'text-slate-900' : 'text-white'
+                    }`}>
+                      {card.title}
+                    </h3>
+                    <div className="flex items-center justify-between mt-1 text-[11px]">
+                      <span className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>From</span>
+                      <span className={`font-mono font-bold ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>
+                        {marketInfo.currency_symbol}{getPrice(parseFloat(card.startingPrice || '10.00'))}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between text-[10px] font-semibold text-indigo-500">
+                    <span>Shop Now</span>
+                    <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 3.2 VistaPrint 100% Satisfaction Guarantee Banner */}
+      {cfg.showSatisfactionGuarantee !== false && (
+        <section className={`border-b transition-colors py-6 ${
+          isLight ? 'bg-amber-50/60 border-amber-200/60 text-slate-900' : 'bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 border-slate-800 text-white'
+        }`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-start sm:items-center space-x-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-500 flex items-center justify-center flex-shrink-0 border border-amber-500/30 shadow-xs">
+                  <ShieldCheck className="w-6 h-6 text-amber-500" />
+                </div>
+                <div>
+                  <h3 className={`font-black text-sm sm:text-base tracking-tight ${isLight ? 'text-amber-950' : 'text-amber-300'}`}>
+                    {cfg.guaranteeHeading || '100% Satisfaction Guaranteed'}
+                  </h3>
+                  <p className={`text-xs mt-0.5 max-w-2xl leading-relaxed ${isLight ? 'text-amber-900/80' : 'text-slate-300'}`}>
+                    {cfg.guaranteeSubtext || 'We stand by every stitch and print. If your custom merchandise is not absolutely flawless, we will reprint it immediately or issue a 100% money-back refund.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold">
+                <div className={`px-3 py-1.5 rounded-xl border flex items-center space-x-1.5 ${
+                  isLight ? 'bg-white border-amber-200 text-slate-800' : 'bg-slate-900 border-slate-800 text-slate-200'
+                }`}>
+                  <Truck className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>2-Day Local Dispatch</span>
+                </div>
+                <div className={`px-3 py-1.5 rounded-xl border flex items-center space-x-1.5 ${
+                  isLight ? 'bg-white border-amber-200 text-slate-800' : 'bg-slate-900 border-slate-800 text-slate-200'
+                }`}>
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                  <span>Archival Inks</span>
+                </div>
+                <div className={`px-3 py-1.5 rounded-xl border flex items-center space-x-1.5 ${
+                  isLight ? 'bg-white border-amber-200 text-slate-800' : 'bg-slate-900 border-slate-800 text-slate-200'
+                }`}>
+                  <Check className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Free Reprints</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 4. Products Grid */}
       <main id="catalog-grid" className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${catalogPaddingClass} flex-1`}>
@@ -761,6 +1104,8 @@ export default function CustomerStorefront({
                       setSelectedProduct(p);
                       setSelectedSize('L');
                       setSelectedColor('Vintage Black');
+                      setSelectedFinish('Matte');
+                      setModalQuantity(1);
                     }}
                     className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center space-x-2 border shadow-xs ${
                       isLight
@@ -769,7 +1114,12 @@ export default function CustomerStorefront({
                     }`}
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
-                    <span>Select Options & Buy</span>
+                    <span>Configure & Buy</span>
+                    {cfg.showBulkDiscounts !== false && (
+                      <span className="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-400 font-mono">
+                        Up to 25% OFF
+                      </span>
+                    )}
                   </button>
                 </div>
               </div>
@@ -778,105 +1128,255 @@ export default function CustomerStorefront({
         </div>
       </main>
 
-      {/* 5. Product Quick-View & Customizer Modal */}
-      {selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className={`rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col md:flex-row border ${
-            isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-slate-800 text-white'
-          }`}>
-            <div className={`md:w-1/2 p-6 flex items-center justify-center ${isLight ? 'bg-slate-100' : 'bg-slate-950'}`}>
-              <img
-                src={selectedProduct.image_url}
-                alt={selectedProduct.title}
-                className="max-h-72 object-cover rounded-2xl shadow-md"
-              />
-            </div>
+      {/* 5. VistaPrint-Style Product Quick-View & Customizer Modal */}
+      {selectedProduct && (() => {
+        const rawUnitPrice = parseFloat(getPrice(selectedProduct.base_price_usd));
+        const bulkDisc = getBulkDiscountPercent(modalQuantity);
+        const discountedUnitPrice = parseFloat((rawUnitPrice * (1 - bulkDisc / 100)).toFixed(2));
+        const totalModalPrice = (discountedUnitPrice * modalQuantity).toFixed(2);
+        const totalSaved = ((rawUnitPrice - discountedUnitPrice) * modalQuantity).toFixed(2);
 
-            <div className="md:w-1/2 p-6 flex flex-col justify-between space-y-4">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`}>
+        return (
+          <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+            <div className={`rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl flex flex-col md:flex-row border my-8 ${
+              isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-slate-800 text-white'
+            }`}>
+              {/* Left Column: Product Image & Badges */}
+              <div className={`md:w-5/12 p-6 flex flex-col items-center justify-between ${isLight ? 'bg-slate-100' : 'bg-slate-950'}`}>
+                <div className="w-full flex items-center justify-between text-[10px] font-bold">
+                  <span className={`px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                    isLight ? 'bg-indigo-100 text-indigo-700' : 'bg-indigo-950 text-indigo-300 border border-indigo-500/30'
+                  }`}>
                     {selectedProduct.category}
                   </span>
-                  <button onClick={() => setSelectedProduct(null)} className={`p-1 rounded-lg ${isLight ? 'text-slate-400 hover:text-slate-900' : 'text-slate-400 hover:text-white'}`}>
-                    <X className="w-5 h-5" />
-                  </button>
+                  <span className="text-emerald-500 font-mono">In Stock • 2-Day Ship</span>
                 </div>
 
-                <h3 className={`text-lg font-bold mt-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                  {selectedProduct.title}
-                </h3>
-                <div className={`text-2xl font-black font-mono mt-1 ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`}>
-                  {marketInfo.currency_symbol}{getPrice(selectedProduct.base_price_usd)}
-                </div>
-                <p className={`text-xs mt-2 leading-relaxed ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-                  {selectedProduct.description}
-                </p>
+                <img
+                  src={selectedProduct.image_url}
+                  alt={selectedProduct.title}
+                  className="max-h-64 object-cover rounded-2xl shadow-md my-4"
+                />
 
-                {/* Size Selection */}
-                {selectedProduct.category === 'Apparel' && (
-                  <div className="mt-4">
-                    <label className={`text-xs font-semibold block mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-                      Select Size:
-                    </label>
-                    <div className="flex space-x-2">
-                      {['S', 'M', 'L', 'XL', '2XL'].map((s) => (
-                        <button
-                          key={s}
-                          onClick={() => setSelectedSize(s)}
-                          className={`w-9 h-9 rounded-xl text-xs font-bold transition flex items-center justify-center ${
-                            selectedSize === s
-                              ? isLight ? 'bg-slate-900 text-white shadow-sm' : 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                              : isLight ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                          }`}
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Color Selection */}
-                <div className="mt-4">
-                  <label className={`text-xs font-semibold block mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-                    Color:
-                  </label>
-                  <div className="flex space-x-2">
-                    {['Vintage Black', 'Heather Grey', 'Forest Green', 'Natural'].map((col) => (
-                      <button
-                        key={col}
-                        onClick={() => setSelectedColor(col)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${
-                          selectedColor === col
-                            ? isLight ? 'bg-slate-900 text-white font-bold' : 'bg-white text-slate-900 font-bold'
-                            : isLight ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                        }`}
-                      >
-                        {col}
-                      </button>
-                    ))}
-                  </div>
+                <div className={`w-full p-2.5 rounded-xl border text-[10px] flex items-center space-x-2 ${
+                  isLight ? 'bg-white border-slate-200 text-slate-700' : 'bg-slate-900 border-slate-800 text-slate-300'
+                }`}>
+                  <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <span>100% Satisfaction Guarantee: Love it or reprinted free.</span>
                 </div>
               </div>
 
-              <div className={`pt-4 border-t flex items-center space-x-3 ${isLight ? 'border-slate-200' : 'border-slate-800'}`}>
-                <button
-                  onClick={() => handleAddToCart(selectedProduct)}
-                  className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 shadow-md ${
-                    isLight 
-                      ? 'bg-slate-900 hover:bg-slate-800 text-white' 
-                      : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
-                  }`}
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>Add to Bag</span>
-                </button>
+              {/* Right Column: Customization Specs & Bulk Pricing */}
+              <div className="md:w-7/12 p-6 flex flex-col justify-between space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className={`text-base sm:text-lg font-black leading-snug ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                        {selectedProduct.title}
+                      </h3>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <span className={`text-2xl font-black font-mono ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>
+                          {marketInfo.currency_symbol}{discountedUnitPrice.toFixed(2)}
+                        </span>
+                        {bulkDisc > 0 && (
+                          <span className="text-xs text-slate-400 line-through font-mono">
+                            {marketInfo.currency_symbol}{rawUnitPrice.toFixed(2)}
+                          </span>
+                        )}
+                        {bulkDisc > 0 && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
+                            {bulkDisc}% Bulk Savings
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setSelectedProduct(null)} 
+                      className={`p-1.5 rounded-xl transition ${isLight ? 'text-slate-400 hover:text-slate-900 hover:bg-slate-100' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Domestic Courier Reassurance Pill */}
+                  <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-semibold ${
+                    isLight ? 'bg-slate-100 text-slate-700' : 'bg-slate-800/80 text-slate-300'
+                  }`}>
+                    <Truck className="w-3.5 h-3.5 text-indigo-500" />
+                    <span>Dispatched in 2 Days via {marketInfo.fulfillment_hub.split('(')[0]}</span>
+                  </div>
+
+                  {/* VistaPrint Wholesale Bulk Pricing Tiers */}
+                  {cfg.showBulkDiscounts !== false && (
+                    <div className="pt-1">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className={`text-[11px] font-bold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                          Wholesale Volume Pricing:
+                        </span>
+                        <span className="text-[10px] text-indigo-400 font-mono">Buy more, save more</span>
+                      </div>
+                      <div className="grid grid-cols-4 gap-1.5 text-center text-xs">
+                        {[
+                          { qty: '1-4 pcs', disc: 'Regular', active: modalQuantity < 5, min: 1 },
+                          { qty: '5+ pcs', disc: `10% OFF`, active: modalQuantity >= 5 && modalQuantity < 10, min: 5 },
+                          { qty: '10+ pcs', disc: `15% OFF`, active: modalQuantity >= 10 && modalQuantity < 25, min: 10 },
+                          { qty: '25+ pcs', disc: `25% OFF`, active: modalQuantity >= 25, min: 25 },
+                        ].map((tier, tIdx) => (
+                          <button
+                            key={tIdx}
+                            type="button"
+                            onClick={() => setModalQuantity(tier.min)}
+                            className={`p-2 rounded-xl border transition ${
+                              tier.active
+                                ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm font-bold'
+                                : isLight
+                                  ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            <div className="font-bold text-[11px]">{tier.qty}</div>
+                            <div className={`text-[9px] font-mono ${tier.active ? 'text-emerald-200' : 'text-emerald-500'}`}>
+                              {tier.disc}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Size Selection */}
+                  {selectedProduct.category === 'Apparel' && (
+                    <div className="pt-1">
+                      <label className={`text-xs font-semibold block mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                        Size:
+                      </label>
+                      <div className="flex space-x-2">
+                        {['S', 'M', 'L', 'XL', '2XL'].map((s) => (
+                          <button
+                            key={s}
+                            onClick={() => setSelectedSize(s)}
+                            className={`w-9 h-9 rounded-xl text-xs font-bold transition flex items-center justify-center ${
+                              selectedSize === s
+                                ? isLight ? 'bg-slate-900 text-white shadow-sm' : 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                                : isLight ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                            }`}
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Color & Finish Selection */}
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <label className={`text-xs font-semibold block mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                        Color Variant:
+                      </label>
+                      <select
+                        value={selectedColor}
+                        onChange={(e) => setSelectedColor(e.target.value)}
+                        className={`w-full py-1.5 px-2.5 rounded-xl text-xs font-semibold border outline-none ${
+                          isLight ? 'bg-slate-50 border-slate-200 text-slate-800' : 'bg-slate-950 border-slate-800 text-slate-200'
+                        }`}
+                      >
+                        <option value="Vintage Black">Vintage Black</option>
+                        <option value="Heather Grey">Heather Grey</option>
+                        <option value="Forest Green">Forest Green</option>
+                        <option value="Natural Canvas">Natural Canvas</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className={`text-xs font-semibold block mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                        Substrate Finish:
+                      </label>
+                      <select
+                        value={selectedFinish}
+                        onChange={(e) => setSelectedFinish(e.target.value)}
+                        className={`w-full py-1.5 px-2.5 rounded-xl text-xs font-semibold border outline-none ${
+                          isLight ? 'bg-slate-50 border-slate-200 text-slate-800' : 'bg-slate-950 border-slate-800 text-slate-200'
+                        }`}
+                      >
+                        <option value="Matte">Archival Matte</option>
+                        <option value="Glossy">Vivid Glossy</option>
+                        <option value="Soft-Touch">Soft-Touch Velvet</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Quantity Stepper with Bulk Savings calculation */}
+                  <div className="pt-2 flex items-center justify-between">
+                    <div>
+                      <span className={`text-xs font-bold block ${isLight ? 'text-slate-800' : 'text-white'}`}>
+                        Order Quantity:
+                      </span>
+                      {bulkDisc > 0 && (
+                        <span className="text-[10px] text-emerald-500 font-bold block">
+                          Savings: {marketInfo.currency_symbol}{totalSaved} ({bulkDisc}% OFF)
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => setModalQuantity(q => Math.max(1, q - 1))}
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center border font-bold text-sm ${
+                          isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-800' : 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700'
+                        }`}
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        min="1"
+                        value={modalQuantity}
+                        onChange={(e) => setModalQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                        className={`w-12 h-8 text-center rounded-lg border font-mono font-bold text-xs outline-none ${
+                          isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-700 text-white'
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setModalQuantity(q => q + 1)}
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center border font-bold text-sm ${
+                          isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-800' : 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700'
+                        }`}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Modal Footer with Add to Bag */}
+                <div className={`pt-4 border-t flex items-center justify-between space-x-3 ${isLight ? 'border-slate-200' : 'border-slate-800'}`}>
+                  <div>
+                    <div className="text-[10px] text-slate-400">Total Price ({modalQuantity} units):</div>
+                    <div className={`text-xl font-black font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                      {marketInfo.currency_symbol}{totalModalPrice}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleAddToCart(selectedProduct, selectedSize, selectedColor, modalQuantity, selectedFinish)}
+                    className={`py-3 px-6 rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow-lg ${
+                      isLight 
+                        ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-slate-900/20' 
+                        : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
+                    }`}
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>Add to Bag ({marketInfo.currency_symbol}{totalModalPrice})</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* 6. Slide-Out Customer Shopping Cart & Checkout Drawer */}
       {isCartOpen && (

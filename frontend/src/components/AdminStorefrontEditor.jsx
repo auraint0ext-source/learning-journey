@@ -3,7 +3,8 @@ import {
   LayoutTemplate, Columns, Grid, Type, AlignLeft, AlignCenter, 
   Sliders, Sparkles, CheckCircle2, Save, RotateCcw, Eye, 
   Layers, MessageSquare, Truck, ShieldCheck, Star, Palette,
-  Smartphone, Monitor, Megaphone, Shield, RefreshCw
+  Smartphone, Monitor, Megaphone, Shield, RefreshCw, Search,
+  Briefcase, Shirt, Coffee, Image, Tag, BadgePercent, Check, Package
 } from 'lucide-react';
 
 export const DEFAULT_STOREFRONT_CONFIG = {
@@ -72,7 +73,100 @@ export const DEFAULT_STOREFRONT_CONFIG = {
   brandName: 'PrintFlow Studio',
   badgeTag: 'Domestic POD',
   footerTagline: 'Local direct-to-garment & archival printing facilities in USA (Detroit), UK (London) & Canada (Toronto).',
-  copyrightText: '© 2026 PrintFlow Global Ltd. All rights reserved.'
+  copyrightText: '© 2026 PrintFlow Global Ltd. All rights reserved.',
+
+  // 7. Vista-Style Mega Menu & Global Search
+  showSearchBar: true,
+  searchPlaceholder: 'Search 100+ custom products: Business cards, hoodies, mugs, canvases...',
+  showMegaMenu: true,
+  megaMenuCategories: [
+    {
+      title: 'Marketing & Business',
+      categoryKey: 'Marketing',
+      subcategories: ['Business Cards', 'Postcards & Flyers', 'Brochures', 'Presentation Folders']
+    },
+    {
+      title: 'Clothing & Bags',
+      categoryKey: 'Apparel',
+      subcategories: ['Heavyweight Hoodies', 'Vintage T-Shirts', 'Embroidered Caps', 'Canvas Tote Bags']
+    },
+    {
+      title: 'Canvas & Wall Art',
+      categoryKey: 'Wall Art',
+      subcategories: ['Gallery Stretched Canvas', 'Archival Matte Posters', 'Framed Photo Art', 'Metal Prints']
+    },
+    {
+      title: 'Mugs & Drinkware',
+      categoryKey: 'Home & Living',
+      subcategories: ['Ceramic Coffee Mugs', 'Stainless Tumblers', 'Camp Mugs', 'Insulated Bottles']
+    },
+    {
+      title: 'Labels & Stickers',
+      categoryKey: 'Accessories',
+      subcategories: ['Die-Cut Vinyl Stickers', 'Roll Labels', 'Shipping Mailer Boxes', 'Packaging Tape']
+    }
+  ],
+
+  // 8. Vista-Style Visual Category Showcase (Top 6 Tiles)
+  showCategoryShowcase: true,
+  categoryShowcaseTitle: 'Explore Popular Categories',
+  categoryShowcaseSubtitle: 'Custom printed domestically with guaranteed archival finishes and zero customs delay',
+  categoryShowcaseCards: [
+    {
+      title: 'Custom Hoodies',
+      category: 'Apparel',
+      startingPrice: '38.00',
+      image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=400&auto=format&fit=crop&q=80',
+      badge: 'Best Seller'
+    },
+    {
+      title: 'Ceramic Mugs',
+      category: 'Home & Living',
+      startingPrice: '14.50',
+      image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&auto=format&fit=crop&q=80',
+      badge: 'Dishwasher Safe'
+    },
+    {
+      title: 'Gallery Canvas Art',
+      category: 'Wall Art',
+      startingPrice: '44.00',
+      image: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=400&auto=format&fit=crop&q=80',
+      badge: 'Archival Matte'
+    },
+    {
+      title: 'Tough Phone Cases',
+      category: 'Accessories',
+      startingPrice: '22.00',
+      image: 'https://images.unsplash.com/photo-1586105251261-72a756497a11?w=400&auto=format&fit=crop&q=80',
+      badge: 'Drop Protection'
+    },
+    {
+      title: 'Business Cards',
+      category: 'Marketing',
+      startingPrice: '9.99',
+      image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80',
+      badge: 'Premium Stock'
+    },
+    {
+      title: 'Vintage Caps & Hats',
+      category: 'Apparel',
+      startingPrice: '19.50',
+      image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&auto=format&fit=crop&q=80',
+      badge: 'Embroidery'
+    }
+  ],
+
+  // 9. Vista Satisfaction Guarantee & Bulk Wholesale Tiers
+  showSatisfactionGuarantee: true,
+  guaranteeHeading: '100% Satisfaction Guaranteed',
+  guaranteeSubtext: 'We stand by every stitch and print. If your custom merchandise is not absolutely flawless, we will reprint it immediately or issue a 100% money-back refund.',
+  showBulkDiscounts: true,
+  bulkTier1Qty: 5,
+  bulkTier1Discount: 10,
+  bulkTier2Qty: 10,
+  bulkTier2Discount: 15,
+  bulkTier3Qty: 25,
+  bulkTier3Discount: 25
 };
 
 export default function AdminStorefrontEditor({
@@ -112,6 +206,22 @@ export default function AdminStorefrontEditor({
       const updated = [...prev.trustProps];
       updated[index] = { ...updated[index], [field]: value };
       return { ...prev, trustProps: updated };
+    });
+  };
+
+  const handleCategoryCardChange = (index, field, value) => {
+    setConfig(prev => {
+      const cards = [...(prev.categoryShowcaseCards || DEFAULT_STOREFRONT_CONFIG.categoryShowcaseCards)];
+      cards[index] = { ...cards[index], [field]: value };
+      return { ...prev, categoryShowcaseCards: cards };
+    });
+  };
+
+  const handleMegaMenuCategoryChange = (index, field, value) => {
+    setConfig(prev => {
+      const cats = [...(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories)];
+      cats[index] = { ...cats[index], [field]: value };
+      return { ...prev, megaMenuCategories: cats };
     });
   };
 
@@ -194,6 +304,8 @@ export default function AdminStorefrontEditor({
       <div className="flex space-x-1.5 bg-slate-900 p-1.5 rounded-2xl border border-slate-800 overflow-x-auto">
         {[
           { id: 'hero', label: 'Hero & Titles (শিরোনাম)', icon: Type },
+          { id: 'megamenu', label: 'Mega Menu & Search (মেনু ও সার্চ)', icon: Layers },
+          { id: 'vistaspec', label: 'Categories & Bulk Tiers (ভিস্তা ক্যাটাগরি ও ছাড়)', icon: Grid },
           { id: 'layout', label: 'Columns & Spacing (কলাম ও স্পেসিং)', icon: Columns },
           { id: 'announcement', label: 'Announcement Ribbon', icon: Megaphone },
           { id: 'badges', label: 'Trust Badges & Couriers', icon: ShieldCheck },
@@ -475,6 +587,292 @@ export default function AdminStorefrontEditor({
                     className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
                   />
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Section: Mega Menu & Global Search (মেনু ও সার্চ) */}
+          {activeSection === 'megamenu' && (
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div className="flex items-center space-x-2">
+                  <Layers className="w-4 h-4 text-indigo-400" />
+                  <h2 className="text-sm font-bold text-white uppercase tracking-wider">Vista Mega Menu & Global Search</h2>
+                </div>
+                <span className="text-[10px] text-indigo-300 bg-indigo-950/60 border border-indigo-500/30 px-2 py-0.5 rounded font-mono">
+                  Navigation Architecture
+                </span>
+              </div>
+
+              {/* Global Search Bar Controls */}
+              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Search className="w-4 h-4 text-emerald-400" />
+                    <div>
+                      <span className="text-white font-bold text-xs">Global Live Product Search Bar</span>
+                      <p className="text-[10px] text-slate-500">Enable VistaPrint-style instant search input in top header</p>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={config.showSearchBar !== false}
+                    onChange={(e) => handleFieldChange('showSearchBar', e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
+                  />
+                </div>
+
+                {config.showSearchBar !== false && (
+                  <div>
+                    <label className="block text-[11px] text-slate-400 font-semibold mb-1">
+                      Search Bar Placeholder Text (সার্চ বক্সের লেখা):
+                    </label>
+                    <input
+                      type="text"
+                      value={config.searchPlaceholder || ''}
+                      onChange={(e) => handleFieldChange('searchPlaceholder', e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-indigo-500"
+                      placeholder="e.g. Search 100+ custom products..."
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Mega Menu Navigation Bar Controls */}
+              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Layers className="w-4 h-4 text-amber-400" />
+                    <div>
+                      <span className="text-white font-bold text-xs">Horizontal Mega Menu Bar</span>
+                      <p className="text-[10px] text-slate-500">Displays full-width category navigation with dropdown submenus below header</p>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={config.showMegaMenu !== false}
+                    onChange={(e) => handleFieldChange('showMegaMenu', e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
+                  />
+                </div>
+
+                {config.showMegaMenu !== false && (
+                  <div className="space-y-3 pt-2">
+                    <label className="block text-[11px] text-slate-400 font-semibold">
+                      Configure Mega Menu Categories & Sub-items:
+                    </label>
+                    <div className="space-y-2.5">
+                      {(config.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories).map((cat, idx) => (
+                        <div key={idx} className="p-3 bg-slate-900 border border-slate-800 rounded-lg space-y-2 text-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-indigo-300">Category #{idx + 1}</span>
+                            <span className="text-[10px] text-slate-500 font-mono">Key: {cat.categoryKey}</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[10px] text-slate-400 mb-0.5">Display Title:</label>
+                              <input
+                                type="text"
+                                value={cat.title}
+                                onChange={(e) => handleMegaMenuCategoryChange(idx, 'title', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-white text-xs"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] text-slate-400 mb-0.5">Subcategories (comma-separated):</label>
+                              <input
+                                type="text"
+                                value={(cat.subcategories || []).join(', ')}
+                                onChange={(e) => handleMegaMenuCategoryChange(idx, 'subcategories', e.target.value.split(',').map(s => s.trim()))}
+                                className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-slate-200 text-xs"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Section: Vista Categories & Wholesale Bulk Discounts */}
+          {activeSection === 'vistaspec' && (
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div className="flex items-center space-x-2">
+                  <Grid className="w-4 h-4 text-emerald-400" />
+                  <h2 className="text-sm font-bold text-white uppercase tracking-wider">Vista Category Tiles & Bulk Discounts</h2>
+                </div>
+                <span className="text-[10px] text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded font-mono">
+                  Conversion Boosters
+                </span>
+              </div>
+
+              {/* Category Showcase Grid Toggle */}
+              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-white font-bold text-xs">Explore Popular Categories Showcase (ভিজ্যুয়াল টপ টাইলস)</span>
+                    <p className="text-[10px] text-slate-500">Shows 6 photography category cards with starting prices below hero</p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={config.showCategoryShowcase !== false}
+                    onChange={(e) => handleFieldChange('showCategoryShowcase', e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
+                  />
+                </div>
+
+                {config.showCategoryShowcase !== false && (
+                  <div className="space-y-3 pt-2">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] text-slate-400 font-semibold mb-1">Section Title:</label>
+                        <input
+                          type="text"
+                          value={config.categoryShowcaseTitle || ''}
+                          onChange={(e) => handleFieldChange('categoryShowcaseTitle', e.target.value)}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] text-slate-400 font-semibold mb-1">Section Subtitle:</label>
+                        <input
+                          type="text"
+                          value={config.categoryShowcaseSubtitle || ''}
+                          onChange={(e) => handleFieldChange('categoryShowcaseSubtitle', e.target.value)}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white text-xs"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 pt-2">
+                      <label className="block text-[11px] text-slate-300 font-semibold">6 Showcase Category Cards:</label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {(config.categoryShowcaseCards || DEFAULT_STOREFRONT_CONFIG.categoryShowcaseCards).map((card, idx) => (
+                          <div key={idx} className="p-2.5 bg-slate-900 border border-slate-800 rounded-lg space-y-1.5 text-xs">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-emerald-400">Card #{idx + 1}</span>
+                              <span className="text-[9px] text-slate-500">Filter: {card.category}</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-1.5">
+                              <div>
+                                <label className="text-[9px] text-slate-400">Title:</label>
+                                <input
+                                  type="text"
+                                  value={card.title}
+                                  onChange={(e) => handleCategoryCardChange(idx, 'title', e.target.value)}
+                                  className="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-white text-[11px]"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-[9px] text-slate-400">Starting Price ($):</label>
+                                <input
+                                  type="text"
+                                  value={card.startingPrice}
+                                  onChange={(e) => handleCategoryCardChange(idx, 'startingPrice', e.target.value)}
+                                  className="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-white text-[11px]"
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="text-[9px] text-slate-400">Badge Tag:</label>
+                              <input
+                                type="text"
+                                value={card.badge || ''}
+                                onChange={(e) => handleCategoryCardChange(idx, 'badge', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-0.5 text-white text-[10px]"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 100% Satisfaction Guarantee Section */}
+              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Shield className="w-4 h-4 text-indigo-400" />
+                    <div>
+                      <span className="text-white font-bold text-xs">100% Satisfaction Guarantee Banner</span>
+                      <p className="text-[10px] text-slate-500">Reassurance banner guaranteeing quality, free reprints, or full refund</p>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={config.showSatisfactionGuarantee !== false}
+                    onChange={(e) => handleFieldChange('showSatisfactionGuarantee', e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
+                  />
+                </div>
+
+                {config.showSatisfactionGuarantee !== false && (
+                  <div className="space-y-2 pt-1 text-xs">
+                    <div>
+                      <label className="block text-[11px] text-slate-400 font-semibold mb-0.5">Guarantee Headline:</label>
+                      <input
+                        type="text"
+                        value={config.guaranteeHeading || ''}
+                        onChange={(e) => handleFieldChange('guaranteeHeading', e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] text-slate-400 font-semibold mb-0.5">Guarantee Subtext:</label>
+                      <textarea
+                        rows="2"
+                        value={config.guaranteeSubtext || ''}
+                        onChange={(e) => handleFieldChange('guaranteeSubtext', e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Bulk Quantity Discounts Tiers */}
+              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <BadgePercent className="w-4 h-4 text-amber-400" />
+                    <div>
+                      <span className="text-white font-bold text-xs">Wholesale Bulk Discounts Table</span>
+                      <p className="text-[10px] text-slate-500">Shows tiered volume savings inside the product customizer modal</p>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={config.showBulkDiscounts !== false}
+                    onChange={(e) => handleFieldChange('showBulkDiscounts', e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
+                  />
+                </div>
+
+                {config.showBulkDiscounts !== false && (
+                  <div className="grid grid-cols-3 gap-2.5 pt-1 text-xs">
+                    <div className="p-2.5 bg-slate-900 border border-slate-800 rounded-lg text-center">
+                      <span className="text-[10px] text-slate-400 block mb-1">Tier 1 (Small Bulk)</span>
+                      <div className="font-bold text-white text-xs">5+ Units</div>
+                      <div className="text-emerald-400 font-mono font-bold text-xs mt-0.5">{config.bulkTier1Discount || 10}% OFF</div>
+                    </div>
+                    <div className="p-2.5 bg-slate-900 border border-slate-800 rounded-lg text-center">
+                      <span className="text-[10px] text-slate-400 block mb-1">Tier 2 (Medium Bulk)</span>
+                      <div className="font-bold text-white text-xs">10+ Units</div>
+                      <div className="text-emerald-400 font-mono font-bold text-xs mt-0.5">{config.bulkTier2Discount || 15}% OFF</div>
+                    </div>
+                    <div className="p-2.5 bg-slate-900 border border-slate-800 rounded-lg text-center">
+                      <span className="text-[10px] text-slate-400 block mb-1">Tier 3 (Large Bulk)</span>
+                      <div className="font-bold text-white text-xs">25+ Units</div>
+                      <div className="text-emerald-400 font-mono font-bold text-xs mt-0.5">{config.bulkTier3Discount || 25}% OFF</div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -896,20 +1294,41 @@ export default function AdminStorefrontEditor({
               </div>
             )}
 
-            {/* 2. Preview Nav Header */}
-            <div className={`px-4 py-2 border-b flex items-center justify-between text-xs ${
+            {/* 2. Preview Nav Header with Search */}
+            <div className={`px-3 py-2 border-b flex items-center justify-between gap-2 text-xs ${
               storeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
             }`}>
-              <div className="flex items-center space-x-1.5">
+              <div className="flex items-center space-x-1.5 flex-shrink-0">
                 <div className={`w-5 h-5 rounded-md flex items-center justify-center font-bold text-[10px] text-white ${
                   storeTheme === 'light' ? 'bg-slate-900' : 'bg-indigo-600'
                 }`}>
                   P
                 </div>
-                <span className="font-extrabold text-xs">{config.brandName}</span>
+                <span className="font-extrabold text-[11px] truncate">{config.brandName}</span>
               </div>
-              <div className="text-[10px] opacity-60">Cart (2)</div>
+              {config.showSearchBar !== false && (
+                <div className={`flex-1 flex items-center px-2 py-1 rounded-lg text-[9px] border truncate ${
+                  storeTheme === 'light' ? 'bg-slate-100 text-slate-400 border-slate-200' : 'bg-slate-950 text-slate-500 border-slate-800'
+                }`}>
+                  <Search className="w-2.5 h-2.5 mr-1 opacity-50 flex-shrink-0" />
+                  <span className="truncate">{config.searchPlaceholder || 'Search products...'}</span>
+                </div>
+              )}
+              <div className="text-[10px] opacity-60 flex-shrink-0">Cart (2)</div>
             </div>
+
+            {/* Vista Mega Menu Horizontal Preview Bar */}
+            {config.showMegaMenu !== false && (
+              <div className={`px-2 py-1 border-b flex items-center space-x-2.5 text-[8px] font-semibold overflow-x-auto ${
+                storeTheme === 'light' ? 'bg-slate-50 text-slate-700 border-slate-200' : 'bg-slate-900/80 text-slate-300 border-slate-800'
+              }`}>
+                {(config.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories).slice(0, 4).map((c, i) => (
+                  <span key={i} className="whitespace-nowrap hover:text-indigo-400 cursor-pointer">
+                    {c.title}
+                  </span>
+                ))}
+              </div>
+            )}
 
             {/* 3. Preview Hero */}
             <div className={`p-4 border-b ${
@@ -956,6 +1375,34 @@ export default function AdminStorefrontEditor({
                 </div>
               )}
             </div>
+
+            {/* Preview Vista Category Showcase Tiles */}
+            {config.showCategoryShowcase !== false && (
+              <div className="p-3 border-b space-y-1.5">
+                <div className="text-[10px] font-bold text-center">{config.categoryShowcaseTitle || 'Explore Popular Categories'}</div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {(config.categoryShowcaseCards || DEFAULT_STOREFRONT_CONFIG.categoryShowcaseCards).slice(0, 3).map((tile, i) => (
+                    <div key={i} className={`p-1.5 rounded-lg border text-center ${
+                      storeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
+                    }`}>
+                      <img src={tile.image} alt="" className="w-full aspect-square object-cover rounded mb-1" />
+                      <div className="text-[8px] font-bold truncate">{tile.title}</div>
+                      <div className="text-[8px] font-mono text-emerald-600 font-bold">${tile.startingPrice}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Preview 100% Satisfaction Guarantee */}
+            {config.showSatisfactionGuarantee !== false && (
+              <div className={`px-3 py-2 border-b flex items-center space-x-2 text-[9px] ${
+                storeTheme === 'light' ? 'bg-amber-50/60 border-amber-200/60 text-amber-900' : 'bg-indigo-950/40 border-indigo-500/20 text-indigo-300'
+              }`}>
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                <span className="font-bold truncate">{config.guaranteeHeading || '100% Satisfaction Guaranteed'}</span>
+              </div>
+            )}
 
             {/* 4. Preview Products Grid (Accurately reflecting columns & spacing) */}
             <div className={`p-4 space-y-3 ${
