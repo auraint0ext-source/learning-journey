@@ -4,11 +4,50 @@ import {
   ShoppingBag, Star, ShieldCheck, Truck, ArrowRight, X, 
   Check, Heart, Sparkles, Plus, Minus, CreditCard, ChevronRight, ChevronLeft, CheckCircle2, Lock, Settings,
   ShoppingCart, Landmark, Smartphone, Wallet, Building2, Copy, DollarSign, Trash2, Shield,
-  Sun, Moon, SlidersHorizontal, Search, ChevronDown, Layers, Briefcase, Shirt, Coffee, Image, Tag, BadgePercent, Package, Quote
+  Sun, Moon, SlidersHorizontal, Search, ChevronDown, Layers, Briefcase, Shirt, Coffee, Image, Tag, BadgePercent, Package, Quote,
+  UploadCloud, Palette, FileText, Eye, CheckCircle, ArrowLeft, RefreshCw
 } from 'lucide-react';
 
 import { DEFAULT_STOREFRONT_CONFIG } from '../config/storefrontConfig';
 import { DEFAULT_CATALOG_PRODUCTS } from '../config/catalogProducts';
+
+const SAMPLE_VISTA_TEMPLATES = [
+  {
+    id: 'tpl-minimal-gold',
+    name: 'Minimalist Monogram Gold',
+    category: 'Executive & Corporate',
+    preview: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=600&q=80',
+    description: 'Ultra-clean sans-serif typography with foil monogram accents.'
+  },
+  {
+    id: 'tpl-creative-bold',
+    name: 'Modern Studio Contrast',
+    category: 'Design & Agency',
+    preview: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=600&q=80',
+    description: 'Bold asymmetric layout ideal for creative professionals and architects.'
+  },
+  {
+    id: 'tpl-holiday-pine',
+    name: 'Festive Pine & Winter Gold',
+    category: 'Holiday & Celebration',
+    preview: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&w=600&q=80',
+    description: 'Classic festive botanicals with metallic typography highlights.'
+  },
+  {
+    id: 'tpl-artisan-kraft',
+    name: 'Artisan Workshop Natural',
+    category: 'Handcrafted & Retail',
+    preview: 'https://images.unsplash.com/photo-1543258103-a62bdc069871?auto=format&fit=crop&w=600&q=80',
+    description: 'Rustic handcrafted badge layout calibrated for uncoated craft stock.'
+  },
+  {
+    id: 'tpl-tech-gradient',
+    name: 'Cyberpunk Aurora Luxe',
+    category: 'Technology & Startups',
+    preview: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80',
+    description: 'Dark mode grid with luminous gradient accents for tech innovators.'
+  }
+];
 
 export default function CustomerStorefront({ 
   currentMarket, 
@@ -139,12 +178,111 @@ export default function CustomerStorefront({
   const [selectedColor, setSelectedColor] = useState('Vintage Black');
   const [selectedFinish, setSelectedFinish] = useState('Matte');
   const [modalQuantity, setModalQuantity] = useState(1);
+  const [selectedPaperStock, setSelectedPaperStock] = useState('Premium 16pt Matte');
+  const [selectedCorner, setSelectedCorner] = useState('Standard Rectangular (3.5" x 2")');
+  const [activeOrderingFlow, setActiveOrderingFlow] = useState('configurator'); // 'configurator' | 'templates' | 'upload'
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [uploadedArtwork, setUploadedArtwork] = useState(null);
+  const [activeMockupView, setActiveMockupView] = useState('front'); // 'front' | 'back' | 'lifestyle'
+  const [proofApproved, setProofApproved] = useState(true);
+  const [isSimulatingUpload, setIsSimulatingUpload] = useState(false);
+  const [templateSearch, setTemplateSearch] = useState('');
+  const [templateFilter, setTemplateFilter] = useState('All');
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState('cart'); // 'cart' | 'checkout' | 'success'
   const [orderPlacedData, setOrderPlacedData] = useState(null);
 
   // Vista Mega Menu Hover & Smooth Delay State
   const megaMenuTimeoutRef = React.useRef(null);
+
+  const handleSubmenuItemClick = (categoryKey, itemName, columnHeading) => {
+    if (megaMenuTimeoutRef.current) {
+      clearTimeout(megaMenuTimeoutRef.current);
+    }
+    setActiveMegaMenu(null);
+
+    const lowerItem = (itemName || '').toLowerCase();
+    
+    // 1. Find product matching title or tags
+    let matched = products.find(p => 
+      p.title.toLowerCase().includes(lowerItem) ||
+      (p.tags && p.tags.some(t => lowerItem.includes(t.toLowerCase()) || t.toLowerCase().includes(lowerItem)))
+    );
+
+    // 2. Fallback: match by category
+    if (!matched) {
+      const catMatches = products.filter(p => p.category.toLowerCase() === categoryKey.toLowerCase());
+      if (catMatches.length > 0) {
+        matched = {
+          ...catMatches[0],
+          id: `custom-${Date.now()}`,
+          title: lowerItem.includes('card') || lowerItem.includes('calendar') || lowerItem.includes('mug') || lowerItem.includes('banner') || lowerItem.includes('hoodie') || lowerItem.includes('poster') || lowerItem.includes('sticker')
+            ? itemName
+            : `${itemName} - ${catMatches[0].title}`,
+          configuredSubcategory: itemName,
+          configuredCategory: categoryKey,
+          configuredColumn: columnHeading
+        };
+      } else {
+        matched = {
+          id: `custom-${Date.now()}`,
+          title: itemName,
+          category: categoryKey,
+          base_price_usd: 19.99,
+          image_url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=700&q=80',
+          sku: `VP-${categoryKey.substring(0,3).toUpperCase()}-${Date.now().toString().slice(-4)}`,
+          supplier: 'PrintFlow Domestic Hub',
+          in_stock: true,
+          description: `Custom ${itemName} printed on premium domestic POD stock with precision edge trim.`
+        };
+      }
+    }
+
+    // 3. Preselect appropriate stock/finish/corners based on clicked submenu
+    if (lowerItem.includes('uncoated')) {
+      setSelectedPaperStock('Uncoated 16pt (Writable)');
+      setSelectedFinish('Uncoated Tactile');
+    } else if (lowerItem.includes('foil') || lowerItem.includes('metallic') || lowerItem.includes('embossed')) {
+      setSelectedPaperStock('18pt Luxe Foil-Stamped');
+      setSelectedFinish('Gold Foil Embossed');
+    } else if (lowerItem.includes('linen')) {
+      setSelectedPaperStock('15pt Woven Italian Linen');
+      setSelectedFinish('Textured Linen');
+    } else if (lowerItem.includes('gloss')) {
+      setSelectedPaperStock('Premium 16pt Glossy');
+      setSelectedFinish('Glossy UV');
+    } else if (lowerItem.includes('matte')) {
+      setSelectedPaperStock('Premium 16pt Matte');
+      setSelectedFinish('Matte Soft-Touch');
+    } else if (lowerItem.includes('kraft') || lowerItem.includes('eco') || lowerItem.includes('recycled')) {
+      setSelectedPaperStock('18pt Recycled Brown Kraft');
+      setSelectedFinish('Natural Uncoated');
+    } else {
+      setSelectedPaperStock('Premium 16pt Matte');
+      setSelectedFinish('Matte');
+    }
+
+    if (lowerItem.includes('rounded')) {
+      setSelectedCorner('Rounded Corners (1/4" Radius)');
+    } else if (lowerItem.includes('square')) {
+      setSelectedCorner('Square Format (2.5" x 2.5")');
+    } else {
+      setSelectedCorner('Standard Rectangular (3.5" x 2")');
+    }
+
+    // Default quantity
+    if (categoryKey.toLowerCase() === 'marketing' || categoryKey.toLowerCase() === 'holiday' || lowerItem.includes('card')) {
+      setModalQuantity(100);
+    } else {
+      setModalQuantity(1);
+    }
+
+    setActiveMockupView('front');
+    setSelectedTemplate(null);
+    setUploadedArtwork(null);
+    setActiveOrderingFlow('configurator');
+    setSelectedProduct(matched);
+  };
 
   const handleMenuMouseEnter = (idx) => {
     if (megaMenuTimeoutRef.current) {
@@ -285,17 +423,39 @@ export default function CustomerStorefront({
     return (usdPrice * marketInfo.exchange_rate_to_usd).toFixed(2);
   };
 
-  // Add to Cart with bulk discount support
-  const handleAddToCart = (product, size = selectedSize, color = selectedColor, qty = modalQuantity, finish = selectedFinish) => {
+  // Add to Cart with bulk discount support and VistaPrint custom options
+  const handleAddToCart = (
+    product, 
+    size = selectedSize, 
+    color = selectedColor, 
+    qty = modalQuantity, 
+    finish = selectedFinish,
+    paperStock = selectedPaperStock,
+    corner = selectedCorner,
+    template = selectedTemplate,
+    artwork = uploadedArtwork
+  ) => {
     const rawPrice = parseFloat(getPrice(product.base_price_usd));
     const bulkDiscount = getBulkDiscountPercent(qty);
     const unitPrice = parseFloat((rawPrice * (1 - bulkDiscount / 100)).toFixed(2));
 
     setCart((prev) => {
-      const existing = prev.find((item) => item.product_id === product.id && item.size === size && item.color === color && item.finish === finish);
+      const existing = prev.find((item) => 
+        item.product_id === product.id && 
+        item.size === size && 
+        item.color === color && 
+        item.finish === finish &&
+        item.paperStock === paperStock &&
+        item.corner === corner
+      );
       if (existing) {
         return prev.map((item) =>
-          item.product_id === product.id && item.size === size && item.color === color && item.finish === finish
+          item.product_id === product.id && 
+          item.size === size && 
+          item.color === color && 
+          item.finish === finish &&
+          item.paperStock === paperStock &&
+          item.corner === corner
             ? { ...item, quantity: item.quantity + qty }
             : item
         );
@@ -303,18 +463,25 @@ export default function CustomerStorefront({
       return [
         ...prev,
         {
+          id: `item-${Date.now()}-${Math.random()}`,
           product_id: product.id,
           title: product.title,
           unit_price: unitPrice,
-          image_url: product.image_url,
+          image_url: template?.preview || artwork?.previewUrl || product.image_url,
           size,
           color,
           finish,
+          paperStock,
+          corner,
+          template: template ? template.name : null,
+          artwork: artwork ? artwork.name : null,
           quantity: qty,
+          supplier: product.supplier
         }
       ];
     });
     setSelectedProduct(null);
+    setActiveOrderingFlow('configurator');
     setIsCartOpen(true);
   };
 
@@ -624,10 +791,10 @@ export default function CustomerStorefront({
       <nav 
         className={`sticky top-0 z-40 w-full transition-colors ${
           isLight 
-            ? 'bg-white shadow-xs' 
-            : 'bg-slate-900/95 backdrop-blur border-b border-slate-800 shadow-xs'
+            ? 'bg-white' 
+            : 'bg-slate-900/95 backdrop-blur'
         }`}
-        style={{ backgroundColor: isLight ? '#ffffff' : undefined }}
+        style={{ backgroundColor: isLight ? '#ffffff' : undefined, borderBottom: 'none', boxShadow: 'none' }}
       >
         <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-4">
           {/* Logo & Brand Identity */}
@@ -772,12 +939,15 @@ export default function CustomerStorefront({
         {cfg.showMegaMenu !== false && (
           <div 
             className={`relative ${
-              isLight ? 'bg-white border-t border-slate-100' : 'bg-slate-950/80 border-t border-slate-800'
+              isLight ? 'bg-white' : 'bg-slate-950/80'
             }`}
-            style={{ backgroundColor: isLight ? '#ffffff' : undefined }}
+            style={{ backgroundColor: isLight ? '#ffffff' : undefined, borderTop: 'none', borderBottom: 'none' }}
             onMouseLeave={handleMenuMouseLeave}
           >
-            <div className={`w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto no-scrollbar ${menuBarFontSizeClass} font-semibold py-1`}>
+            <div 
+              className={`w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto no-scrollbar ${menuBarFontSizeClass} font-semibold py-1`}
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
               <div className={`flex items-center ${menuBarItemSpacingClass}`}>
                 <button
                   onClick={() => { setActiveCategory('All'); setSearchQuery(''); setActiveMegaMenu(null); }}
@@ -871,13 +1041,7 @@ export default function CustomerStorefront({
                             {col.items.map((item, iIdx) => (
                               <li key={iIdx}>
                                 <button
-                                  onClick={() => {
-                                    setActiveCategory(currentMenu.categoryKey);
-                                    setSearchQuery(item);
-                                    setActiveMegaMenu(null);
-                                    const el = document.getElementById('catalog-grid');
-                                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                  }}
+                                  onClick={() => handleSubmenuItemClick(currentMenu.categoryKey, item, col.heading)}
                                   className={`${dropdownItemFontSizeClass} text-left w-full ${dropdownItemPaddingClass} rounded-lg transition flex items-center justify-between group ${
                                     isLight 
                                       ? 'text-slate-700 hover:text-indigo-600 hover:bg-slate-100' 
@@ -1499,9 +1663,7 @@ export default function CustomerStorefront({
                       onClick={() => { setActiveCategory(cat.key); setSearchQuery(''); }}
                       className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap shadow-xs ${
                         isSelected
-                          ? isLight
-                            ? 'bg-slate-900 text-white shadow-sm'
-                            : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25'
                           : isLight
                             ? 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                             : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
@@ -1692,7 +1854,7 @@ export default function CustomerStorefront({
       )}
       </main>
 
-      {/* 5. VistaPrint-Style Product Quick-View & Customizer Modal */}
+      {/* 5. VistaPrint-Style Product Order Configurator, Template Picker & Design Uploader */}
       {selectedProduct && (() => {
         const rawUnitPrice = parseFloat(getPrice(selectedProduct.base_price_usd));
         const bulkDisc = getBulkDiscountPercent(modalQuantity);
@@ -1700,243 +1862,629 @@ export default function CustomerStorefront({
         const totalModalPrice = (discountedUnitPrice * modalQuantity).toFixed(2);
         const totalSaved = ((rawUnitPrice - discountedUnitPrice) * modalQuantity).toFixed(2);
 
+        // Perspective mockup images
+        const currentMockupImage = selectedTemplate?.preview 
+          || uploadedArtwork?.previewUrl 
+          || (activeMockupView === 'back' 
+              ? (selectedProduct.image_url.includes('?') ? selectedProduct.image_url + '&view=back' : selectedProduct.image_url)
+              : activeMockupView === 'lifestyle'
+              ? 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80'
+              : selectedProduct.image_url);
+
         return (
           <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-            <div className={`rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl flex flex-col md:flex-row border my-8 ${
+            <div className={`rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col border my-8 transition-all ${
               isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-slate-800 text-white'
             }`}>
-              {/* Left Column: Product Image & Badges */}
-              <div className={`md:w-5/12 p-6 flex flex-col items-center justify-between ${isLight ? 'bg-slate-100' : 'bg-slate-950'}`}>
-                <div className="w-full flex items-center justify-between text-[10px] font-bold">
-                  <span className={`px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                    isLight ? 'bg-indigo-100 text-indigo-700' : 'bg-indigo-950 text-indigo-300 border border-indigo-500/30'
-                  }`}>
-                    {selectedProduct.category}
-                  </span>
-                  <span className="text-emerald-500 font-mono">In Stock • 2-Day Ship</span>
-                </div>
-
-                <img
-                  src={selectedProduct.image_url}
-                  alt={selectedProduct.title}
-                  className="max-h-64 object-cover rounded-2xl shadow-md my-4"
-                />
-
-                <div className={`w-full p-2.5 rounded-xl border text-[10px] flex items-center space-x-2 ${
-                  isLight ? 'bg-white border-slate-200 text-slate-700' : 'bg-slate-900 border-slate-800 text-slate-300'
-                }`}>
-                  <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                  <span>100% Satisfaction Guarantee: Love it or reprinted free.</span>
-                </div>
-              </div>
-
-              {/* Right Column: Customization Specs & Bulk Pricing */}
-              <div className="md:w-7/12 p-6 flex flex-col justify-between space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className={`text-base sm:text-lg font-black leading-snug ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                        {selectedProduct.title}
-                      </h3>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <span className={`text-2xl font-black font-mono ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>
-                          {marketInfo.currency_symbol}{discountedUnitPrice.toFixed(2)}
-                        </span>
-                        {bulkDisc > 0 && (
-                          <span className="text-xs text-slate-400 line-through font-mono">
-                            {marketInfo.currency_symbol}{rawUnitPrice.toFixed(2)}
-                          </span>
-                        )}
-                        {bulkDisc > 0 && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
-                            {bulkDisc}% Bulk Savings
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => setSelectedProduct(null)} 
-                      className={`p-1.5 rounded-xl transition ${isLight ? 'text-slate-400 hover:text-slate-900 hover:bg-slate-100' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+              
+              {/* Top Navigation Header for Modal */}
+              <div className={`px-6 py-3.5 border-b flex items-center justify-between ${
+                isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/80 border-slate-800'
+              }`}>
+                <div className="flex items-center space-x-2 text-xs">
+                  {activeOrderingFlow !== 'configurator' ? (
+                    <button
+                      onClick={() => setActiveOrderingFlow('configurator')}
+                      className={`flex items-center space-x-1.5 font-bold transition ${
+                        isLight ? 'text-indigo-600 hover:text-indigo-800' : 'text-indigo-400 hover:text-indigo-300'
+                      }`}
                     >
-                      <X className="w-5 h-5" />
+                      <ArrowLeft className="w-4 h-4" />
+                      <span>Back to Product Specifications</span>
                     </button>
-                  </div>
-
-                  {/* Domestic Courier Reassurance Pill */}
-                  <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-semibold ${
-                    isLight ? 'bg-slate-100 text-slate-700' : 'bg-slate-800/80 text-slate-300'
-                  }`}>
-                    <Truck className="w-3.5 h-3.5 text-indigo-500" />
-                    <span>Dispatched in 2 Days via {marketInfo.fulfillment_hub.split('(')[0]}</span>
-                  </div>
-
-                  {/* VistaPrint Wholesale Bulk Pricing Tiers */}
-                  {cfg.showBulkDiscounts !== false && (
-                    <div className="pt-1">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className={`text-[11px] font-bold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-                          Wholesale Volume Pricing:
-                        </span>
-                        <span className="text-[10px] text-indigo-400 font-mono">Buy more, save more</span>
-                      </div>
-                      <div className="grid grid-cols-4 gap-1.5 text-center text-xs">
-                        {[
-                          { qty: '1-4 pcs', disc: 'Regular', active: modalQuantity < 5, min: 1 },
-                          { qty: '5+ pcs', disc: `10% OFF`, active: modalQuantity >= 5 && modalQuantity < 10, min: 5 },
-                          { qty: '10+ pcs', disc: `15% OFF`, active: modalQuantity >= 10 && modalQuantity < 25, min: 10 },
-                          { qty: '25+ pcs', disc: `25% OFF`, active: modalQuantity >= 25, min: 25 },
-                        ].map((tier, tIdx) => (
-                          <button
-                            key={tIdx}
-                            type="button"
-                            onClick={() => setModalQuantity(tier.min)}
-                            className={`p-2 rounded-xl border transition ${
-                              tier.active
-                                ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm font-bold'
-                                : isLight
-                                  ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
-                            }`}
-                          >
-                            <div className="font-bold text-[11px]">{tier.qty}</div>
-                            <div className={`text-[9px] font-mono ${tier.active ? 'text-emerald-200' : 'text-emerald-500'}`}>
-                              {tier.disc}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
+                  ) : (
+                    <div className="flex items-center space-x-1.5 text-[11px] text-slate-400">
+                      <span className="hover:underline cursor-pointer" onClick={() => setSelectedProduct(null)}>Home</span>
+                      <span>/</span>
+                      <span className="font-semibold text-slate-600 dark:text-slate-300">{selectedProduct.category}</span>
+                      <span>/</span>
+                      <span className="font-bold text-indigo-600 dark:text-indigo-400 truncate max-w-xs">{selectedProduct.title}</span>
                     </div>
                   )}
-
-                  {/* Size Selection */}
-                  {selectedProduct.category === 'Apparel' && (
-                    <div className="pt-1">
-                      <label className={`text-xs font-semibold block mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-                        Size:
-                      </label>
-                      <div className="flex space-x-2">
-                        {['S', 'M', 'L', 'XL', '2XL'].map((s) => (
-                          <button
-                            key={s}
-                            onClick={() => setSelectedSize(s)}
-                            className={`w-9 h-9 rounded-xl text-xs font-bold transition flex items-center justify-center ${
-                              selectedSize === s
-                                ? isLight ? 'bg-slate-900 text-white shadow-sm' : 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                                : isLight ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                            }`}
-                          >
-                            {s}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Color & Finish Selection */}
-                  <div className="grid grid-cols-2 gap-3 pt-1">
-                    <div>
-                      <label className={`text-xs font-semibold block mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-                        Color Variant:
-                      </label>
-                      <select
-                        value={selectedColor}
-                        onChange={(e) => setSelectedColor(e.target.value)}
-                        className={`w-full py-1.5 px-2.5 rounded-xl text-xs font-semibold border outline-none ${
-                          isLight ? 'bg-slate-50 border-slate-200 text-slate-800' : 'bg-slate-950 border-slate-800 text-slate-200'
-                        }`}
-                      >
-                        <option value="Vintage Black">Vintage Black</option>
-                        <option value="Heather Grey">Heather Grey</option>
-                        <option value="Forest Green">Forest Green</option>
-                        <option value="Natural Canvas">Natural Canvas</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className={`text-xs font-semibold block mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-                        Substrate Finish:
-                      </label>
-                      <select
-                        value={selectedFinish}
-                        onChange={(e) => setSelectedFinish(e.target.value)}
-                        className={`w-full py-1.5 px-2.5 rounded-xl text-xs font-semibold border outline-none ${
-                          isLight ? 'bg-slate-50 border-slate-200 text-slate-800' : 'bg-slate-950 border-slate-800 text-slate-200'
-                        }`}
-                      >
-                        <option value="Matte">Archival Matte</option>
-                        <option value="Glossy">Vivid Glossy</option>
-                        <option value="Soft-Touch">Soft-Touch Velvet</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Quantity Stepper with Bulk Savings calculation */}
-                  <div className="pt-2 flex items-center justify-between">
-                    <div>
-                      <span className={`text-xs font-bold block ${isLight ? 'text-slate-800' : 'text-white'}`}>
-                        Order Quantity:
-                      </span>
-                      {bulkDisc > 0 && (
-                        <span className="text-[10px] text-emerald-500 font-bold block">
-                          Savings: {marketInfo.currency_symbol}{totalSaved} ({bulkDisc}% OFF)
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <button
-                        type="button"
-                        onClick={() => setModalQuantity(q => Math.max(1, q - 1))}
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center border font-bold text-sm ${
-                          isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-800' : 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700'
-                        }`}
-                      >
-                        -
-                      </button>
-                      <input
-                        type="number"
-                        min="1"
-                        value={modalQuantity}
-                        onChange={(e) => setModalQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                        className={`w-12 h-8 text-center rounded-lg border font-mono font-bold text-xs outline-none ${
-                          isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-700 text-white'
-                        }`}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setModalQuantity(q => q + 1)}
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center border font-bold text-sm ${
-                          isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-800' : 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700'
-                        }`}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
                 </div>
 
-                {/* Modal Footer with Add to Bag */}
-                <div className={`pt-4 border-t flex items-center justify-between space-x-3 ${isLight ? 'border-slate-200' : 'border-slate-800'}`}>
-                  <div>
-                    <div className="text-[10px] text-slate-400">Total Price ({modalQuantity} units):</div>
-                    <div className={`text-xl font-black font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                      {marketInfo.currency_symbol}{totalModalPrice}
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => handleAddToCart(selectedProduct, selectedSize, selectedColor, modalQuantity, selectedFinish)}
-                    className={`py-3 px-6 rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow-lg ${
-                      isLight 
-                        ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-slate-900/20' 
-                        : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
-                    }`}
+                <div className="flex items-center space-x-2">
+                  <span className="hidden sm:inline text-[10px] font-bold uppercase tracking-wider text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    VistaPrint Certified POD
+                  </span>
+                  <button 
+                    onClick={() => { setSelectedProduct(null); setActiveOrderingFlow('configurator'); }} 
+                    className={`p-1.5 rounded-xl transition ${isLight ? 'text-slate-400 hover:text-slate-900 hover:bg-slate-200' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
                   >
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Add to Bag ({marketInfo.currency_symbol}{totalModalPrice})</span>
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
               </div>
+
+              {/* FLOW 1: Main Product Configurator View */}
+              {activeOrderingFlow === 'configurator' && (
+                <div className="flex flex-col md:flex-row flex-1">
+                  {/* Left Column: Mockup Viewer & Real-time Specs */}
+                  <div className={`md:w-5/12 p-6 flex flex-col justify-between border-r ${
+                    isLight ? 'bg-slate-50/70 border-slate-100' : 'bg-slate-950/60 border-slate-800'
+                  }`}>
+                    <div>
+                      {/* Top Badges */}
+                      <div className="flex items-center justify-between text-[10px] font-bold mb-3">
+                        <span className={`px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                          isLight ? 'bg-indigo-100 text-indigo-700 font-extrabold' : 'bg-indigo-950 text-indigo-300 border border-indigo-500/30'
+                        }`}>
+                          {selectedProduct.category}
+                        </span>
+                        <span className="text-emerald-500 font-mono flex items-center space-x-1">
+                          <CheckCircle className="w-3 h-3" />
+                          <span>Domestic Fast-Ship</span>
+                        </span>
+                      </div>
+
+                      {/* Mockup Preview Container */}
+                      <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 group bg-slate-100 dark:bg-slate-900">
+                        <img
+                          src={currentMockupImage}
+                          alt={selectedProduct.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        
+                        {/* Live Overlay Badges if Template or Artwork Attached */}
+                        {selectedTemplate && (
+                          <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-indigo-600/90 text-white text-[10px] font-bold shadow-md flex items-center space-x-1 backdrop-blur-xs">
+                            <Palette className="w-3 h-3" />
+                            <span>Template: {selectedTemplate.name}</span>
+                          </div>
+                        )}
+                        {uploadedArtwork && (
+                          <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-emerald-600/90 text-white text-[10px] font-bold shadow-md flex items-center space-x-1 backdrop-blur-xs">
+                            <UploadCloud className="w-3 h-3" />
+                            <span>Custom Artwork Attached (300 DPI)</span>
+                          </div>
+                        )}
+
+                        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/60 text-white text-[9px] font-mono backdrop-blur-xs">
+                          {selectedCorner}
+                        </div>
+                      </div>
+
+                      {/* View Angle Switcher Tabs */}
+                      <div className="flex items-center justify-center space-x-2 mt-3">
+                        {[
+                          { id: 'front', label: 'Front View' },
+                          { id: 'back', label: 'Back View' },
+                          { id: 'lifestyle', label: 'Perspective' }
+                        ].map((view) => (
+                          <button
+                            key={view.id}
+                            type="button"
+                            onClick={() => setActiveMockupView(view.id)}
+                            className={`px-3 py-1 rounded-lg text-[10px] font-bold transition border ${
+                              activeMockupView === view.id
+                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                                : isLight
+                                  ? 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                                  : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                            }`}
+                          >
+                            {view.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Design Action Status Pill if active */}
+                      {(selectedTemplate || uploadedArtwork) && (
+                        <div className={`mt-4 p-2.5 rounded-xl border flex items-center justify-between text-xs ${
+                          isLight ? 'bg-indigo-50/80 border-indigo-200 text-indigo-900' : 'bg-indigo-950/40 border-indigo-900/60 text-indigo-200'
+                        }`}>
+                          <div className="flex items-center space-x-2 truncate">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                            <span className="font-semibold truncate">
+                              {selectedTemplate ? `Design: ${selectedTemplate.name}` : `Artwork: ${uploadedArtwork.name}`}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => { setSelectedTemplate(null); setUploadedArtwork(null); }}
+                            className="text-[10px] font-bold text-rose-500 hover:underline shrink-0 ml-2"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Guarantee Reassurance Card */}
+                    <div className={`mt-4 p-3 rounded-2xl border text-[11px] space-y-1 ${
+                      isLight ? 'bg-white border-slate-200 text-slate-700 shadow-xs' : 'bg-slate-900 border-slate-800 text-slate-300'
+                    }`}>
+                      <div className="flex items-center space-x-1.5 font-bold text-emerald-600 dark:text-emerald-400">
+                        <ShieldCheck className="w-4 h-4 shrink-0" />
+                        <span>VistaPrint Guarantee</span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                        If you are not 100% satisfied with paper thickness, print clarity, or alignment, we reprint for free.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Interactive Ordering Criteria & CTAs */}
+                  <div className="md:w-7/12 p-6 flex flex-col justify-between space-y-4">
+                    <div className="space-y-4">
+                      {/* Product Title, Rating & Pricing Header */}
+                      <div>
+                        <div className="flex items-center space-x-2 text-xs mb-1">
+                          <div className="flex items-center text-amber-400">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                            ))}
+                          </div>
+                          <span className="font-bold text-slate-700 dark:text-slate-300">4.9</span>
+                          <span className="text-[11px] text-slate-400">(2,480+ domestic reviews)</span>
+                        </div>
+
+                        <h3 className={`text-lg sm:text-xl font-black leading-snug ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                          {selectedProduct.title}
+                        </h3>
+
+                        <div className="flex items-center space-x-3 mt-2">
+                          <div className={`text-2xl font-black font-mono ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>
+                            {marketInfo.currency_symbol}{discountedUnitPrice.toFixed(2)}
+                            <span className="text-xs font-normal text-slate-400 ml-1">/ unit</span>
+                          </div>
+                          {bulkDisc > 0 && (
+                            <span className="text-xs text-slate-400 line-through font-mono">
+                              {marketInfo.currency_symbol}{rawUnitPrice.toFixed(2)}
+                            </span>
+                          )}
+                          {bulkDisc > 0 && (
+                            <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                              {bulkDisc}% Volume Savings Applied
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* 1. Paper Stock / Material Selector (Authentic VistaPrint) */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className={`text-xs font-bold ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
+                            1. Paper Stock & Substrate:
+                          </label>
+                          <span className="text-[10px] font-semibold text-indigo-500 font-mono">
+                            {selectedPaperStock}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {[
+                            { name: 'Standard Matte 14pt', desc: 'Glare-free & classic' },
+                            { name: 'Premium Glossy 16pt', desc: 'Vibrant UV protective' },
+                            { name: 'Uncoated 16pt (Writable)', desc: 'Natural rich texture' },
+                            { name: '15pt Woven Italian Linen', desc: 'Luxe woven cloth grain' },
+                            { name: '18pt Luxe Foil-Stamped', desc: 'Metallic embossed shine' }
+                          ].map((stock) => {
+                            const isChosen = selectedPaperStock === stock.name;
+                            return (
+                              <button
+                                key={stock.name}
+                                type="button"
+                                onClick={() => setSelectedPaperStock(stock.name)}
+                                className={`p-2.5 rounded-xl border text-left transition ${
+                                  isChosen
+                                    ? 'bg-indigo-50/90 border-indigo-500 text-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-200 ring-2 ring-indigo-500/30 font-bold'
+                                    : isLight
+                                      ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                                }`}
+                              >
+                                <div className="text-[11px] font-bold leading-tight">{stock.name}</div>
+                                <div className="text-[9px] text-slate-400 dark:text-slate-500 mt-0.5">{stock.desc}</div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* 2. Corners & Shape Selector */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className={`text-xs font-bold ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
+                            2. Shape & Corners:
+                          </label>
+                          <span className="text-[10px] font-semibold text-indigo-500">
+                            {selectedCorner}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { name: 'Standard Rectangular (3.5" x 2")', icon: '⬛' },
+                            { name: 'Rounded Corners (1/4" Radius)', icon: '🟢' },
+                            { name: 'Square Format (2.5" x 2.5")', icon: '⬜' }
+                          ].map((corner) => {
+                            const isChosen = selectedCorner === corner.name;
+                            return (
+                              <button
+                                key={corner.name}
+                                type="button"
+                                onClick={() => setSelectedCorner(corner.name)}
+                                className={`p-2 rounded-xl border text-center transition ${
+                                  isChosen
+                                    ? 'bg-indigo-50/90 border-indigo-500 text-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-200 ring-2 ring-indigo-500/30 font-bold'
+                                    : isLight
+                                      ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                                }`}
+                              >
+                                <div className="text-sm mb-0.5">{corner.icon}</div>
+                                <div className="text-[10px] font-bold leading-snug truncate">{corner.name.split(' (')[0]}</div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* 3. Quantity Tiers & Dynamic Volume Pricing */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className={`text-xs font-bold ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
+                            3. Select Quantity:
+                          </label>
+                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold">
+                            Higher quantity = lower cost per piece
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-5 gap-1.5 text-center">
+                          {[
+                            { qty: 50, price: '$14.99', ea: '$0.30 ea', disc: '' },
+                            { qty: 100, price: '$19.99', ea: '$0.20 ea', disc: 'Popular' },
+                            { qty: 250, price: '$29.99', ea: '$0.12 ea', disc: '33% OFF' },
+                            { qty: 500, price: '$39.99', ea: '$0.08 ea', disc: '60% OFF' },
+                            { qty: 1000, price: '$59.99', ea: '$0.06 ea', disc: '70% OFF' }
+                          ].map((tier) => {
+                            const isChosen = modalQuantity === tier.qty;
+                            return (
+                              <button
+                                key={tier.qty}
+                                type="button"
+                                onClick={() => setModalQuantity(tier.qty)}
+                                className={`p-2 rounded-xl border transition ${
+                                  isChosen
+                                    ? 'bg-indigo-600 border-indigo-500 text-white shadow-md font-bold'
+                                    : isLight
+                                      ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                                }`}
+                              >
+                                <div className="text-xs font-black">{tier.qty}</div>
+                                <div className="text-[9px] font-mono mt-0.5">{tier.price}</div>
+                                <div className={`text-[8px] font-semibold mt-0.5 ${isChosen ? 'text-emerald-200' : 'text-emerald-500'}`}>
+                                  {tier.disc || tier.ea}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* 4. VistaPrint Direct Production Action CTAs */}
+                      <div className="pt-2">
+                        <div className="text-[11px] font-bold text-slate-500 mb-2">
+                          4. How would you like to prepare your design?
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          {/* Browse Templates CTA */}
+                          <button
+                            type="button"
+                            onClick={() => setActiveOrderingFlow('templates')}
+                            className={`p-3 rounded-2xl border transition flex items-center space-x-3 text-left ${
+                              selectedTemplate
+                                ? 'bg-indigo-50 border-indigo-300 dark:bg-indigo-950/60 dark:border-indigo-800'
+                                : isLight
+                                  ? 'bg-slate-50 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 text-slate-800'
+                                  : 'bg-slate-950 border-slate-800 hover:border-indigo-500/60 hover:bg-slate-900 text-white'
+                            }`}
+                          >
+                            <div className="w-9 h-9 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                              <Palette className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-extrabold text-xs">Browse Templates</div>
+                              <div className="text-[10px] text-slate-400 truncate">
+                                {selectedTemplate ? selectedTemplate.name : 'Choose from 5+ designer layouts'}
+                              </div>
+                            </div>
+                          </button>
+
+                          {/* Upload Your Design CTA */}
+                          <button
+                            type="button"
+                            onClick={() => setActiveOrderingFlow('upload')}
+                            className={`p-3 rounded-2xl border transition flex items-center space-x-3 text-left ${
+                              uploadedArtwork
+                                ? 'bg-emerald-50 border-emerald-300 dark:bg-emerald-950/60 dark:border-emerald-800'
+                                : isLight
+                                  ? 'bg-slate-50 border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40 text-slate-800'
+                                  : 'bg-slate-950 border-slate-800 hover:border-emerald-500/60 hover:bg-slate-900 text-white'
+                            }`}
+                          >
+                            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                              <UploadCloud className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-extrabold text-xs">Upload Your Design</div>
+                              <div className="text-[10px] text-slate-400 truncate">
+                                {uploadedArtwork ? uploadedArtwork.name : 'PDF, PNG, SVG (300 DPI ready)'}
+                              </div>
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Proof Approval Checkbox */}
+                      <label className="flex items-center space-x-2 pt-1 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={proofApproved}
+                          onChange={(e) => setProofApproved(e.target.checked)}
+                          className="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
+                        />
+                        <span className={`text-[11px] font-medium ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                          I approve my proof, specs, and understand domestic printing begins upon order.
+                        </span>
+                      </label>
+                    </div>
+
+                    {/* Modal Footer with Add to Bag */}
+                    <div className={`pt-4 mt-2 border-t flex items-center justify-between space-x-4 ${
+                      isLight ? 'border-slate-200' : 'border-slate-800'
+                    }`}>
+                      <div>
+                        <div className="text-[10px] text-slate-400">Total Price ({modalQuantity} units):</div>
+                        <div className={`text-2xl font-black font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                          {marketInfo.currency_symbol}{totalModalPrice}
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleAddToCart(
+                          selectedProduct, 
+                          selectedSize, 
+                          selectedColor, 
+                          modalQuantity, 
+                          selectedFinish, 
+                          selectedPaperStock, 
+                          selectedCorner, 
+                          selectedTemplate, 
+                          uploadedArtwork
+                        )}
+                        className={`py-3 px-6 rounded-xl text-xs font-extrabold transition flex items-center space-x-2 shadow-lg ${
+                          isLight 
+                            ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/25' 
+                            : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
+                        }`}
+                      >
+                        <ShoppingBag className="w-4 h-4" />
+                        <span>Configure & Add to Cart ({marketInfo.currency_symbol}{totalModalPrice})</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* FLOW 2: VistaPrint Template Browser */}
+              {activeOrderingFlow === 'templates' && (
+                <div className="p-6 space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h4 className="text-base font-bold">Select a Designer Template</h4>
+                      <p className="text-xs text-slate-400">
+                        Choose a professionally pre-formatted template for {selectedProduct.title}. Fully editable in print production.
+                      </p>
+                    </div>
+                    
+                    <button
+                      type="button"
+                      onClick={() => setActiveOrderingFlow('configurator')}
+                      className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition flex items-center space-x-1.5 self-start ${
+                        isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-800' : 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700'
+                      }`}
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" />
+                      <span>Back to Product</span>
+                    </button>
+                  </div>
+
+                  {/* Template Cards Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {SAMPLE_VISTA_TEMPLATES.map((tpl) => {
+                      const isSelected = selectedTemplate?.id === tpl.id;
+                      return (
+                        <div
+                          key={tpl.id}
+                          className={`rounded-2xl border p-3 flex flex-col justify-between transition-all duration-300 shadow-md ${
+                            isSelected
+                              ? 'border-indigo-500 ring-2 ring-indigo-500/30 bg-indigo-50/20'
+                              : isLight ? 'bg-white border-slate-200 hover:border-slate-300' : 'bg-slate-950 border-slate-800 hover:border-slate-700'
+                          }`}
+                        >
+                          <div>
+                            <div className="relative aspect-[16/10] rounded-xl overflow-hidden mb-3 bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800">
+                              <img src={tpl.preview} alt={tpl.name} className="w-full h-full object-cover" />
+                              <span className="absolute top-2 left-2 text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-950/80 text-white backdrop-blur-xs">
+                                {tpl.category}
+                              </span>
+                            </div>
+                            <h5 className="font-bold text-sm leading-snug">{tpl.name}</h5>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                              {tpl.description}
+                            </p>
+                          </div>
+
+                          <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-800">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedTemplate(tpl);
+                                setUploadedArtwork(null);
+                                setActiveOrderingFlow('configurator');
+                              }}
+                              className={`w-full py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 ${
+                                isSelected
+                                  ? 'bg-emerald-600 text-white shadow-sm'
+                                  : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm'
+                              }`}
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>{isSelected ? 'Currently Selected' : 'Use this Template'}</span>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* FLOW 3: VistaPrint Artwork Uploader */}
+              {activeOrderingFlow === 'upload' && (
+                <div className="p-6 space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h4 className="text-base font-bold">Upload Your Print-Ready Artwork</h4>
+                      <p className="text-xs text-slate-400">
+                        Upload your high-resolution custom graphics, PDF proofs, or company logos.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveOrderingFlow('configurator')}
+                      className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition flex items-center space-x-1.5 self-start ${
+                        isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-800' : 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700'
+                      }`}
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" />
+                      <span>Back to Product</span>
+                    </button>
+                  </div>
+
+                  {/* Drag and Drop Zone */}
+                  <div
+                    onClick={() => {
+                      setIsSimulatingUpload(true);
+                      setTimeout(() => {
+                        setUploadedArtwork({
+                          name: `custom-artwork-${Date.now().toString().slice(-4)}.pdf`,
+                          size: '4.8 MB',
+                          previewUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=700&q=80',
+                          dpi: '300 DPI CMYK'
+                        });
+                        setSelectedTemplate(null);
+                        setIsSimulatingUpload(false);
+                      }, 900);
+                    }}
+                    className={`border-2 border-dashed rounded-3xl p-8 text-center cursor-pointer transition-all duration-300 ${
+                      uploadedArtwork
+                        ? 'border-emerald-500 bg-emerald-50/10'
+                        : isLight
+                          ? 'border-slate-300 hover:border-indigo-500 bg-slate-50/50 hover:bg-indigo-50/30'
+                          : 'border-slate-700 hover:border-indigo-500 bg-slate-950 hover:bg-slate-900'
+                    }`}
+                  >
+                    <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-3 shadow-inner">
+                      {isSimulatingUpload ? (
+                        <RefreshCw className="w-6 h-6 animate-spin" />
+                      ) : uploadedArtwork ? (
+                        <CheckCircle2 className="w-7 h-7 text-emerald-500" />
+                      ) : (
+                        <UploadCloud className="w-7 h-7" />
+                      )}
+                    </div>
+
+                    {uploadedArtwork ? (
+                      <div>
+                        <div className="font-extrabold text-sm text-emerald-600 dark:text-emerald-400">
+                          Artwork Uploaded & Verified: {uploadedArtwork.name}
+                        </div>
+                        <div className="text-xs text-slate-400 mt-1">
+                          File Size: {uploadedArtwork.size} • Color Space: {uploadedArtwork.dpi} • Safe Trim OK
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-2">
+                          Click to upload or replace with another file.
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="font-extrabold text-sm">
+                          {isSimulatingUpload ? 'Validating Resolution & Bleed Margins...' : 'Drag & drop your print file here, or browse'}
+                        </div>
+                        <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+                          Supports PDF, SVG, EPS, AI, PSD, and PNG up to 50MB. Automatically checked for 300 DPI print fidelity.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Print Specifications Checklist */}
+                  <div className={`p-4 rounded-2xl border text-xs grid grid-cols-1 sm:grid-cols-3 gap-3 ${
+                    isLight ? 'bg-slate-50 border-slate-200 text-slate-700' : 'bg-slate-950 border-slate-800 text-slate-300'
+                  }`}>
+                    <div className="flex items-start space-x-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-bold">Bleed Dimensions</div>
+                        <div className="text-[11px] text-slate-500">3.75" × 2.25" with 1/8" bleed</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-bold">Safe Text Zone</div>
+                        <div className="text-[11px] text-slate-500">Keep text 1/8" from cut edge</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-bold">Resolution</div>
+                        <div className="text-[11px] text-slate-500">300 DPI CMYK recommended</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Upload Confirm CTA */}
+                  <div className="flex justify-end space-x-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => setActiveOrderingFlow('configurator')}
+                      className={`py-2.5 px-6 rounded-xl text-xs font-bold transition ${
+                        uploadedArtwork
+                          ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md'
+                          : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md'
+                      }`}
+                    >
+                      {uploadedArtwork ? 'Confirm Artwork & Return to Specs' : 'Done & Return to Specs'}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         );
@@ -1975,7 +2523,11 @@ export default function CustomerStorefront({
                       <div className="flex-1 space-y-1">
                         <h4 className={`font-bold line-clamp-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>{item.title}</h4>
                         <div className={`text-[11px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-                          {item.size && `Size: ${item.size} • `}{item.color}
+                          {item.paperStock && <span className="font-semibold text-indigo-600 dark:text-indigo-400">{item.paperStock} • </span>}
+                          {item.corner && <span>{item.corner} • </span>}
+                          {item.template && <span className="text-amber-600 dark:text-amber-400">Template: {item.template} • </span>}
+                          {item.artwork && <span className="text-emerald-600 dark:text-emerald-400">Artwork: {item.artwork} • </span>}
+                          {item.size && `Size: ${item.size} • `}{item.color || item.finish}
                         </div>
                         <div className={`font-mono font-bold ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>
                           {marketInfo.currency_symbol}{(item.unit_price * item.quantity).toFixed(2)}

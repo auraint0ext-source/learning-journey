@@ -1050,6 +1050,33 @@ export default function AdminProductManager({
                 ></textarea>
               </div>
 
+              {/* VistaPrint Substrate & Paper Stock Options Manager */}
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white flex items-center space-x-1.5">
+                    <Layers className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>VistaPrint Material & Finishing Specifications</span>
+                  </span>
+                  <span className="text-[10px] text-indigo-400 bg-indigo-950/60 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">
+                    POD Spec
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div>
+                    <label className="text-slate-400 block mb-1">Supported Paper Stocks:</label>
+                    <div className="text-slate-300 font-mono bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">
+                      Standard Matte, Glossy, Uncoated 16pt, Linen, Foil
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-slate-400 block mb-1">Corner Profiles:</label>
+                    <div className="text-slate-300 font-mono bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">
+                      Standard Rectangular, Rounded, Square
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Price Preview */}
               <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
                 <span className="text-slate-400">Calculated Storefront Prices:</span>
@@ -1223,6 +1250,33 @@ export default function AdminProductManager({
                     </span>
                   )}
                 </button>
+              </div>
+
+              {/* VistaPrint Substrate & Paper Stock Options Manager */}
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white flex items-center space-x-1.5">
+                    <Layers className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>VistaPrint Material & Finishing Specifications</span>
+                  </span>
+                  <span className="text-[10px] text-indigo-400 bg-indigo-950/60 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">
+                    POD Spec
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div>
+                    <label className="text-slate-400 block mb-1">Supported Paper Stocks:</label>
+                    <div className="text-slate-300 font-mono bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">
+                      Standard Matte, Glossy, Uncoated 16pt, Linen, Foil
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-slate-400 block mb-1">Corner Profiles:</label>
+                    <div className="text-slate-300 font-mono bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">
+                      Standard Rectangular, Rounded, Square
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Price Preview */}

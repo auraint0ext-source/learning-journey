@@ -678,6 +678,40 @@ export default function AdminStorefrontEditor({
                           </select>
                         </div>
                       </div>
+
+                      {/* VistaPrint Submenu Order Flow Settings */}
+                      <div className="pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
+                            Submenu Item Click Flow (সাবমেনু ক্লিক অ্যাকশন):
+                          </label>
+                          <select
+                            value={config.submenuClickAction || 'configurator'}
+                            onChange={(e) => handleFieldChange('submenuClickAction', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-medium focus:border-indigo-500"
+                          >
+                            <option value="configurator">Open VistaPrint Product Configurator (সরাসরি অর্ডার কনফিগারেশন)</option>
+                            <option value="filter">Filter Storefront Catalog (ক্যাটালগ সার্চ ও ফিল্টার)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
+                            Default Card Order Quantity (ডিফল্ট কার্ড কোয়ান্টিটি):
+                          </label>
+                          <select
+                            value={config.defaultCardQuantity || 100}
+                            onChange={(e) => handleFieldChange('defaultCardQuantity', parseInt(e.target.value))}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-medium focus:border-indigo-500"
+                          >
+                            <option value="50">50 pcs ($14.99)</option>
+                            <option value="100">100 pcs ($19.99 - Standard)</option>
+                            <option value="250">250 pcs ($29.99)</option>
+                            <option value="500">500 pcs ($39.99)</option>
+                            <option value="1000">1,000 pcs ($59.99)</option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
                     {/* WordPress-Style Menu Actions Bar */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-slate-900 border border-slate-800 rounded-xl">
@@ -1658,8 +1692,8 @@ export default function AdminStorefrontEditor({
 
             {/* Vista Mega Menu Horizontal Preview Bar */}
             {config.showMegaMenu !== false && (
-              <div className={`px-2 py-1 border-b flex items-center space-x-2.5 text-[8px] font-semibold overflow-x-auto ${
-                storeTheme === 'light' ? 'bg-slate-50 text-slate-700 border-slate-200' : 'bg-slate-900/80 text-slate-300 border-slate-800'
+              <div className={`px-2 py-1 flex items-center space-x-2.5 text-[8px] font-semibold overflow-x-auto no-scrollbar ${
+                storeTheme === 'light' ? 'bg-slate-50 text-slate-700' : 'bg-slate-900/80 text-slate-300'
               }`}>
                 {(config.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories).slice(0, 6).map((c, i) => (
                   <span key={i} className="whitespace-nowrap hover:text-indigo-400 cursor-pointer flex items-center space-x-1">
