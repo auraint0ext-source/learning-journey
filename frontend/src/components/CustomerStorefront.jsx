@@ -2,12 +2,244 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { API_BASE } from '../config';
 import { 
   ShoppingBag, Star, ShieldCheck, Truck, ArrowRight, X, 
-  Check, Heart, Sparkles, Plus, Minus, CreditCard, ChevronRight, CheckCircle2, Lock, Settings,
+  Check, Heart, Sparkles, Plus, Minus, CreditCard, ChevronRight, ChevronLeft, CheckCircle2, Lock, Settings,
   ShoppingCart, Landmark, Smartphone, Wallet, Building2, Copy, DollarSign, Trash2, Shield,
-  Sun, Moon, SlidersHorizontal, Search, ChevronDown, Layers, Briefcase, Shirt, Coffee, Image, Tag, BadgePercent, Package
+  Sun, Moon, SlidersHorizontal, Search, ChevronDown, Layers, Briefcase, Shirt, Coffee, Image, Tag, BadgePercent, Package, Quote
 } from 'lucide-react';
 
 import { DEFAULT_STOREFRONT_CONFIG } from './AdminStorefrontEditor';
+
+export const DEFAULT_CATALOG_PRODUCTS = [
+  // 1. Marketing & Business Collateral
+  {
+    id: 1,
+    title: 'Premium Matte Soft-Touch Business Cards (Pack of 100)',
+    description: 'Ultra-thick 16pt cardstock with silky soft-touch lamination and crisp edge-to-edge printing. Sharp text & rich saturated colors.',
+    category: 'Marketing',
+    base_price_usd: 19.99,
+    image_url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-MKT-001',
+    supplier: 'Prodigi / Gelato',
+    in_stock: true
+  },
+  {
+    id: 2,
+    title: 'Tri-Fold Glossy Marketing Brochures (Pack of 50)',
+    description: 'Professional 100lb glossy book paper with double-sided aqueous coating. Precision tri-fold scoring for crisp presentation.',
+    category: 'Marketing',
+    base_price_usd: 28.50,
+    image_url: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-MKT-002',
+    supplier: 'Printify / Gelato',
+    in_stock: true
+  },
+  {
+    id: 3,
+    title: 'Custom Full-Color Promotional Flyers & Postcards (Pack of 100)',
+    description: 'Heavyweight 14pt glossy cardstock. Perfect for brand announcements, event handouts, and domestic direct mail campaigns.',
+    category: 'Marketing',
+    base_price_usd: 22.00,
+    image_url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-MKT-003',
+    supplier: 'SwiftPOD',
+    in_stock: true
+  },
+  {
+    id: 4,
+    title: 'Branded Presentation Pocket Folders (Pack of 25)',
+    description: 'Custom printed presentation folders with dual interior utility pockets and die-cut business card slot.',
+    category: 'Marketing',
+    base_price_usd: 34.00,
+    image_url: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-MKT-004',
+    supplier: 'Prodigi',
+    in_stock: true
+  },
+
+  // 2. Clothing & Bags (Apparel)
+  {
+    id: 5,
+    title: 'Heavyweight Unisex POD Vintage Hoodie',
+    description: 'Premium 350 GSM cotton fleece with custom direct-to-garment (DTG) print. Optimized for US, UK & CA domestic fulfillment.',
+    category: 'Apparel',
+    base_price_usd: 48.00,
+    image_url: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-HD-001',
+    supplier: 'Printify / SwiftPOD',
+    in_stock: true
+  },
+  {
+    id: 6,
+    title: 'Eco-Friendly Organic Cotton Graphic Vintage T-Shirt',
+    description: '100% ringspun combed organic cotton. Sustainable water-based inks printed via local facilities in Detroit, Birmingham & Toronto.',
+    category: 'Apparel',
+    base_price_usd: 26.50,
+    image_url: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-TEE-002',
+    supplier: 'Monster Digital / SwiftPOD',
+    in_stock: true
+  },
+  {
+    id: 7,
+    title: 'Vintage Washed Cotton Twill Embroidered Dad Cap',
+    description: 'Low-profile 6-panel unstructured cap with high-density 3D puff or flat embroidery. Adjustable brass buckle closure.',
+    category: 'Apparel',
+    base_price_usd: 24.00,
+    image_url: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-CAP-004',
+    supplier: 'Spoke Custom / SwiftPOD',
+    in_stock: true
+  },
+  {
+    id: 8,
+    title: 'Heavy-Duty Organic Canvas Tote Bag',
+    description: '12oz 100% certified organic cotton canvas with reinforced cross-stitched handles. Crisp direct-to-film (DTF) color print.',
+    category: 'Apparel',
+    base_price_usd: 18.00,
+    image_url: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-TOT-007',
+    supplier: 'Printful / Gelato',
+    in_stock: true
+  },
+
+  // 3. Canvas & Wall Art
+  {
+    id: 9,
+    title: 'Museum-Grade Stretched Canvas Art (18x24 in)',
+    description: 'Acid-free certified artist canvas with FSC certified pine stretcher bars. UV-resistant giclée pigment printing.',
+    category: 'Wall Art',
+    base_price_usd: 59.00,
+    image_url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-CANV-004',
+    supplier: 'Duplium / Prodigi',
+    in_stock: true
+  },
+  {
+    id: 10,
+    title: 'Archival Museum Matte Fine Art Poster (18x24 in)',
+    description: '250 GSM archival museum-grade paper with smooth matte finish. Vivid pigment-based inks resistant to fading for 100+ years.',
+    category: 'Wall Art',
+    base_price_usd: 32.00,
+    image_url: 'https://images.unsplash.com/photo-1582561424760-0321d75e81fa?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-POS-008',
+    supplier: 'Prodigi',
+    in_stock: true
+  },
+  {
+    id: 11,
+    title: 'Modern Wood Framed Gallery Art Print (12x18 in)',
+    description: 'Solid natural oak or black wood frame with shatterproof optical plexiglass and acid-free gallery matting.',
+    category: 'Wall Art',
+    base_price_usd: 52.00,
+    image_url: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-FRM-009',
+    supplier: 'Gelato / Prodigi',
+    in_stock: true
+  },
+  {
+    id: 12,
+    title: 'Ultra-HD Brushed Metal Photo Art Print (16x20 in)',
+    description: 'Direct-infused dye sublimation on brushed aluminum plate. Waterproof, scratch-resistant with floating wall mount.',
+    category: 'Wall Art',
+    base_price_usd: 68.00,
+    image_url: 'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-MTL-010',
+    supplier: 'Prodigi',
+    in_stock: true
+  },
+
+  // 4. Mugs & Drinkware (Home & Living)
+  {
+    id: 13,
+    title: 'Minimalist Matte Ceramic Coffee Mug (15oz)',
+    description: 'Durable high-gloss ceramic mug, microwave and dishwasher safe. Sublimation printed with vibrant photo-realistic colors.',
+    category: 'Home & Living',
+    base_price_usd: 16.00,
+    image_url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-MUG-003',
+    supplier: 'Prodigi / District Photo',
+    in_stock: true
+  },
+  {
+    id: 14,
+    title: 'Double-Wall Insulated Stainless Steel Tumbler (20oz)',
+    description: 'Vacuum insulated 18/8 food-grade stainless steel with splash-proof lid. Keeps drinks cold for 24h, hot for 8h.',
+    category: 'Home & Living',
+    base_price_usd: 26.50,
+    image_url: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-TMB-011',
+    supplier: 'Printify / SPOKE',
+    in_stock: true
+  },
+  {
+    id: 15,
+    title: 'Rustic Enamel Steel Camp Mug (12oz)',
+    description: 'Lightweight rolled rim steel with genuine campfire enamel finish. Shatterproof design for outdoor and travel use.',
+    category: 'Home & Living',
+    base_price_usd: 19.00,
+    image_url: 'https://images.unsplash.com/photo-1577937927133-66ef06acdf18?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-CMP-012',
+    supplier: 'Gelato / Printful',
+    in_stock: true
+  },
+  {
+    id: 16,
+    title: 'Vacuum Insulated Thermal Sport Water Bottle (24oz)',
+    description: 'Ergonomic stainless steel hydro bottle with leakproof spout lid and carry handle. 360-degree cylindrical UV wrap print.',
+    category: 'Home & Living',
+    base_price_usd: 29.00,
+    image_url: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-BTL-013',
+    supplier: 'Printify / SPOKE',
+    in_stock: true
+  },
+
+  // 5. Labels & Stickers & Packaging (Accessories)
+  {
+    id: 17,
+    title: 'Tough Armor Custom Phone Case',
+    description: 'Dual-layer polycarbonate shell with shock-absorbing TPU liner. Available for iPhone and Samsung Galaxy series.',
+    category: 'Accessories',
+    base_price_usd: 22.00,
+    image_url: 'https://images.unsplash.com/photo-1586105251261-72a756497a11?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-CASE-005',
+    supplier: 'Printful / Spoke Custom',
+    in_stock: true
+  },
+  {
+    id: 18,
+    title: 'Custom Die-Cut Vinyl Stickers (Pack of 50)',
+    description: 'Thick 6mil weatherproof vinyl with glossy UV laminate. Laser contour cut precisely to your custom artwork shape.',
+    category: 'Accessories',
+    base_price_usd: 14.99,
+    image_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-STK-014',
+    supplier: 'StickerApp / Gelato',
+    in_stock: true
+  },
+  {
+    id: 19,
+    title: 'Custom Product Roll Labels (Roll of 250)',
+    description: 'Waterproof BOPP material with metallic or matte finish. Ideal for custom jar labels, packaging seals, and branded boxes.',
+    category: 'Accessories',
+    base_price_usd: 36.00,
+    image_url: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-LBL-015',
+    supplier: 'Printful / Prodigi',
+    in_stock: true
+  },
+  {
+    id: 20,
+    title: 'Custom Printed Corrugated Shipping Mailer Boxes (Pack of 25)',
+    description: 'Durable E-flute corrugated cardboard printed inside and out with eco-friendly water-based inks. Instant tab lock.',
+    category: 'Accessories',
+    base_price_usd: 45.00,
+    image_url: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=600&q=80',
+    sku: 'POD-BOX-016',
+    supplier: 'Packlane / Gelato',
+    in_stock: true
+  }
+];
 
 export default function CustomerStorefront({ 
   currentMarket, 
@@ -74,7 +306,7 @@ export default function CustomerStorefront({
     spacious: 'py-20',
   }[cfg.catalogPadding || 'normal'] || 'py-12';
 
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(DEFAULT_CATALOG_PRODUCTS);
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortBy, setSortBy] = useState('featured'); // 'featured' | 'price_asc' | 'price_desc' | 'popular' | 'newest'
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,6 +321,20 @@ export default function CustomerStorefront({
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState('cart'); // 'cart' | 'checkout' | 'success'
   const [orderPlacedData, setOrderPlacedData] = useState(null);
+
+  // Vista Promotional Photo Slider Carousel state
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [isSliderHovered, setIsSliderHovered] = useState(false);
+  const promoSlides = cfg.promoSlides || DEFAULT_STOREFRONT_CONFIG.promoSlides;
+
+  // Auto-play timer (slides transition every 5.5s, pauses on hover)
+  useEffect(() => {
+    if (isSliderHovered || !promoSlides || promoSlides.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentSlideIndex((prev) => (prev + 1) % promoSlides.length);
+    }, 5500);
+    return () => clearInterval(interval);
+  }, [isSliderHovered, promoSlides]);
 
   // Bulk Discount calculation based on Vista tiered pricing
   const getBulkDiscountPercent = (qty) => {
@@ -174,7 +420,12 @@ export default function CustomerStorefront({
     const fetchCatalog = async () => {
       try {
         const res = await fetch(`${API_BASE}/api/ecommerce/products`);
-        if (res.ok) setProducts(await res.json());
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setProducts(data);
+          }
+        }
       } catch (err) {
         console.error('Failed to load products:', err);
       }
@@ -232,13 +483,19 @@ export default function CustomerStorefront({
 
   const applyPromo = () => {
     const code = promoCodeInput.trim().toUpperCase();
-    if (code === 'USA15OFF' || code === 'UK20OFF' || code === 'SAVE10') {
-      const disc = code === 'UK20OFF' ? 20 : code === 'USA15OFF' ? 15 : 10;
+    if (code === 'USA15OFF' || code === 'UK20OFF' || code === 'SAVE10' || code === 'SAVE25') {
+      const disc = code === 'SAVE25' ? 25 : code === 'UK20OFF' ? 20 : code === 'USA15OFF' ? 15 : 10;
       setDiscountPercent(disc);
       showPaymentToast(`Promo Code Applied: ${disc}% OFF!`);
     } else {
       showPaymentToast('Invalid or expired promo code', 'error');
     }
+  };
+
+  const applyPromoDirectly = (codeToApply = 'SAVE25') => {
+    setPromoCodeInput(codeToApply);
+    setDiscountPercent(25);
+    showPaymentToast(`🎉 Promo Code Applied: 25% OFF with "${codeToApply}"!`);
   };
 
   // Calculations
@@ -703,6 +960,247 @@ export default function CustomerStorefront({
         )}
       </nav>
 
+      {/* 2.5 VistaPrint-Style Promotional Photo Carousel / Slider (Right After Product Menu) */}
+      {cfg.showPromoSlider !== false && promoSlides && promoSlides.length > 0 && (
+        <section 
+          className={`relative border-b transition-colors overflow-hidden select-none ${
+            isLight 
+              ? 'bg-gradient-to-r from-amber-50/50 via-slate-50 to-amber-50/50 border-slate-200' 
+              : 'bg-gradient-to-r from-slate-950 via-indigo-950/30 to-slate-950 border-slate-800'
+          }`}
+          onMouseEnter={() => setIsSliderHovered(true)}
+          onMouseLeave={() => setIsSliderHovered(false)}
+        >
+          {/* Subtle background glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[300px] bg-amber-500/5 blur-[120px] rounded-full pointer-events-none"></div>
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 relative z-10">
+            {/* Carousel Slide Card Container */}
+            {(() => {
+              const slide = promoSlides[currentSlideIndex] || promoSlides[0];
+              return (
+                <div className="relative">
+                  {/* Top Bar above slider: Slide tracker & Promo urgency badge */}
+                  <div className="flex items-center justify-between pb-3 text-xs">
+                    <div className="flex items-center space-x-2">
+                      <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-rose-500/10 text-rose-500 border border-rose-500/20 shadow-xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping mr-1"></span>
+                        {cfg.promoBadgeText || '🔥 VISTAPRINT EXCLUSIVE • LIMITED TIME'}
+                      </span>
+                      <span className="hidden sm:inline text-[11px] font-semibold text-slate-400">
+                        {slide.tag}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center space-x-2 text-xs">
+                      {/* Interactive Coupon Code Pill */}
+                      <button
+                        onClick={() => applyPromoDirectly(cfg.promoCode || 'SAVE25')}
+                        className={`flex items-center space-x-1.5 px-3 py-1 rounded-xl font-mono font-bold text-xs border shadow-xs transition transform hover:scale-105 active:scale-95 ${
+                          isLight 
+                            ? 'bg-white border-amber-300 text-amber-800 hover:bg-amber-50' 
+                            : 'bg-slate-900 border-amber-500/40 text-amber-300 hover:bg-slate-800'
+                        }`}
+                        title="Click to copy & apply promo code"
+                      >
+                        <Tag className="w-3 h-3 text-amber-500" />
+                        <span>CODE: {cfg.promoCode || 'SAVE25'}</span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-600 dark:text-amber-300 font-sans font-extrabold ml-1">
+                          Apply 25% OFF
+                        </span>
+                      </button>
+
+                      {/* Slide Counter */}
+                      <span className="text-[11px] font-mono font-bold text-slate-400 hidden md:inline">
+                        0{currentSlideIndex + 1} / 0{promoSlides.length}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Main Slider Display: Left Photo, Center "SAVE 25%" Offer, Right Photo */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-center">
+                    {/* Left Flanking Photography Card with Quotation & Caption */}
+                    <div className="lg:col-span-4 order-2 lg:order-1">
+                      <div className={`group relative rounded-2xl sm:rounded-3xl overflow-hidden border shadow-lg transition-all duration-500 aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] ${
+                        isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
+                      }`}>
+                        <img
+                          src={slide.leftImage}
+                          alt={slide.leftCaption}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                        {/* Gradient Shadow Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent"></div>
+                        
+                        {/* Quote & Caption Overlay Card */}
+                        <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 text-white space-y-1">
+                          <div className="flex items-start space-x-1.5">
+                            <Quote className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5 opacity-80" />
+                            <p className="text-xs sm:text-sm font-medium italic text-slate-100 leading-snug line-clamp-2">
+                              {slide.leftQuote}
+                            </p>
+                          </div>
+                          <div className="pt-1 flex items-center justify-between">
+                            <span className="text-[10px] sm:text-xs font-bold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-500/30">
+                              {slide.leftCaption}
+                            </span>
+                            <span className="text-[9px] text-slate-300 font-semibold opacity-75">
+                              Local POD Fulfillment
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Center Focus Area: "SAVE 25%", Subtitle, Coupon and Actions */}
+                    <div className={`lg:col-span-4 order-1 lg:order-2 text-center px-2 py-4 sm:py-6 rounded-2xl border ${
+                      isLight 
+                        ? 'bg-white/90 border-amber-200 shadow-md backdrop-blur' 
+                        : 'bg-slate-900/90 border-amber-500/30 shadow-xl shadow-slate-950 backdrop-blur'
+                    }`}>
+                      <div className="inline-flex items-center space-x-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 mb-2">
+                        <Sparkles className="w-3 h-3 text-amber-500" />
+                        <span>VistaPrint Seasonal Promo</span>
+                      </div>
+
+                      {/* Giant "SAVE 25%" Headline */}
+                      <h2 className="text-3xl sm:text-4xl xl:text-5xl font-black tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-600">
+                        {cfg.promoDiscountHeadline || 'SAVE 25%'}
+                      </h2>
+
+                      <h3 className={`text-xs sm:text-sm font-extrabold mt-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                        {slide.centerOffer || 'On Marketing Materials & Custom Goods'}
+                      </h3>
+
+                      <p className={`text-[11px] sm:text-xs mt-1.5 max-w-sm mx-auto leading-relaxed ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                        {cfg.promoDiscountSub || 'Save 25% on custom business cards, vintage apparel, canvas wall art, mugs & packaging printed domestically.'}
+                      </p>
+
+                      {/* Center Action CTA Buttons */}
+                      <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-4">
+                        <button
+                          onClick={() => {
+                            applyPromoDirectly(cfg.promoCode || 'SAVE25');
+                            if (slide.targetCategory) setActiveCategory(slide.targetCategory);
+                            setSearchQuery('');
+                            const el = document.getElementById('catalog-grid');
+                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                          className={`w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-md ${
+                            isLight 
+                              ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-slate-900/20' 
+                              : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
+                          }`}
+                        >
+                          <span>Shop {slide.targetCategory || 'Products'} (25% OFF)</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          onClick={() => applyPromoDirectly(cfg.promoCode || 'SAVE25')}
+                          className={`w-full sm:w-auto px-3 py-2 rounded-xl text-xs font-semibold border transition flex items-center justify-center space-x-1 ${
+                            isLight 
+                              ? 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-300' 
+                              : 'bg-slate-800 hover:bg-slate-700 text-amber-300 border-slate-700'
+                          }`}
+                        >
+                          <Check className="w-3.5 h-3.5 text-amber-500" />
+                          <span>Code Applied (SAVE25)</span>
+                        </button>
+                      </div>
+
+                      <div className="mt-3 text-[10px] text-slate-400 flex items-center justify-center space-x-2">
+                        <span>⚡ Dispatches in 2 Days</span>
+                        <span>•</span>
+                        <span>Zero Customs Duties</span>
+                      </div>
+                    </div>
+
+                    {/* Right Flanking Photography Card with Quotation & Caption */}
+                    <div className="lg:col-span-4 order-3">
+                      <div className={`group relative rounded-2xl sm:rounded-3xl overflow-hidden border shadow-lg transition-all duration-500 aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] ${
+                        isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
+                      }`}>
+                        <img
+                          src={slide.rightImage}
+                          alt={slide.rightCaption}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                        {/* Gradient Shadow Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent"></div>
+                        
+                        {/* Quote & Caption Overlay Card */}
+                        <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 text-white space-y-1">
+                          <div className="flex items-start space-x-1.5">
+                            <Quote className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5 opacity-80" />
+                            <p className="text-xs sm:text-sm font-medium italic text-slate-100 leading-snug line-clamp-2">
+                              {slide.rightQuote}
+                            </p>
+                          </div>
+                          <div className="pt-1 flex items-center justify-between">
+                            <span className="text-[10px] sm:text-xs font-bold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                              {slide.rightCaption}
+                            </span>
+                            <span className="text-[9px] text-slate-300 font-semibold opacity-75">
+                              Certified Archival
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Slider Navigation Chevrons and Dot Indicators */}
+                  <div className="flex items-center justify-between pt-4">
+                    <button
+                      onClick={() => setCurrentSlideIndex((prev) => (prev - 1 + promoSlides.length) % promoSlides.length)}
+                      className={`p-2 rounded-xl border transition shadow-xs flex items-center space-x-1 text-xs font-semibold ${
+                        isLight 
+                          ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300' 
+                          : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
+                      }`}
+                      title="Previous slide"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      <span className="hidden sm:inline">Previous</span>
+                    </button>
+
+                    {/* Dot Pagination indicators */}
+                    <div className="flex items-center space-x-1.5">
+                      {promoSlides.map((_, dotIdx) => (
+                        <button
+                          key={dotIdx}
+                          onClick={() => setCurrentSlideIndex(dotIdx)}
+                          className={`h-2 rounded-full transition-all duration-300 ${
+                            currentSlideIndex === dotIdx 
+                              ? 'w-7 bg-indigo-600 shadow-sm' 
+                              : isLight ? 'w-2 bg-slate-300 hover:bg-slate-400' : 'w-2 bg-slate-700 hover:bg-slate-600'
+                          }`}
+                          title={`Go to slide ${dotIdx + 1}`}
+                        />
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => setCurrentSlideIndex((prev) => (prev + 1) % promoSlides.length)}
+                      className={`p-2 rounded-xl border transition shadow-xs flex items-center space-x-1 text-xs font-semibold ${
+                        isLight 
+                          ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300' 
+                          : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
+                      }`}
+                      title="Next slide"
+                    >
+                      <span className="hidden sm:inline">Next Slide</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </section>
+      )}
+
       {/* 3. Hero Banner */}
       <section className={`relative overflow-hidden border-b transition-colors ${
         cfg.heroPadding === 'compact' ? 'py-8 sm:py-10' : cfg.heroPadding === 'spacious' ? 'py-14 sm:py-20' : 'py-10 sm:py-12'
@@ -976,7 +1474,7 @@ export default function CustomerStorefront({
           {/* Category Filter Pills */}
           {cfg.showCategoryPills !== false && (
             <div className="flex items-center space-x-2 overflow-x-auto pb-1 max-w-full">
-              {['All', 'Apparel', 'Home & Living', 'Wall Art', 'Accessories'].map((cat) => {
+              {['All', 'Marketing', 'Apparel', 'Home & Living', 'Wall Art', 'Accessories'].map((cat) => {
                 const isSelected = activeCategory === cat;
                 return (
                   <button

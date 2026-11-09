@@ -149,6 +149,49 @@ def seed_initial_data():
         # Seed Products if empty
         if db.query(Product).count() == 0:
             products = [
+                # Marketing & Business
+                Product(
+                    title="Premium Matte Soft-Touch Business Cards (Pack of 100)",
+                    description="Ultra-thick 16pt cardstock with silky soft-touch lamination and crisp edge-to-edge printing. Sharp text & rich saturated colors.",
+                    category="Marketing",
+                    base_price_usd=19.99,
+                    sku="POD-MKT-001",
+                    supplier="Prodigi / Gelato",
+                    image_url="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+                Product(
+                    title="Tri-Fold Glossy Marketing Brochures (Pack of 50)",
+                    description="Professional 100lb glossy book paper with double-sided aqueous coating. Precision tri-fold scoring for crisp presentation.",
+                    category="Marketing",
+                    base_price_usd=28.50,
+                    sku="POD-MKT-002",
+                    supplier="Printify / Gelato",
+                    image_url="https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+                Product(
+                    title="Custom Full-Color Promotional Flyers & Postcards (Pack of 100)",
+                    description="Heavyweight 14pt glossy cardstock. Perfect for brand announcements, event handouts, and domestic direct mail campaigns.",
+                    category="Marketing",
+                    base_price_usd=22.00,
+                    sku="POD-MKT-003",
+                    supplier="SwiftPOD",
+                    image_url="https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+                Product(
+                    title="Branded Presentation Pocket Folders (Pack of 25)",
+                    description="Custom printed presentation folders with dual interior utility pockets and die-cut business card slot.",
+                    category="Marketing",
+                    base_price_usd=34.00,
+                    sku="POD-MKT-004",
+                    supplier="Prodigi",
+                    image_url="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+
+                # Clothing & Bags (Apparel)
                 Product(
                     title="Heavyweight Unisex POD Vintage Hoodie",
                     description="Premium 350 GSM cotton fleece with custom direct-to-garment (DTG) print. Optimized for US, UK & CA fulfillment.",
@@ -160,25 +203,37 @@ def seed_initial_data():
                     in_stock=True
                 ),
                 Product(
-                    title="Eco-Friendly Organic Cotton Graphic Tee",
+                    title="Eco-Friendly Organic Cotton Graphic Vintage T-Shirt",
                     description="100% ringspun combed organic cotton. Sustainable water-based inks printed via local facilities in Detroit, Birmingham & Toronto.",
                     category="Apparel",
                     base_price_usd=26.50,
                     sku="POD-TEE-002",
-                    supplier="Monster Digital / T-Shirt & Sons",
+                    supplier="Monster Digital / SwiftPOD",
                     image_url="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80",
                     in_stock=True
                 ),
                 Product(
-                    title="Minimalist Matte Ceramic Coffee Mug (15oz)",
-                    description="Durable high-gloss ceramic mug, microwave and dishwasher safe. Sublimation printed with vibrant photo-realistic colors.",
-                    category="Home & Living",
-                    base_price_usd=16.00,
-                    sku="POD-MUG-003",
-                    supplier="Prodigi / District Photo",
-                    image_url="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80",
+                    title="Vintage Washed Cotton Twill Embroidered Dad Cap",
+                    description="Low-profile 6-panel unstructured cap with high-density 3D puff or flat embroidery. Adjustable brass buckle closure.",
+                    category="Apparel",
+                    base_price_usd=24.00,
+                    sku="POD-CAP-004",
+                    supplier="Spoke Custom / SwiftPOD",
+                    image_url="https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=600&q=80",
                     in_stock=True
                 ),
+                Product(
+                    title="Heavy-Duty Organic Canvas Tote Bag",
+                    description="12oz 100% certified organic cotton canvas with reinforced cross-stitched handles. Crisp direct-to-film (DTF) color print.",
+                    category="Apparel",
+                    base_price_usd=18.00,
+                    sku="POD-TOT-007",
+                    supplier="Printful / Gelato",
+                    image_url="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+
+                # Canvas & Wall Art
                 Product(
                     title="Museum-Grade Stretched Canvas Art (18x24 in)",
                     description="Acid-free certified artist canvas with FSC certified pine stretcher bars. UV-resistant giclée pigment printing.",
@@ -190,6 +245,80 @@ def seed_initial_data():
                     in_stock=True
                 ),
                 Product(
+                    title="Archival Museum Matte Fine Art Poster (18x24 in)",
+                    description="250 GSM archival museum-grade paper with smooth matte finish. Vivid pigment-based inks resistant to fading for 100+ years.",
+                    category="Wall Art",
+                    base_price_usd=32.00,
+                    sku="POD-POS-008",
+                    supplier="Prodigi",
+                    image_url="https://images.unsplash.com/photo-1582561424760-0321d75e81fa?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+                Product(
+                    title="Modern Wood Framed Gallery Art Print (12x18 in)",
+                    description="Solid natural oak or black wood frame with shatterproof optical plexiglass and acid-free gallery matting.",
+                    category="Wall Art",
+                    base_price_usd=52.00,
+                    sku="POD-FRM-009",
+                    supplier="Gelato / Prodigi",
+                    image_url="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+                Product(
+                    title="Ultra-HD Brushed Metal Photo Art Print (16x20 in)",
+                    description="Direct-infused dye sublimation on brushed aluminum plate. Waterproof, scratch-resistant with floating wall mount.",
+                    category="Wall Art",
+                    base_price_usd=68.00,
+                    sku="POD-MTL-010",
+                    supplier="Prodigi",
+                    image_url="https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+
+                # Mugs & Drinkware (Home & Living)
+                Product(
+                    title="Minimalist Matte Ceramic Coffee Mug (15oz)",
+                    description="Durable high-gloss ceramic mug, microwave and dishwasher safe. Sublimation printed with vibrant photo-realistic colors.",
+                    category="Home & Living",
+                    base_price_usd=16.00,
+                    sku="POD-MUG-003",
+                    supplier="Prodigi / District Photo",
+                    image_url="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+                Product(
+                    title="Double-Wall Insulated Stainless Steel Tumbler (20oz)",
+                    description="Vacuum insulated 18/8 food-grade stainless steel with splash-proof lid. Keeps drinks cold for 24h, hot for 8h.",
+                    category="Home & Living",
+                    base_price_usd=26.50,
+                    sku="POD-TMB-011",
+                    supplier="Printify / SPOKE",
+                    image_url="https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+                Product(
+                    title="Rustic Enamel Steel Camp Mug (12oz)",
+                    description="Lightweight rolled rim steel with genuine campfire enamel finish. Shatterproof design for outdoor and travel use.",
+                    category="Home & Living",
+                    base_price_usd=19.00,
+                    sku="POD-CMP-012",
+                    supplier="Gelato / Printful",
+                    image_url="https://images.unsplash.com/photo-1577937927133-66ef06acdf18?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+                Product(
+                    title="Vacuum Insulated Thermal Sport Water Bottle (24oz)",
+                    description="Ergonomic stainless steel hydro bottle with leakproof spout lid and carry handle. 360-degree cylindrical UV wrap print.",
+                    category="Home & Living",
+                    base_price_usd=29.00,
+                    sku="POD-BTL-013",
+                    supplier="Printify / SPOKE",
+                    image_url="https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+
+                # Labels & Stickers & Packaging (Accessories)
+                Product(
                     title="Tough Armor Custom Phone Case",
                     description="Dual-layer polycarbonate shell with shock-absorbing TPU liner. Available for iPhone and Samsung Galaxy series.",
                     category="Accessories",
@@ -197,6 +326,36 @@ def seed_initial_data():
                     sku="POD-CASE-005",
                     supplier="Printful / Spoke Custom",
                     image_url="https://images.unsplash.com/photo-1586105251261-72a756497a11?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+                Product(
+                    title="Custom Die-Cut Vinyl Stickers (Pack of 50)",
+                    description="Thick 6mil weatherproof vinyl with glossy UV laminate. Laser contour cut precisely to your custom artwork shape.",
+                    category="Accessories",
+                    base_price_usd=14.99,
+                    sku="POD-STK-014",
+                    supplier="StickerApp / Gelato",
+                    image_url="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+                Product(
+                    title="Custom Product Roll Labels (Roll of 250)",
+                    description="Waterproof BOPP material with metallic or matte finish. Ideal for custom jar labels, packaging seals, and branded boxes.",
+                    category="Accessories",
+                    base_price_usd=36.00,
+                    sku="POD-LBL-015",
+                    supplier="Printful / Prodigi",
+                    image_url="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=600&q=80",
+                    in_stock=True
+                ),
+                Product(
+                    title="Custom Printed Corrugated Shipping Mailer Boxes (Pack of 25)",
+                    description="Durable E-flute corrugated cardboard printed inside and out with eco-friendly water-based inks. Instant tab lock.",
+                    category="Accessories",
+                    base_price_usd=45.00,
+                    sku="POD-BOX-016",
+                    supplier="Packlane / Gelato",
+                    image_url="https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=600&q=80",
                     in_stock=True
                 )
             ]

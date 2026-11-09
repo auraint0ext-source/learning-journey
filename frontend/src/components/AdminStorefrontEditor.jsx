@@ -166,7 +166,81 @@ export const DEFAULT_STOREFRONT_CONFIG = {
   bulkTier2Qty: 10,
   bulkTier2Discount: 15,
   bulkTier3Qty: 25,
-  bulkTier3Discount: 25
+  bulkTier3Discount: 25,
+
+  // 10. Vista-Style Promotional Hero Carousel / Photo Slider (Dui Pashe Chobi, Majhkhane Save 25%, Captions/Quotes)
+  showPromoSlider: true,
+  promoBadgeText: '🔥 VISTAPRINT EXCLUSIVE • LIMITED TIME OFFER',
+  promoDiscountHeadline: 'SAVE 25%',
+  promoDiscountSub: 'Save 25% on custom marketing essentials, premium vintage apparel, gallery canvas art, mugs & packaging.',
+  promoCode: 'SAVE25',
+  promoSlides: [
+    {
+      id: 1,
+      tag: 'Marketing & Business Collateral',
+      centerHeading: 'SAVE 25%',
+      centerOffer: 'Premium Business Cards & Marketing Prints',
+      targetCategory: 'Marketing',
+      leftImage: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+      leftQuote: '“Make an unforgettable first impression in every handshake.”',
+      leftCaption: 'Soft-Touch 16pt Matte Business Cards',
+      rightImage: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=800&q=80',
+      rightQuote: '“Elevate your pitch with sharp, vibrant presentation prints.”',
+      rightCaption: 'Glossy Tri-Fold Marketing Brochures'
+    },
+    {
+      id: 2,
+      tag: 'Custom Apparel & Bags',
+      centerHeading: 'SAVE 25%',
+      centerOffer: 'Heavyweight Hoodies, Graphic Tees & Caps',
+      targetCategory: 'Apparel',
+      leftImage: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80',
+      leftQuote: '“Wear your brand identity with heavyweight premium comfort.”',
+      leftCaption: 'Heavyweight 350 GSM Vintage Fleece Hoodie',
+      rightImage: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80',
+      rightQuote: '“100% Organic ringspun cotton, printed with zero-toxin inks.”',
+      rightCaption: 'Eco-Friendly Organic Vintage Tees'
+    },
+    {
+      id: 3,
+      tag: 'Gallery Canvas & Fine Art',
+      centerHeading: 'SAVE 25%',
+      centerOffer: 'Museum Stretched Canvas & Framed Photo Art',
+      targetCategory: 'Wall Art',
+      leftImage: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
+      leftQuote: '“Turn cherished memories into certified museum-grade gallery art.”',
+      leftCaption: 'Giclée Pigment Stretched Pine Canvas',
+      rightImage: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80',
+      rightQuote: '“Solid oak frames built to preserve beauty for 100+ years.”',
+      rightCaption: 'Modern Gallery Wood Framed Prints'
+    },
+    {
+      id: 4,
+      tag: 'Custom Drinkware & Mugs',
+      centerHeading: 'SAVE 25%',
+      centerOffer: 'Glossy Ceramic Mugs & Stainless Tumblers',
+      targetCategory: 'Home & Living',
+      leftImage: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80',
+      leftQuote: '“Start every morning with your custom signature brew mug.”',
+      leftCaption: '15oz Dishwasher-Safe Ceramic Mug',
+      rightImage: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=800&q=80',
+      rightQuote: '“Keeps your coffee steaming hot or water icy cold for 24h.”',
+      rightCaption: 'Double-Wall Insulated Steel Tumbler'
+    },
+    {
+      id: 5,
+      tag: 'Labels, Stickers & Packaging',
+      centerHeading: 'SAVE 25%',
+      centerOffer: 'Die-Cut Stickers & Branded Mailer Boxes',
+      targetCategory: 'Accessories',
+      leftImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+      leftQuote: '“Weatherproof, UV-laminated contour die-cut vinyl stickers.”',
+      leftCaption: 'Laser-Cut Precision Vinyl Stickers',
+      rightImage: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=800&q=80',
+      rightQuote: '“Transform every customer unboxing into a premium brand experience.”',
+      rightCaption: 'Custom Printed E-Flute Mailer Boxes'
+    }
+  ]
 };
 
 export default function AdminStorefrontEditor({
@@ -222,6 +296,14 @@ export default function AdminStorefrontEditor({
       const cats = [...(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories)];
       cats[index] = { ...cats[index], [field]: value };
       return { ...prev, megaMenuCategories: cats };
+    });
+  };
+
+  const handlePromoSlideChange = (index, field, value) => {
+    setConfig(prev => {
+      const slides = [...(prev.promoSlides || DEFAULT_STOREFRONT_CONFIG.promoSlides)];
+      slides[index] = { ...slides[index], [field]: value };
+      return { ...prev, promoSlides: slides };
     });
   };
 
@@ -305,6 +387,7 @@ export default function AdminStorefrontEditor({
         {[
           { id: 'hero', label: 'Hero & Titles (শিরোনাম)', icon: Type },
           { id: 'megamenu', label: 'Mega Menu & Search (মেনু ও সার্চ)', icon: Layers },
+          { id: 'promoslider', label: 'Promo Slider & SAVE 25% (স্লাইডার ও ছাড়)', icon: BadgePercent },
           { id: 'vistaspec', label: 'Categories & Bulk Tiers (ভিস্তা ক্যাটাগরি ও ছাড়)', icon: Grid },
           { id: 'layout', label: 'Columns & Spacing (কলাম ও স্পেসিং)', icon: Columns },
           { id: 'announcement', label: 'Announcement Ribbon', icon: Megaphone },
@@ -694,6 +777,185 @@ export default function AdminStorefrontEditor({
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Section: Vista Promotional Photo Slider & SAVE 25% (স্লাইডার ও কোটেশন) */}
+          {activeSection === 'promoslider' && (
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div className="flex items-center space-x-2">
+                  <BadgePercent className="w-4 h-4 text-amber-400" />
+                  <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Vista Promotional Photo Slider (দুই পাশে ছবি, মাঝে SAVE 25% ও কোটেশন)
+                  </h2>
+                </div>
+                <span className="text-[10px] text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded font-mono">
+                  Hero Showcase
+                </span>
+              </div>
+
+              {/* Master Toggle */}
+              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between">
+                <div>
+                  <span className="text-white font-bold text-xs">Enable Promotional Photo Carousel</span>
+                  <p className="text-[10px] text-slate-500">
+                    Displays rotating slides with flanking photos, quotes/captions, and centered SAVE 25% promo offer directly after product menu
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={config.showPromoSlider !== false}
+                  onChange={(e) => handleFieldChange('showPromoSlider', e.target.checked)}
+                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
+                />
+              </div>
+
+              {config.showPromoSlider !== false && (
+                <div className="space-y-4 text-xs">
+                  {/* General Discount Settings */}
+                  <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
+                    <span className="text-[11px] font-bold text-indigo-300 uppercase tracking-wider block">
+                      Promotional Offer & Discount Settings
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-[11px] text-slate-400 font-semibold mb-1">
+                          Discount Headline (বড় লেখা):
+                        </label>
+                        <input
+                          type="text"
+                          value={config.promoDiscountHeadline || 'SAVE 25%'}
+                          onChange={(e) => handleFieldChange('promoDiscountHeadline', e.target.value)}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-extrabold"
+                          placeholder="e.g. SAVE 25%"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] text-slate-400 font-semibold mb-1">
+                          Promo Coupon Code (কুপন কোড):
+                        </label>
+                        <input
+                          type="text"
+                          value={config.promoCode || 'SAVE25'}
+                          onChange={(e) => handleFieldChange('promoCode', e.target.value)}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-amber-300 font-mono font-bold"
+                          placeholder="e.g. SAVE25"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] text-slate-400 font-semibold mb-1">
+                          Top Badge Label (টপ ব্যাজ):
+                        </label>
+                        <input
+                          type="text"
+                          value={config.promoBadgeText || ''}
+                          onChange={(e) => handleFieldChange('promoBadgeText', e.target.value)}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                          placeholder="e.g. VISTAPRINT EXCLUSIVE"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] text-slate-400 font-semibold mb-1">
+                        Promo Subtitle / Description (অফারের বিস্তারিত):
+                      </label>
+                      <input
+                        type="text"
+                        value={config.promoDiscountSub || ''}
+                        onChange={(e) => handleFieldChange('promoDiscountSub', e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200"
+                        placeholder="Save 25% on custom marketing materials..."
+                      />
+                    </div>
+                  </div>
+
+                  {/* Individual Slides Configuration */}
+                  <div className="space-y-3">
+                    <label className="block text-[11px] text-slate-300 font-bold uppercase tracking-wider">
+                      Configure Photo Slides (ছবি, কোটেশন ও ক্যাপশন):
+                    </label>
+
+                    {(config.promoSlides || DEFAULT_STOREFRONT_CONFIG.promoSlides).map((slide, sIdx) => (
+                      <div key={slide.id || sIdx} className="p-3.5 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
+                        <div className="flex items-center justify-between pb-1 border-b border-slate-800/80">
+                          <span className="font-bold text-amber-400">Slide #{sIdx + 1}: {slide.tag}</span>
+                          <span className="text-[10px] text-slate-500 font-mono">Target: {slide.targetCategory}</span>
+                        </div>
+
+                        {/* Left Photo & Quote */}
+                        <div className="p-2.5 bg-slate-900/80 rounded-lg space-y-1.5 border border-slate-800">
+                          <div className="font-semibold text-indigo-300 text-[11px]">Left Photo & Quote (বামের ছবি ও ক্যাপশন):</div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[10px] text-slate-400">Image URL:</label>
+                              <input
+                                type="text"
+                                value={slide.leftImage}
+                                onChange={(e) => handlePromoSlideChange(sIdx, 'leftImage', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-slate-300 text-[11px]"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] text-slate-400">Caption / Product Name:</label>
+                              <input
+                                type="text"
+                                value={slide.leftCaption}
+                                onChange={(e) => handlePromoSlideChange(sIdx, 'leftCaption', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-slate-300 text-[11px]"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-slate-400">Quotation / Callout (ছবির উপরের কোটেশন):</label>
+                            <input
+                              type="text"
+                              value={slide.leftQuote}
+                              onChange={(e) => handlePromoSlideChange(sIdx, 'leftQuote', e.target.value)}
+                              className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-slate-200 text-[11px] italic"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Right Photo & Quote */}
+                        <div className="p-2.5 bg-slate-900/80 rounded-lg space-y-1.5 border border-slate-800">
+                          <div className="font-semibold text-emerald-300 text-[11px]">Right Photo & Quote (ডানের ছবি ও ক্যাপশন):</div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[10px] text-slate-400">Image URL:</label>
+                              <input
+                                type="text"
+                                value={slide.rightImage}
+                                onChange={(e) => handlePromoSlideChange(sIdx, 'rightImage', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-slate-300 text-[11px]"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] text-slate-400">Caption / Product Name:</label>
+                              <input
+                                type="text"
+                                value={slide.rightCaption}
+                                onChange={(e) => handlePromoSlideChange(sIdx, 'rightCaption', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-slate-300 text-[11px]"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-slate-400">Quotation / Callout (ছবির উপরের কোটেশন):</label>
+                            <input
+                              type="text"
+                              value={slide.rightQuote}
+                              onChange={(e) => handlePromoSlideChange(sIdx, 'rightQuote', e.target.value)}
+                              className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-slate-200 text-[11px] italic"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -1327,6 +1589,68 @@ export default function AdminStorefrontEditor({
                     {c.title}
                   </span>
                 ))}
+              </div>
+            )}
+
+            {/* Vista-Style Promotional Photo Slider Preview */}
+            {config.showPromoSlider !== false && (
+              <div className={`p-2.5 border-b relative ${
+                storeTheme === 'light' ? 'bg-gradient-to-r from-amber-50/70 via-white to-amber-50/70 border-slate-200' : 'bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border-slate-800'
+              }`}>
+                <div className="flex items-center justify-between text-[7px] font-bold text-amber-500 uppercase mb-1">
+                  <span>{config.promoBadgeText || 'VISTAPRINT SPECIAL OFFER'}</span>
+                  <span className="font-mono bg-amber-500/10 px-1 py-0.2 rounded border border-amber-500/20">CODE: {config.promoCode || 'SAVE25'}</span>
+                </div>
+                
+                {/* Dual flanking photos with center SAVE 25% */}
+                <div className="grid grid-cols-12 gap-1.5 items-center">
+                  {/* Left Photo Card */}
+                  <div className="col-span-3 relative rounded-md overflow-hidden aspect-[4/3] bg-slate-800">
+                    <img 
+                      src={(config.promoSlides && config.promoSlides[0]?.leftImage) || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=300'} 
+                      alt="" 
+                      className="w-full h-full object-cover" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-1">
+                      <div className="text-[6px] text-white italic truncate font-serif">“Make an impression”</div>
+                      <div className="text-[5px] text-amber-300 font-semibold truncate">Business Cards</div>
+                    </div>
+                  </div>
+
+                  {/* Center Offer Box */}
+                  <div className="col-span-6 text-center px-1">
+                    <div className="font-black text-sm text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-500 leading-none">
+                      {config.promoDiscountHeadline || 'SAVE 25%'}
+                    </div>
+                    <div className="text-[7px] font-semibold text-slate-700 dark:text-slate-200 mt-0.5 truncate">
+                      Marketing, Apparel & Art
+                    </div>
+                    <div className="text-[6px] text-slate-500 line-clamp-1 mt-0.5">
+                      Use code {config.promoCode || 'SAVE25'} at checkout
+                    </div>
+                  </div>
+
+                  {/* Right Photo Card */}
+                  <div className="col-span-3 relative rounded-md overflow-hidden aspect-[4/3] bg-slate-800">
+                    <img 
+                      src={(config.promoSlides && config.promoSlides[0]?.rightImage) || 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=300'} 
+                      alt="" 
+                      className="w-full h-full object-cover" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-1">
+                      <div className="text-[6px] text-white italic truncate font-serif">“Elevate your brand”</div>
+                      <div className="text-[5px] text-emerald-300 font-semibold truncate">Marketing Flyers</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dot indicators */}
+                <div className="flex justify-center items-center space-x-1 mt-1.5">
+                  <span className="w-3 h-0.5 rounded-full bg-indigo-500"></span>
+                  <span className="w-1 h-0.5 rounded-full bg-slate-400 opacity-50"></span>
+                  <span className="w-1 h-0.5 rounded-full bg-slate-400 opacity-50"></span>
+                  <span className="w-1 h-0.5 rounded-full bg-slate-400 opacity-50"></span>
+                </div>
               </div>
             )}
 
