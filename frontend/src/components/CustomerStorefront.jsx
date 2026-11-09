@@ -91,6 +91,33 @@ export default function CustomerStorefront({
   const [checkoutStep, setCheckoutStep] = useState('cart'); // 'cart' | 'checkout' | 'success'
   const [orderPlacedData, setOrderPlacedData] = useState(null);
 
+  // Vista Mega Menu Hover & Smooth Delay State
+  const megaMenuTimeoutRef = React.useRef(null);
+
+  const handleMenuMouseEnter = (idx) => {
+    if (megaMenuTimeoutRef.current) {
+      clearTimeout(megaMenuTimeoutRef.current);
+      megaMenuTimeoutRef.current = null;
+    }
+    setActiveMegaMenu(idx);
+  };
+
+  const handleMenuMouseLeave = () => {
+    if (megaMenuTimeoutRef.current) {
+      clearTimeout(megaMenuTimeoutRef.current);
+    }
+    megaMenuTimeoutRef.current = setTimeout(() => {
+      setActiveMegaMenu(null);
+    }, 280);
+  };
+
+  const handlePanelMouseEnter = () => {
+    if (megaMenuTimeoutRef.current) {
+      clearTimeout(megaMenuTimeoutRef.current);
+      megaMenuTimeoutRef.current = null;
+    }
+  };
+
   // Vista Promotional Photo Slider Carousel state
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isSliderHovered, setIsSliderHovered] = useState(false);
@@ -491,11 +518,16 @@ export default function CustomerStorefront({
       const q = searchQuery.toLowerCase().trim();
       const queryWords = q.replace(/[()",.\-–—/]/g, ' ').split(/\s+/).filter(w => w.length > 2);
       
-      list = list.filter((p) => {
-        const text = `${p.title} ${p.category} ${p.description} ${(p.tags || []).join(' ')} ${p.sku}`.toLowerCase();
+      const matched = list.filter((p) => {
+        const text = `${p.title} ${p.category} ${p.description || ''} ${(p.tags || []).join(' ')} ${p.sku}`.toLowerCase();
         if (text.includes(q)) return true;
         return queryWords.some(w => text.includes(w));
       });
+
+      // If specific products match, show them. If query is a broad promo/sample or code, retain the active category
+      if (matched.length > 0) {
+        list = matched;
+      }
     }
 
     if (sortBy === 'price_asc') {
@@ -687,7 +719,7 @@ export default function CustomerStorefront({
             className={`border-t relative ${
               isLight ? 'bg-slate-50/95 border-slate-200/90' : 'bg-slate-950/80 border-slate-800'
             }`}
-            onMouseLeave={() => setActiveMegaMenu(null)}
+            onMouseLeave={handleMenuMouseLeave}
           >
             <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto text-xs font-semibold py-1">
               <div className="flex items-center space-x-1 sm:space-x-1.5">
@@ -711,7 +743,8 @@ export default function CustomerStorefront({
                       className="relative"
                     >
                       <button
-                        onMouseEnter={() => setActiveMegaMenu(idx)}
+                        onMouseEnter={() => handleMenuMouseEnter(idx)}
+                        onMouseLeave={handleMenuMouseLeave}
                         onClick={() => {
                           setActiveCategory(menu.categoryKey);
                           setActiveMegaMenu(isOpen ? null : idx);
@@ -766,8 +799,8 @@ export default function CustomerStorefront({
                       ? 'bg-white/98 border-slate-200 text-slate-900 shadow-slate-300/60' 
                       : 'bg-slate-900/98 border-slate-800 text-white shadow-black/80'
                   }`}
-                  onMouseEnter={() => setActiveMegaMenu(activeMegaMenu)}
-                  onMouseLeave={() => setActiveMegaMenu(null)}
+                  onMouseEnter={handlePanelMouseEnter}
+                  onMouseLeave={handleMenuMouseLeave}
                 >
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-6">
@@ -1284,7 +1317,7 @@ export default function CustomerStorefront({
 
             {/* 6 Category Tiles */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-              {(cfg.categoryShowcaseCards || DEFAULT_STOREFRONT_CONFIG.categoryShowcaseCards).map((card, idx) => (
+              {(cfg.categoryShowcaseCards || cfg.topPicks || DEFAULT_STOREFRONT_CONFIG.categoryShowcaseCards || DEFAULT_STOREFRONT_CONFIG.topPicks || []).map((card, idx) => (
                 <div
                   key={idx}
                   onClick={() => {
@@ -1389,32 +1422,69 @@ export default function CustomerStorefront({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           {/* Category Filter Pills */}
           {cfg.showCategoryPills !== false && (
-            <div className="flex items-center space-x-2 overflow-x-auto pb-1 max-w-full">
-              {['All', 'Deals', 'Holiday Cards', 'Business Cards', 'Apparel', 'Gifts & Home', 'Wall Art', 'Packaging'].map((cat) => {
-                const catKey = cat === 'Holiday Cards' ? 'Holiday' 
-                  : cat === 'Business Cards' ? 'Marketing'
-                  : cat === 'Gifts & Home' ? 'Gifts'
-                  : cat === 'Packaging' ? 'Accessories'
-                  : cat;
-                const isSelected = activeCategory.toLowerCase() === catKey.toLowerCase();
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(catKey)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap shadow-xs ${
-                      isSelected
-                        ? isLight
-                          ? 'bg-slate-900 text-white shadow-sm'
-                          : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                        : isLight
-                          ? 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                          : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                );
-              })}
+            <div className="flex flex-col space-y-2.5 max-w-full">
+              <div className="flex items-center space-x-2 overflow-x-auto pb-1 max-w-full">
+                {[
+                  { label: 'All Products', key: 'All' },
+                  { label: '🎄 Holiday Cards', key: 'Holiday' },
+                  { label: '📅 Calendars & Gifts', key: 'Gifts' },
+                  { label: '💼 Business Cards', key: 'Marketing' },
+                  { label: '🪧 Signs & Banners', key: 'Signs & Banners' },
+                  { label: '👕 Apparel', key: 'Apparel' },
+                  { label: '🏷️ Stickers & Packaging', key: 'Accessories' },
+                  { label: '🖼️ Wall Art', key: 'Wall Art' },
+                  { label: '🔥 Deals', key: 'Deals' }
+                ].map((cat) => {
+                  const isSelected = activeCategory.toLowerCase() === cat.key.toLowerCase();
+                  return (
+                    <button
+                      key={cat.key}
+                      onClick={() => { setActiveCategory(cat.key); setSearchQuery(''); }}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap shadow-xs ${
+                        isSelected
+                          ? isLight
+                            ? 'bg-slate-900 text-white shadow-sm'
+                            : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                          : isLight
+                            ? 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                            : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Subcategory quick chips if category is selected */}
+              {activeCategory !== 'All' && (
+                <div className="flex items-center space-x-1.5 overflow-x-auto text-[11px]">
+                  <span className="text-slate-400 font-semibold shrink-0">Filter by:</span>
+                  {(activeCategory === 'Holiday' ? ['All Holiday Cards', 'Christmas Photo Cards', 'Gold Foil Cards', 'Corporate Greetings', 'New Year Cards', 'Hanukkah Blessing', 'Event Invitations'] :
+                    activeCategory === 'Gifts' ? ['All Gifts', 'Wall Calendars', 'Desk Calendars', 'Square Calendars', 'Ceramic Mugs', 'Steel Tumblers', 'Jigsaw Puzzles', 'Holiday Ornaments'] :
+                    activeCategory === 'Signs & Banners' ? ['All Signs', 'Vinyl Banners', 'Yard Signs with Stakes', 'Retractable Banners', 'Mesh Banners', 'A-Frame Signs', 'Foam Board Posters'] :
+                    activeCategory === 'Marketing' ? ['All Business Collateral', 'Matte Soft-Touch', 'Gold Foil Luxe', 'Rounded Corners', 'Square Cards', 'Tri-Fold Brochures', 'Direct Mail Postcards', 'Presentation Folders'] :
+                    activeCategory === 'Apparel' ? ['All Apparel', 'Heavyweight Hoodies', 'Organic Cotton Tees', 'Embroidered Dad Caps', 'Canvas Totes', 'Fleece Sweatshirts', 'Polo Shirts'] :
+                    activeCategory === 'Accessories' ? ['All Packaging', 'Die-Cut Stickers', 'Roll Labels', 'Holographic Stickers', 'Corrugated Mailer Boxes', 'Poly Mailers', 'Phone Cases', 'Packing Tape'] :
+                    activeCategory === 'Wall Art' ? ['All Wall Art', 'Stretched Canvas', 'Fine Art Posters', 'Wood Framed Prints', 'Metal Prints'] :
+                    ['Featured', 'Best Value', 'Top Rated']
+                  ).map((chip, cIdx) => (
+                    <button
+                      key={cIdx}
+                      onClick={() => setSearchQuery(chip.startsWith('All') ? '' : chip)}
+                      className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition border ${
+                        (!searchQuery && chip.startsWith('All')) || (searchQuery && chip.toLowerCase().includes(searchQuery.toLowerCase()))
+                          ? 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border-indigo-500/30 font-bold'
+                          : isLight
+                            ? 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-transparent'
+                            : 'bg-slate-800/60 text-slate-400 hover:bg-slate-800 border-transparent'
+                      }`}
+                    >
+                      {chip}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -1451,7 +1521,24 @@ export default function CustomerStorefront({
         </div>
 
         {/* Product Cards with Custom Columns & Spacing */}
-        <div className={`grid ${gridColumnsClass} ${gridGapClass}`}>
+        {filteredProducts.length === 0 ? (
+          <div className={`p-12 text-center rounded-2xl border ${
+            isLight ? 'bg-white border-slate-200 text-slate-800' : 'bg-slate-900 border-slate-800 text-slate-200'
+          }`}>
+            <Package className="w-12 h-12 mx-auto text-slate-400 mb-3" />
+            <h3 className="text-base font-bold">No products found matching your filter</h3>
+            <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+              We couldn't find any direct matches for "{searchQuery}". Try selecting another category or click below to view all items.
+            </p>
+            <button
+              onClick={() => { setActiveCategory('All'); setSearchQuery(''); }}
+              className="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-sm"
+            >
+              Reset Filters & Show All Products
+            </button>
+          </div>
+        ) : (
+          <div className={`grid ${gridColumnsClass} ${gridGapClass}`}>
           {filteredProducts.map((p) => {
             const price = getPrice(p.base_price_usd);
             return (
@@ -1545,6 +1632,7 @@ export default function CustomerStorefront({
             );
           })}
         </div>
+      )}
       </main>
 
       {/* 5. VistaPrint-Style Product Quick-View & Customizer Modal */}

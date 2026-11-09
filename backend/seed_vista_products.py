@@ -1,0 +1,613 @@
+import sqlite3
+import datetime
+
+DB_PATH = "/Users/mdarif/.gemini/antigravity/scratch/pod-ecommerce-platform/backend/pod_ecommerce.db"
+
+PRODUCTS = [
+    # --- HOLIDAY & CHRISTMAS CARDS ---
+    {
+        "id": 101,
+        "title": "Custom Christmas & Holiday Photo Cards (Pack of 25)",
+        "description": "Personalized festive holiday cards featuring 1 to 4 photo grid options. Printed on premium 16pt archival matte cardstock with matching white envelopes included. Perfect for family portraits and season greetings.",
+        "category": "Holiday",
+        "base_price_usd": 24.99,
+        "image_url": "https://images.unsplash.com/photo-1543258103-a62bdc069871?auto=format&fit=crop&w=700&q=80",
+        "sku": "CARD-HOL-PHOTO-25",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 102,
+        "title": "Luxury Embossed Gold Foil Holiday Cards (Pack of 25)",
+        "description": "Dazzling metallic gold and silver foil stamped greeting cards with raised tactile embossing. Printed on 18pt silk cardstock with rich metallic shine that catches the light.",
+        "category": "Holiday",
+        "base_price_usd": 32.50,
+        "image_url": "https://images.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&w=700&q=80",
+        "sku": "CARD-HOL-FOIL-25",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+    {
+        "id": 103,
+        "title": "Corporate & Business Festive Greeting Cards (Pack of 50)",
+        "description": "Executive company holiday greeting cards with custom logo printing, client appreciation messaging, and matching silver foil-lined envelopes. Bulk volume ready.",
+        "category": "Holiday",
+        "base_price_usd": 42.00,
+        "image_url": "https://images.unsplash.com/photo-1513297887119-d46091b24bfa?auto=format&fit=crop&w=700&q=80",
+        "sku": "CARD-HOL-CORP-50",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 104,
+        "title": "New Year Family Collage Photo Cards (Pack of 25)",
+        "description": "Multi-photo grid collage layout celebrating all the highlights of the past year. Crisp archival printing on linen textured cardstock with rounded corner options.",
+        "category": "Holiday",
+        "base_price_usd": 26.00,
+        "image_url": "https://images.unsplash.com/photo-1576919228236-a097c32a5cd4?auto=format&fit=crop&w=700&q=80",
+        "sku": "CARD-HOL-NEWYEAR-25",
+        "supplier": "PrintFlow Canada (Toronto)",
+        "in_stock": True
+    },
+    {
+        "id": 106,
+        "title": "Hanukkah & Religious Holiday Blessing Cards (Pack of 25)",
+        "description": "Elegant Menorah, Star of David, and traditional religious blessing designs with pearl shimmer finish and custom heartfelt inside message.",
+        "category": "Holiday",
+        "base_price_usd": 24.50,
+        "image_url": "https://images.unsplash.com/photo-1514517521153-1be72277b32f?auto=format&fit=crop&w=700&q=80",
+        "sku": "CARD-HOL-HANUKKAH-25",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 107,
+        "title": "Winter Holiday Party & Event Invitations (Pack of 25)",
+        "description": "Festive seasonal party invitations with RSVP response cards and return address printing on envelopes. Ideal for corporate galas and family dinners.",
+        "category": "Holiday",
+        "base_price_usd": 23.00,
+        "image_url": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=700&q=80",
+        "sku": "CARD-HOL-INVITE-25",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+
+    # --- CALENDARS & GIFTS ---
+    {
+        "id": 201,
+        "title": "Custom Wall Calendar (11x8.5 in Spiral Bound)",
+        "description": "12-month personalized spiral wall calendar with wire-o hanger. High-resolution photo spreads for each month with custom holiday date reminders and anniversaries.",
+        "category": "Gifts",
+        "base_price_usd": 21.99,
+        "image_url": "https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&w=700&q=80",
+        "sku": "CAL-WALL-11X85",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 202,
+        "title": "Desk Easel Flip Photo Calendar (5x7 in)",
+        "description": "Compact desktop easel calendar with natural birch wood stand and 12 heavyweight monthly photo cards. Elegant footprint for office desks and countertops.",
+        "category": "Gifts",
+        "base_price_usd": 16.50,
+        "image_url": "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=700&q=80",
+        "sku": "CAL-DESK-5X7",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+    {
+        "id": 203,
+        "title": "Square Deluxe Wall Calendar (12x12 in Centerfold)",
+        "description": "Large format 12x12 inch centerfold calendar opening to 12x24 inches. Ultra-crisp color saturation on 100lb silk archival paper.",
+        "category": "Gifts",
+        "base_price_usd": 26.50,
+        "image_url": "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=700&q=80",
+        "sku": "CAL-SQUARE-12X12",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 204,
+        "title": "Magnetic Fridge Year Calendar (4x8 in, Pack of 5)",
+        "description": "Full magnetic backing keeps your custom photo calendar firmly attached to any refrigerator. Pack of 5 for gifting to friends and family.",
+        "category": "Gifts",
+        "base_price_usd": 14.99,
+        "image_url": "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=700&q=80",
+        "sku": "CAL-MAG-4X8-5",
+        "supplier": "PrintFlow Canada (Toronto)",
+        "in_stock": True
+    },
+    {
+        "id": 13,
+        "title": "Minimalist Matte Ceramic Coffee Mug (15oz)",
+        "description": "Large 15oz ceramic mug with smooth matte exterior and vibrant dye-sublimation print that wraps edge-to-edge. Microwave and dishwasher safe.",
+        "category": "Gifts",
+        "base_price_usd": 16.00,
+        "image_url": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-MUG-CERAMIC-15",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+    {
+        "id": 14,
+        "title": "Double-Wall Insulated Stainless Steel Tumbler (20oz)",
+        "description": "Kitchen-grade 18/8 stainless steel tumbler with clear sliding sip lid. Keeps hot coffee steaming for 6 hours or iced drinks cold for 18 hours.",
+        "category": "Gifts",
+        "base_price_usd": 26.50,
+        "image_url": "https://images.unsplash.com/photo-1577937927133-66ef06acdf18?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-TUMBLER-STEEL-20",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 205,
+        "title": "Custom Photo Jigsaw Puzzle (500 Pieces with Gift Box)",
+        "description": "Sturdy recycled cardboard puzzle pieces with high-gloss photo reproduction. Includes custom matching gift storage box with full image guide.",
+        "category": "Gifts",
+        "base_price_usd": 28.00,
+        "image_url": "https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=700&q=80",
+        "sku": "GIFT-PUZZLE-500",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+    {
+        "id": 206,
+        "title": "Ceramic Holiday Tree Photo Ornaments (Pack of 3)",
+        "description": "Round porcelain ornaments with dual-sided full color photo print and gold hanging cord. Beautiful keepsake for holiday trees.",
+        "category": "Gifts",
+        "base_price_usd": 18.50,
+        "image_url": "https://images.unsplash.com/photo-1543258103-a62bdc069871?auto=format&fit=crop&w=700&q=80",
+        "sku": "GIFT-ORNAMENT-3",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+
+    # --- BUSINESS CARDS ---
+    {
+        "id": 1,
+        "title": "Premium Matte Soft-Touch Business Cards (Pack of 100)",
+        "description": "Standard 3.5 x 2 inch business cards printed on ultra-thick 16pt cardstock with a velvety soft-touch matte lamination. Scratch-resistant, fingerprint-proof, and luxurious in hand.",
+        "category": "Marketing",
+        "base_price_usd": 19.99,
+        "image_url": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-BC-MATTE-100",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 105,
+        "title": "Embossed Gold Foil Luxury Business Cards (Pack of 100)",
+        "description": "Real metallic gold foil accents applied with heat and pressure over a velvety matte black or white stock. Makes an unforgettable executive impression.",
+        "category": "Marketing",
+        "base_price_usd": 29.99,
+        "image_url": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-BC-FOIL-100",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+    {
+        "id": 108,
+        "title": "Modern Rounded Corner Business Cards (Pack of 100)",
+        "description": "Precision 1/4-inch rounded corners on 16pt gloss or matte cardstock. Smooth edges prevent bent corners and deliver a contemporary tech-forward aesthetic.",
+        "category": "Marketing",
+        "base_price_usd": 21.50,
+        "image_url": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=700&q=80",
+        "sku": "BC-ROUNDED-100",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 109,
+        "title": "Square Modern Business Cards (2.5x2.5 in, Pack of 100)",
+        "description": "Trendy square 2.5 x 2.5 inch format. Ideal for photographers, designers, artisans, and creative agencies showcasing portfolio work.",
+        "category": "Marketing",
+        "base_price_usd": 22.00,
+        "image_url": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=700&q=80",
+        "sku": "BC-SQUARE-100",
+        "supplier": "PrintFlow Canada (Toronto)",
+        "in_stock": True
+    },
+    {
+        "id": 110,
+        "title": "Ultra-Thick 32pt Luxe Black-Core Cards (Pack of 50)",
+        "description": "Triple-layer sandwich stock with a bold colored middle layer (black, red, or blue). Weighing in at 32pt, these heavyweight cards never bend.",
+        "category": "Marketing",
+        "base_price_usd": 35.00,
+        "image_url": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=700&q=80",
+        "sku": "BC-LUXE-32PT-50",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 111,
+        "title": "Waterproof Frosted Plastic Business Cards (Pack of 100)",
+        "description": "20mil tear-proof translucent frosted PVC. 100% waterproof and wipeable, ideal for outdoor services, pool contractors, and beverage industries.",
+        "category": "Marketing",
+        "base_price_usd": 38.00,
+        "image_url": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=700&q=80",
+        "sku": "BC-PLASTIC-FROST-100",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+
+    # --- POSTCARDS & PRINT ADVERTISING ---
+    {
+        "id": 3,
+        "title": "Direct Mail Marketing Postcards (Pack of 100)",
+        "description": "Full-color 4x6 and 5x7 inch promotional postcards on sturdy 14pt cardstock. UV coated front with uncoated addressable back ready for USPS EDDM mailing.",
+        "category": "Marketing",
+        "base_price_usd": 22.00,
+        "image_url": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-POSTCARDS-100",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 112,
+        "title": "Jumbo Promotional Postcards (6x9 in, Pack of 50)",
+        "description": "Oversized 6x9 inch direct mailers that stand out in any mailbox. High-gloss front finish with postal-compliant address back.",
+        "category": "Marketing",
+        "base_price_usd": 26.00,
+        "image_url": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=700&q=80",
+        "sku": "POSTCARD-JUMBO-50",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 2,
+        "title": "Tri-Fold Glossy Marketing Brochures (Pack of 50)",
+        "description": "Standard 8.5 x 11 inch tri-fold brochures printed on 100lb glossy text paper. Precise machine scoring for crisp, lay-flat folding. Ideal for service menus, corporate presentations, and retail handouts.",
+        "category": "Marketing",
+        "base_price_usd": 28.50,
+        "image_url": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-BROCHURE-TRIFOLD-50",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+    {
+        "id": 4,
+        "title": "Branded Presentation Pocket Folders (Pack of 25)",
+        "description": "Heavy-duty 9 x 12 inch folders with twin 4-inch interior pockets and standard business card slit. Printed on 16pt coated cardstock. Crucial for contracts, onboarding packets, and sales proposals.",
+        "category": "Marketing",
+        "base_price_usd": 34.00,
+        "image_url": "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-FOLDER-POCKET-25",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 113,
+        "title": "Custom Door Hangers with Perforated Coupon (Pack of 100)",
+        "description": "Die-cut circular door knob hole with tear-off coupon bottom. Sturdy 14pt waterproof cardstock for neighborhood marketing campaigns.",
+        "category": "Marketing",
+        "base_price_usd": 24.00,
+        "image_url": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=700&q=80",
+        "sku": "DOOR-HANGER-100",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 114,
+        "title": "Multi-Page Product Catalog Lookbooks (Pack of 25)",
+        "description": "12-page saddle-stitched booklets on 80lb gloss text with 100lb cover stock. High-resolution imagery for retail lookbooks and product catalogs.",
+        "category": "Marketing",
+        "base_price_usd": 45.00,
+        "image_url": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=700&q=80",
+        "sku": "CATALOG-BOOKLET-25",
+        "supplier": "PrintFlow Canada (Toronto)",
+        "in_stock": True
+    },
+
+    # --- SIGNS, BANNERS & POSTERS ---
+    {
+        "id": 301,
+        "title": "Custom Outdoor Heavy-Duty Vinyl Banner (4x2 ft)",
+        "description": "Weatherproof 13oz scrim vinyl banner with reinforced welded hems and brass hanging grommets every 2 feet. UV-cured fade resistant inks for outdoor events, grand openings, and sports sponsor displays.",
+        "category": "Signs & Banners",
+        "base_price_usd": 34.00,
+        "image_url": "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=700&q=80",
+        "sku": "BANNER-VINYL-4X2",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 302,
+        "title": "Corrugated Lawn & Yard Signs with H-Stakes (Pack of 3)",
+        "description": "Durable 4mm fluted corrugated plastic signs with galvanized steel H-stakes. Double-sided waterproof UV printing for real estate, elections, contractor jobsites, and yard announcements.",
+        "category": "Signs & Banners",
+        "base_price_usd": 28.00,
+        "image_url": "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=700&q=80",
+        "sku": "SIGN-YARD-4MM-3",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 303,
+        "title": "Retractable Deluxe Roll-Up Banner Stand (33x81 in)",
+        "description": "Heavy-duty aluminum banner cassette with spring-loaded pull-up mechanism, three-piece bungee support pole, and padded zip travel case. Vibrant anti-curl matte blockout film.",
+        "category": "Signs & Banners",
+        "base_price_usd": 79.00,
+        "image_url": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=700&q=80",
+        "sku": "BANNER-ROLLUP-33X81",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+    {
+        "id": 304,
+        "title": "Mesh Wind-Resistant Outdoor Fence Banner (6x3 ft)",
+        "description": "Breathable perforated mesh vinyl allows wind to pass through without tearing. Ideal for construction site fences, festival perimeters, and stadium railings.",
+        "category": "Signs & Banners",
+        "base_price_usd": 48.00,
+        "image_url": "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=700&q=80",
+        "sku": "BANNER-MESH-6X3",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 305,
+        "title": "Heavy-Duty A-Frame Sidewalk Curb Sign (24x36 in)",
+        "description": "Durable molded plastic A-frame holding two interchangeable 24x36 inch corrugated plastic sign panels. Can be ballasted with water or sand for high-wind stability.",
+        "category": "Signs & Banners",
+        "base_price_usd": 89.00,
+        "image_url": "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=700&q=80",
+        "sku": "SIGN-AFRAME-24X36",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 306,
+        "title": "Foam Board Rigid Presentation Poster (20x30 in)",
+        "description": "Lightweight 3/16-inch dense polystyrene foam core board with matte paper finish. Perfect for easel presentations, wedding welcome signs, and seating charts.",
+        "category": "Signs & Banners",
+        "base_price_usd": 29.00,
+        "image_url": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=700&q=80",
+        "sku": "SIGN-FOAMBOARD-20X30",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+
+    # --- CLOTHING, BAGS & APPAREL ---
+    {
+        "id": 5,
+        "title": "Heavyweight Unisex POD Vintage Hoodie (350 GSM)",
+        "description": "Ultra-soft 350 GSM brushed cotton fleece hoodie with double-needle split stitching, dyed-to-match drawcords, and kangaroo front pouch. Direct-to-garment printed with eco-certified inks.",
+        "category": "Apparel",
+        "base_price_usd": 48.00,
+        "image_url": "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-HOODIE-VINTAGE-BLK",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 6,
+        "title": "Eco-Friendly Organic Cotton Graphic T-Shirt",
+        "description": "100% GOTS certified organic combed ringspun cotton tee (180 GSM). Breathable, pre-shrunk fabric with tear-away label. Features vibrant water-based digital DTG print.",
+        "category": "Apparel",
+        "base_price_usd": 26.50,
+        "image_url": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-TEE-ORGANIC-WHT",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+    {
+        "id": 7,
+        "title": "Vintage Washed Cotton Twill Embroidered Dad Cap",
+        "description": "Unstructured 6-panel low profile baseball cap made from 100% garment-washed cotton twill. High-density 3D puff embroidery on front crown with adjustable brass buckle.",
+        "category": "Apparel",
+        "base_price_usd": 24.00,
+        "image_url": "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-CAP-TWILL-EMB",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 8,
+        "title": "Heavy-Duty 12oz Organic Canvas Tote Bag",
+        "description": "Reinforced 12oz natural cotton canvas tote with 22-inch cross-stitched web handles. Spacious 15x16 inch flat gusset profile capable of carrying 30+ lbs of groceries or gear.",
+        "category": "Apparel",
+        "base_price_usd": 18.00,
+        "image_url": "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-TOTE-CANVAS-NAT",
+        "supplier": "PrintFlow Canada (Toronto)",
+        "in_stock": True
+    },
+    {
+        "id": 115,
+        "title": "Classic Crewneck Fleece Sweatshirt (280 GSM)",
+        "description": "Comfortable 50/50 cotton-poly fleece with 1x1 athletic rib knit collar, cuffs, and waistband with spandex. Zero pilling wash after wash.",
+        "category": "Apparel",
+        "base_price_usd": 39.00,
+        "image_url": "https://images.unsplash.com/photo-1578587018452-892bacefd3f2?auto=format&fit=crop&w=700&q=80",
+        "sku": "APPAREL-CREW-SWEAT",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 116,
+        "title": "Custom Embroidered Performance Polo Shirt",
+        "description": "Moisture-wicking 100% polyester pique knit polo with 3-button placket. Resists wrinkles, snags, and odors. Ideal for sales reps and company uniforms.",
+        "category": "Apparel",
+        "base_price_usd": 32.00,
+        "image_url": "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=700&q=80",
+        "sku": "APPAREL-POLO-PERF",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+
+    # --- LABELS, STICKERS & PACKAGING ---
+    {
+        "id": 18,
+        "title": "Custom Die-Cut Vinyl Stickers (Pack of 50)",
+        "description": "Thick 6mil weatherproof vinyl with glossy UV laminate. Laser contour cut precisely to your custom artwork shape. Scratch-proof, dishwasher safe, and outdoor durable for 5+ years.",
+        "category": "Accessories",
+        "base_price_usd": 14.99,
+        "image_url": "https://images.unsplash.com/photo-1572375992501-4b0892d50c69?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-STICKER-DIECUT-50",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 19,
+        "title": "Custom Product Roll Labels (Roll of 250)",
+        "description": "Continuous adhesive roll labels formatted on standard 3-inch cardboard cores. Machine and hand applicator compatible. Waterproof BOPP material with gloss or matte finish.",
+        "category": "Accessories",
+        "base_price_usd": 36.00,
+        "image_url": "https://images.unsplash.com/photo-1607344645866-009c320c5ab8?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-LABEL-ROLL-250",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+    {
+        "id": 117,
+        "title": "Holographic Rainbow Shimmer Stickers (Pack of 50)",
+        "description": "Eye-catching metallic rainbow shimmer vinyl that shifts colors under light. Durable adhesive backing suitable for skateboards, laptops, and water bottles.",
+        "category": "Accessories",
+        "base_price_usd": 18.99,
+        "image_url": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=700&q=80",
+        "sku": "STICKER-HOLO-50",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 20,
+        "title": "Custom Printed Corrugated Shipping Mailer Boxes (Pack of 25)",
+        "description": "Full-color exterior direct-to-flute printed corrugated mailer boxes (9x6x3 in). Crush-resistant ECT-32 white cardboard with secure self-locking front tabs. Elevate your brand unboxing.",
+        "category": "Accessories",
+        "base_price_usd": 45.00,
+        "image_url": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-BOX-MAILER-25",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 118,
+        "title": "Custom Printed Poly Mailer Shipping Envelopes (Pack of 50)",
+        "description": "Lightweight tear-proof 2.5mil polyethylene mailers (10x13 in) with strong tamper-evident self-seal adhesive. Moisture-proof and affordable ecommerce shipping.",
+        "category": "Accessories",
+        "base_price_usd": 29.00,
+        "image_url": "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=700&q=80",
+        "sku": "POLY-MAILER-50",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 119,
+        "title": "Branded Water-Activated Gummed Paper Packing Tape (50m)",
+        "description": "Heavy-duty fiberglass reinforced Kraft paper tape that bonds permanently to cardboard boxes. Tamper-evident seal printed with your repeating brand logo.",
+        "category": "Accessories",
+        "base_price_usd": 22.00,
+        "image_url": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=700&q=80",
+        "sku": "TAPE-GUMMED-50M",
+        "supplier": "PrintFlow Canada (Toronto)",
+        "in_stock": True
+    },
+    {
+        "id": 17,
+        "title": "Tough Armor Dual-Layer Custom Phone Case",
+        "description": "Dual-layer military drop-tested phone case with flexible shock-absorbing black TPU liner and tough impact-resistant polycarbonate outer shell. 300 DPI edge-to-edge gloss sublimation.",
+        "category": "Accessories",
+        "base_price_usd": 22.00,
+        "image_url": "https://images.unsplash.com/photo-1586105251261-72a756497a11?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-CASE-IPHONE15-TOUGH",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+
+    # --- WALL ART ---
+    {
+        "id": 9,
+        "title": "Museum-Grade Stretched Canvas Art (18x24 in)",
+        "description": "Acid-free certified artist canvas with FSC certified 1.25-inch pine stretcher bars. UV-resistant giclée pigment printing with hand-applied satin varnish. Arrives ready to hang with sawtooth hardware.",
+        "category": "Wall Art",
+        "base_price_usd": 59.00,
+        "image_url": "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-CANVAS-18X24",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 10,
+        "title": "Archival Museum Matte Fine Art Poster (18x24 in)",
+        "description": "Heavyweight 230 GSM matte fine art paper with smooth velvet surface. Printed using 12-color archival pigment inks guaranteed to resist fading for over 100 years. Shipped in reinforced triangular mailer.",
+        "category": "Wall Art",
+        "base_price_usd": 32.00,
+        "image_url": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-POSTER-MATTE-18X24",
+        "supplier": "PrintFlow UK (London)",
+        "in_stock": True
+    },
+    {
+        "id": 11,
+        "title": "Modern Wood Framed Gallery Art Print (12x18 in)",
+        "description": "Solid natural oak, white, or matte black wooden gallery frame with shatterproof optical acrylic glazing. Acid-free mat board and pre-installed hanging wire.",
+        "category": "Wall Art",
+        "base_price_usd": 52.00,
+        "image_url": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-FRAME-WOOD-12X18",
+        "supplier": "PrintFlow USA (Detroit)",
+        "in_stock": True
+    },
+    {
+        "id": 12,
+        "title": "Ultra-HD Brushed Metal Photo Art Print (16x20 in)",
+        "description": "Infused directly onto a 3mm aluminum composite panel with brushed metallic highlights. Luminescent clarity with recessed floating rear wall mount.",
+        "category": "Wall Art",
+        "base_price_usd": 68.00,
+        "image_url": "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=700&q=80",
+        "sku": "POD-METAL-PRINT-16X20",
+        "supplier": "PrintFlow Canada (Toronto)",
+        "in_stock": True
+    }
+]
+
+def seed():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    
+    # Check existing count
+    cur.execute("SELECT count(*) FROM products")
+    before_count = cur.fetchone()[0]
+    print(f"Current DB product count: {before_count}")
+
+    now = datetime.datetime.utcnow().isoformat()
+    inserted = 0
+    updated = 0
+
+    for p in PRODUCTS:
+        cur.execute("SELECT id FROM products WHERE id = ?", (p["id"],))
+        row = cur.fetchone()
+        if row:
+            cur.execute("""
+                UPDATE products 
+                SET title = ?, description = ?, category = ?, base_price_usd = ?, 
+                    image_url = ?, sku = ?, supplier = ?, in_stock = ?
+                WHERE id = ?
+            """, (
+                p["title"], p["description"], p["category"], p["base_price_usd"],
+                p["image_url"], p["sku"], p["supplier"], 1 if p["in_stock"] else 0,
+                p["id"]
+            ))
+            updated += 1
+        else:
+            cur.execute("""
+                INSERT INTO products (id, title, description, category, base_price_usd, image_url, sku, supplier, in_stock, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                p["id"], p["title"], p["description"], p["category"], p["base_price_usd"],
+                p["image_url"], p["sku"], p["supplier"], 1 if p["in_stock"] else 0,
+                now
+            ))
+            inserted += 1
+
+    conn.commit()
+    cur.execute("SELECT count(*), category FROM products GROUP BY category")
+    summary = cur.fetchall()
+    conn.close()
+
+    print(f"Seed complete: {inserted} inserted, {updated} updated.")
+    print("New Category Breakdown:")
+    for count, cat in summary:
+        print(f"  {cat}: {count} products")
+
+if __name__ == "__main__":
+    seed()

@@ -334,6 +334,50 @@ export const DEFAULT_STOREFRONT_CONFIG = {
   // 8. Vista Top Picks / Visual Categories
   showTopPicks: true,
   topPicksTitle: 'Explore Popular Categories',
+  categoryShowcaseCards: [
+    {
+      title: 'Holiday Photo Cards',
+      category: 'Holiday',
+      startingPrice: '24.99',
+      image: 'https://images.unsplash.com/photo-1543258103-a62bdc069871?w=400&auto=format&fit=crop&q=80',
+      badge: 'Festive'
+    },
+    {
+      title: '2026 Wall Calendars',
+      category: 'Gifts',
+      startingPrice: '21.99',
+      image: 'https://images.unsplash.com/photo-1506784365847-bbad939e9335?w=400&auto=format&fit=crop&q=80',
+      badge: 'New'
+    },
+    {
+      title: 'Heavyweight Hoodies',
+      category: 'Apparel',
+      startingPrice: '48.00',
+      image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=400&auto=format&fit=crop&q=80',
+      badge: 'Best Seller'
+    },
+    {
+      title: 'Custom Vinyl Banners',
+      category: 'Signs & Banners',
+      startingPrice: '34.00',
+      image: 'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=400&auto=format&fit=crop&q=80',
+      badge: 'Outdoor'
+    },
+    {
+      title: 'Business Cards',
+      category: 'Marketing',
+      startingPrice: '19.99',
+      image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80',
+      badge: 'Essential'
+    },
+    {
+      title: 'Custom Stickers & Labels',
+      category: 'Accessories',
+      startingPrice: '14.99',
+      image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80',
+      badge: 'Die-Cut'
+    }
+  ],
   topPicks: [
     {
       title: 'Holiday Photo Cards',

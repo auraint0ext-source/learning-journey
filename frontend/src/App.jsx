@@ -50,16 +50,19 @@ export default function App() {
     if (saved) {
       try { 
         const parsed = JSON.parse(saved);
-        // Ensure latest VistaPrint Mega Menu v3 multi-column categories are applied
-        const megaMenuCats = (!parsed.megaMenuVersion || parsed.megaMenuVersion < 3 || !parsed.megaMenuCategories?.[0]?.columns)
-          ? DEFAULT_STOREFRONT_CONFIG.megaMenuCategories
-          : (parsed.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories);
+        // Ensure latest VistaPrint Mega Menu v4 multi-column categories and proper assets
+        const isOutdated = !parsed.megaMenuVersion || parsed.megaMenuVersion < 4 || !parsed.megaMenuCategories?.[0]?.columns;
+        const megaMenuCats = isOutdated ? DEFAULT_STOREFRONT_CONFIG.megaMenuCategories : parsed.megaMenuCategories;
+        const promoSlides = isOutdated ? DEFAULT_STOREFRONT_CONFIG.promoSlides : (parsed.promoSlides || DEFAULT_STOREFRONT_CONFIG.promoSlides);
+        const categoryShowcaseCards = isOutdated ? DEFAULT_STOREFRONT_CONFIG.categoryShowcaseCards : (parsed.categoryShowcaseCards || DEFAULT_STOREFRONT_CONFIG.categoryShowcaseCards);
 
         return { 
           ...DEFAULT_STOREFRONT_CONFIG, 
           ...parsed, 
-          megaMenuVersion: 3,
+          megaMenuVersion: 4,
           megaMenuCategories: megaMenuCats,
+          promoSlides: promoSlides,
+          categoryShowcaseCards: categoryShowcaseCards,
           heroAlignment: 'left' 
         };
       } catch(e) {}
