@@ -16,20 +16,25 @@ export const DEFAULT_STOREFRONT_CONFIG = {
   heroTitlePrefix: 'Custom Goods Printed',
   heroTitleAccent: 'Domestically.',
   heroSubtitle: 'Premium vintage apparel, gallery canvas wall art, and ceramic goods printed locally in USA, UK, and Canada. No cross-border delays or customs fees.',
-  heroAlignment: 'center', // 'center' | 'left'
+  heroAlignment: 'left', // 'center' | 'left'
+  heroTitleSize: 'md', // 'sm' (28px) | 'md' (36px) | 'lg' (48px) | 'xl' (60px)
+  heroTopGap: 'sm', // 'none' | 'sm' | 'normal' | 'lg'
   heroPadding: 'normal', // 'compact' | 'normal' | 'spacious'
   showLiveHubBadge: true,
   liveHubBadgeLabel: 'Live Production Hub:',
+  showHubSwitcher: true, // Toggle for USA, UK, Canada regional selector pills
   
   // 3. Grid & Spacing Layout
   catalogTitle: 'Featured Domestic Catalog',
   catalogSubtitle: 'Showing products fulfilled by nearest domestic printing partner',
+  catalogPadding: 'normal', // 'compact' (py-6) | 'normal' (py-12) | 'spacious' (py-20)
   gridColumns: 4, // 2, 3, 4, 5
   gridGap: 'normal', // 'compact' | 'normal' | 'spacious'
   cardRadius: '2xl', // 'lg' | 'xl' | '2xl' | '3xl'
   showCategoryPills: true,
   
   // 4. Trust Badges & Value Props
+  showTrustProps: true, // Toggle for Trust badges row
   trustProps: [
     { title: 'Local Domestic Couriers', subtitle: 'USPS, Royal Mail & Canada Post' },
     { title: 'Certified Archival Eco Inks', subtitle: 'OEKO-TEX & Non-Toxic' },
@@ -268,10 +273,86 @@ export default function AdminStorefrontEditor({
                   />
                 </div>
 
+                {/* Title Font Size Control */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-slate-300 font-semibold">Title Text Size (টাইটেলের টেক্সট সাইজ):</label>
+                    <span className="text-[10px] text-indigo-400 font-mono font-bold">
+                      {config.heroTitleSize === 'sm' ? '28pt (Compact)' : config.heroTitleSize === 'lg' ? '48pt (Large)' : config.heroTitleSize === 'xl' ? '60pt (Extra Large)' : '36pt (Medium - Default)'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[
+                      { id: 'sm', label: 'Small', desc: 'ছোট (28pt)' },
+                      { id: 'md', label: 'Medium', desc: 'মাঝারি (36pt)' },
+                      { id: 'lg', label: 'Large', desc: 'বড় (48pt)' },
+                      { id: 'xl', label: 'XL', desc: 'ম্যাক্স (60pt)' },
+                    ].map(s => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => handleFieldChange('heroTitleSize', s.id)}
+                        className={`py-2 px-1 rounded-xl border text-center transition ${
+                          (config.heroTitleSize || 'md') === s.id
+                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <div className="font-bold text-xs">{s.label}</div>
+                        <div className="text-[9px] opacity-60">{s.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Hero Top Spacing / Gap Control */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-slate-300 font-semibold">Title Top Gap / Spacing (টাইটেলের উপরের স্পেস):</label>
+                    <span className="text-[10px] text-amber-400 font-mono font-bold">
+                      {config.heroTopGap === 'none' ? 'Minimal Gap' : config.heroTopGap === 'normal' ? 'Normal Gap' : config.heroTopGap === 'lg' ? 'Large Gap' : 'Compact Gap (Default)'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[
+                      { id: 'none', label: 'Minimal', desc: 'খুব কম' },
+                      { id: 'sm', label: 'Compact', desc: 'কম ফাঁকা' },
+                      { id: 'normal', label: 'Normal', desc: 'স্বাভাবিক' },
+                      { id: 'lg', label: 'Spacious', desc: 'বেশি ফাঁকা' },
+                    ].map(g => (
+                      <button
+                        key={g.id}
+                        type="button"
+                        onClick={() => handleFieldChange('heroTopGap', g.id)}
+                        className={`py-1.5 px-1 rounded-xl border text-center transition ${
+                          (config.heroTopGap || 'sm') === g.id
+                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <div className="font-bold text-xs">{g.label}</div>
+                        <div className="text-[9px] opacity-60">{g.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-3 pt-2">
                   <div>
                     <label className="block text-slate-300 font-semibold mb-1">Text Alignment (অ্যালাইনমেন্ট):</label>
                     <div className="grid grid-cols-2 gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => handleFieldChange('heroAlignment', 'left')}
+                        className={`py-1.5 rounded-lg border text-xs font-semibold flex items-center justify-center space-x-1 ${
+                          config.heroAlignment === 'left'
+                            ? 'bg-indigo-600 border-indigo-500 text-white'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <AlignLeft className="w-3.5 h-3.5" />
+                        <span>Left (বামে)</span>
+                      </button>
                       <button
                         type="button"
                         onClick={() => handleFieldChange('heroAlignment', 'center')}
@@ -284,23 +365,11 @@ export default function AdminStorefrontEditor({
                         <AlignCenter className="w-3.5 h-3.5" />
                         <span>Center</span>
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => handleFieldChange('heroAlignment', 'left')}
-                        className={`py-1.5 rounded-lg border text-xs font-semibold flex items-center justify-center space-x-1 ${
-                          config.heroAlignment === 'left'
-                            ? 'bg-indigo-600 border-indigo-500 text-white'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
-                        }`}
-                      >
-                        <AlignLeft className="w-3.5 h-3.5" />
-                        <span>Left</span>
-                      </button>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Vertical Padding (স্পেসিং):</label>
+                    <label className="block text-slate-300 font-semibold mb-1">Section Padding (উচ্চতা):</label>
                     <select
                       value={config.heroPadding}
                       onChange={(e) => handleFieldChange('heroPadding', e.target.value)}
@@ -313,15 +382,30 @@ export default function AdminStorefrontEditor({
                   </div>
                 </div>
 
+                {/* Toggle: Live Production Hub */}
                 <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
                   <div>
                     <span className="text-white font-semibold">Live Production Hub Radar Pill</span>
-                    <p className="text-[10px] text-slate-500">Shows the green pulsing domestic facility badge</p>
+                    <p className="text-[10px] text-slate-500">Pulsing green domestic production facility badge</p>
                   </div>
                   <input
                     type="checkbox"
-                    checked={config.showLiveHubBadge}
+                    checked={config.showLiveHubBadge !== false}
                     onChange={(e) => handleFieldChange('showLiveHubBadge', e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
+                  />
+                </div>
+
+                {/* Toggle: Regional Country Switcher Buttons */}
+                <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+                  <div>
+                    <span className="text-white font-semibold">Domestic Country Switcher Pills (🇺🇸 USA, 🇬🇧 UK, 🇨🇦 Canada)</span>
+                    <p className="text-[10px] text-slate-500">Show or hide the domestic market buttons (টিক দিলে দেখাবে, উঠালে হাইড হবে)</p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={config.showHubSwitcher !== false}
+                    onChange={(e) => handleFieldChange('showHubSwitcher', e.target.checked)}
                     className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
                   />
                 </div>
@@ -388,6 +472,34 @@ export default function AdminStorefrontEditor({
                       >
                         <div className="font-semibold text-xs">{gap.label}</div>
                         <div className="text-[10px] opacity-60 font-mono">{gap.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Catalog Section Vertical Spacing */}
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1.5">
+                    Product Section Vertical Spacing (প্রোডাক্ট সেকশন প্যাডিং / স্পেস):
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: 'compact', label: 'Compact (24px)', desc: 'py-6' },
+                      { id: 'normal', label: 'Normal (48px)', desc: 'py-12' },
+                      { id: 'spacious', label: 'Spacious (80px)', desc: 'py-20' },
+                    ].map(pad => (
+                      <button
+                        key={pad.id}
+                        type="button"
+                        onClick={() => handleFieldChange('catalogPadding', pad.id)}
+                        className={`p-2.5 rounded-xl border text-center transition ${
+                          (config.catalogPadding || 'normal') === pad.id
+                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <div className="font-semibold text-xs">{pad.label}</div>
+                        <div className="text-[10px] opacity-60 font-mono">{pad.desc}</div>
                       </button>
                     ))}
                   </div>
@@ -493,7 +605,15 @@ export default function AdminStorefrontEditor({
                   <ShieldCheck className="w-4 h-4 text-indigo-400" />
                   <h2 className="text-sm font-bold text-white uppercase tracking-wider">Trust Badges & Couriers</h2>
                 </div>
-                <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded">Conversion Drivers</span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-[10px] text-slate-400">Show Row:</span>
+                  <input
+                    type="checkbox"
+                    checked={config.showTrustProps !== false}
+                    onChange={(e) => handleFieldChange('showTrustProps', e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
+                  />
+                </div>
               </div>
 
               <div className="space-y-3 text-xs">
@@ -726,27 +846,45 @@ export default function AdminStorefrontEditor({
             </div>
 
             {/* 3. Preview Hero */}
-            <div className={`p-4 border-b text-center ${
+            <div className={`p-4 border-b ${
               storeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-slate-900/40 border-slate-800'
-            } ${config.heroAlignment === 'left' ? 'text-left' : 'text-center'}`}>
-              {config.showLiveHubBadge && (
+            } ${config.heroAlignment === 'left' ? 'text-left' : 'text-center'} ${
+              config.heroTopGap === 'none' ? 'pt-2' : config.heroTopGap === 'lg' ? 'pt-8' : config.heroTopGap === 'normal' ? 'pt-6' : 'pt-4'
+            }`}>
+              {config.showLiveHubBadge !== false && (
                 <span className="inline-block text-[9px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 mb-1.5">
-                  ● {config.liveHubBadgeLabel} Detroit / London
+                  ● {config.liveHubBadgeLabel || 'Live Production Hub:'} Detroit / London
                 </span>
               )}
-              <h3 className="font-extrabold text-sm sm:text-base leading-tight">
+              <h3 className={`font-extrabold leading-tight ${
+                config.heroTitleSize === 'sm' ? 'text-xs sm:text-sm' :
+                config.heroTitleSize === 'lg' ? 'text-base sm:text-lg' :
+                config.heroTitleSize === 'xl' ? 'text-lg sm:text-xl' :
+                'text-sm sm:text-base'
+              }`}>
                 {config.heroTitlePrefix}{' '}
                 <span className={storeTheme === 'light' ? 'text-indigo-600' : 'text-indigo-400'}>
                   {config.heroTitleAccent}
                 </span>
               </h3>
-              <p className="text-[10px] opacity-75 mt-1 line-clamp-2 max-w-sm mx-auto">
+              <p className={`text-[10px] opacity-75 mt-1 line-clamp-2 max-w-sm ${config.heroAlignment === 'left' ? '' : 'mx-auto'}`}>
                 {config.heroSubtitle}
               </p>
+
+              {/* Regional Hub Switcher preview */}
+              {config.showHubSwitcher !== false && (
+                <div className={`flex flex-wrap gap-1 mt-2.5 ${config.heroAlignment === 'left' ? 'justify-start' : 'justify-center'}`}>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">🇺🇸 USA</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">🇬🇧 UK</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">🇨🇦 Canada</span>
+                </div>
+              )}
             </div>
 
             {/* 4. Preview Products Grid (Accurately reflecting columns & spacing) */}
-            <div className="p-4 space-y-3">
+            <div className={`p-4 space-y-3 ${
+              config.catalogPadding === 'compact' ? 'py-2' : config.catalogPadding === 'spacious' ? 'py-6' : 'py-4'
+            }`}>
               <div className="flex items-center justify-between text-[11px] font-bold">
                 <span>{config.catalogTitle}</span>
                 <span className="text-[9px] opacity-60 font-mono">
@@ -781,15 +919,17 @@ export default function AdminStorefrontEditor({
             </div>
 
             {/* 5. Preview Trust Props */}
-            <div className={`p-3 border-t grid grid-cols-3 gap-2 text-center text-[9px] ${
-              storeTheme === 'light' ? 'bg-slate-50 border-slate-200 text-slate-700' : 'bg-slate-900/60 border-slate-800 text-slate-300'
-            }`}>
-              {config.trustProps.map((p, idx) => (
-                <div key={idx} className="truncate">
-                  <div className="font-bold truncate">{p.title}</div>
-                </div>
-              ))}
-            </div>
+            {config.showTrustProps !== false && (
+              <div className={`p-3 border-t grid grid-cols-3 gap-2 text-center text-[9px] ${
+                storeTheme === 'light' ? 'bg-slate-50 border-slate-200 text-slate-700' : 'bg-slate-900/60 border-slate-800 text-slate-300'
+              }`}>
+                {config.trustProps.map((p, idx) => (
+                  <div key={idx} className="truncate">
+                    <div className="font-bold truncate">{p.title}</div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* 6. Preview Footer */}
             <div className={`p-3 border-t text-center text-[9px] space-y-0.5 ${

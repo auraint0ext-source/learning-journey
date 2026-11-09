@@ -47,7 +47,10 @@ export default function App() {
   const [storefrontConfig, setStorefrontConfig] = useState(() => {
     const saved = localStorage.getItem('printflow_storefront_config');
     if (saved) {
-      try { return JSON.parse(saved); } catch(e) {}
+      try { 
+        const parsed = JSON.parse(saved);
+        return { ...DEFAULT_STOREFRONT_CONFIG, ...parsed, heroAlignment: 'left' };
+      } catch(e) {}
     }
     return DEFAULT_STOREFRONT_CONFIG;
   });

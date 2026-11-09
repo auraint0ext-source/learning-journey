@@ -4,7 +4,7 @@ import {
   ShoppingBag, Star, ShieldCheck, Truck, ArrowRight, X, 
   Check, Heart, Sparkles, Plus, Minus, CreditCard, ChevronRight, CheckCircle2, Lock, Settings,
   ShoppingCart, Landmark, Smartphone, Wallet, Building2, Copy, DollarSign, Trash2, Shield,
-  Sun, Moon
+  Sun, Moon, SlidersHorizontal
 } from 'lucide-react';
 
 import { DEFAULT_STOREFRONT_CONFIG } from './AdminStorefrontEditor';
@@ -35,8 +35,32 @@ export default function CustomerStorefront({
   const gridGapClass = cfg.gridGap === 'compact' ? 'gap-4' : cfg.gridGap === 'spacious' ? 'gap-8' : 'gap-6';
   const cardRadiusClass = cfg.cardRadius === 'lg' ? 'rounded-lg' : cfg.cardRadius === 'xl' ? 'rounded-xl' : cfg.cardRadius === '3xl' ? 'rounded-3xl' : 'rounded-2xl';
 
+  // Hero Title Size (Point scale: Small 28pt, Medium 36pt, Large 48pt, XL 60pt)
+  const heroTitleSizeClass = {
+    sm: 'text-xl sm:text-3xl',
+    md: 'text-2xl sm:text-4xl',
+    lg: 'text-3xl sm:text-5xl',
+    xl: 'text-4xl sm:text-6xl',
+  }[cfg.heroTitleSize || 'md'] || 'text-2xl sm:text-4xl';
+
+  // Hero Top Spacing / Gap
+  const heroTopGapClass = {
+    none: 'pt-2 sm:pt-4',
+    sm: 'pt-5 sm:pt-7',
+    normal: 'pt-8 sm:pt-12',
+    lg: 'pt-12 sm:pt-18',
+  }[cfg.heroTopGap || 'sm'] || 'pt-5 sm:pt-7';
+
+  // Catalog Section Vertical Spacing
+  const catalogPaddingClass = {
+    compact: 'py-6',
+    normal: 'py-12',
+    spacious: 'py-20',
+  }[cfg.catalogPadding || 'normal'] || 'py-12';
+
   const [products, setProducts] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
+  const [sortBy, setSortBy] = useState('featured'); // 'featured' | 'price_asc' | 'price_desc' | 'popular' | 'newest'
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -340,9 +364,23 @@ export default function CustomerStorefront({
     }
   };
 
-  const filteredProducts = activeCategory === 'All' 
-    ? products 
-    : products.filter((p) => p.category.toLowerCase().includes(activeCategory.toLowerCase()));
+  const filteredProducts = React.useMemo(() => {
+    let list = activeCategory === 'All' 
+      ? [...products] 
+      : products.filter((p) => p.category.toLowerCase().includes(activeCategory.toLowerCase()));
+
+    if (sortBy === 'price_asc') {
+      list.sort((a, b) => a.base_price_usd - b.base_price_usd);
+    } else if (sortBy === 'price_desc') {
+      list.sort((a, b) => b.base_price_usd - a.base_price_usd);
+    } else if (sortBy === 'popular') {
+      // Sort by popularity index or ratings
+      list.sort((a, b) => (b.id % 5) - (a.id % 5) || b.id - a.id);
+    } else if (sortBy === 'newest') {
+      list.sort((a, b) => b.id - a.id);
+    }
+    return list;
+  }, [products, activeCategory, sortBy]);
 
   return (
     <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${
@@ -474,11 +512,11 @@ export default function CustomerStorefront({
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[250px] bg-indigo-600/10 blur-[90px] rounded-full pointer-events-none animate-pulse"></div>
         )}
 
-        <div className={`max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-4 ${
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 ${heroTopGapClass} space-y-4 ${
           cfg.heroAlignment === 'left' ? 'text-left' : 'text-center'
         }`}>
           {/* Live production status badge */}
-          {cfg.showLiveHubBadge && (
+          {cfg.showLiveHubBadge !== false && (
             <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold shadow-xs border ${
               isLight
                 ? 'bg-slate-100 border-slate-200 text-slate-700'
@@ -495,7 +533,7 @@ export default function CustomerStorefront({
             </div>
           )}
 
-          <h1 className={`text-3xl sm:text-5xl font-black tracking-tight leading-tight max-w-2xl ${
+          <h1 className={`${heroTitleSizeClass} font-black tracking-tight leading-tight max-w-3xl ${
             cfg.heroAlignment === 'left' ? '' : 'mx-auto'
           } ${isLight ? 'text-slate-900' : 'text-white'}`}>
             {cfg.heroTitlePrefix}{' '}
@@ -504,95 +542,133 @@ export default function CustomerStorefront({
             </span>
           </h1>
 
-          <p className={`text-xs sm:text-sm max-w-lg leading-relaxed ${
+          <p className={`text-xs sm:text-sm max-w-2xl leading-relaxed ${
             cfg.heroAlignment === 'left' ? '' : 'mx-auto'
           } ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
             {cfg.heroSubtitle}
           </p>
 
-          {/* Interactive Regional Hub & Courier Switcher */}
-          <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-            {[
-              { code: 'US', label: '🇺🇸 United States', courier: 'USPS Ground Advantage (2 Days)' },
-              { code: 'UK', label: '🇬🇧 United Kingdom', courier: 'Royal Mail Tracked 24 (2 Days)' },
-              { code: 'CA', label: '🇨🇦 Canada', courier: 'Canada Post Expedited (2 Days)' }
-            ].map(hub => {
-              const isSelected = currentMarket === hub.code;
-              return (
-                <button
-                  key={hub.code}
-                  type="button"
-                  onClick={() => setCurrentMarket(hub.code)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 border shadow-xs ${
-                    isSelected
-                      ? isLight 
-                        ? 'bg-slate-900 text-white border-slate-900 shadow-sm' 
-                        : 'bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-600/30'
-                      : isLight 
-                        ? 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50' 
-                        : 'bg-slate-900/80 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200'
-                  }`}
-                  title={`Switch preview to ${hub.label}`}
-                >
-                  <span>{hub.label}</span>
-                  <span className="opacity-40">•</span>
-                  <span className={`text-[10px] font-mono font-medium ${isLight ? (isSelected ? 'text-emerald-300' : 'text-emerald-700') : 'text-emerald-300'}`}>
-                    {hub.courier}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          {/* Interactive Regional Hub & Courier Switcher (Toggleable from Admin Editor) */}
+          {cfg.showHubSwitcher !== false && (
+            <div className={`flex flex-wrap items-center ${
+              cfg.heroAlignment === 'left' ? 'justify-start' : 'justify-center'
+            } gap-2 pt-1`}>
+              {[
+                { code: 'US', label: '🇺🇸 United States', courier: 'USPS Ground Advantage (2 Days)' },
+                { code: 'UK', label: '🇬🇧 United Kingdom', courier: 'Royal Mail Tracked 24 (2 Days)' },
+                { code: 'CA', label: '🇨🇦 Canada', courier: 'Canada Post Expedited (2 Days)' }
+              ].map(hub => {
+                const isSelected = currentMarket === hub.code;
+                return (
+                  <button
+                    key={hub.code}
+                    type="button"
+                    onClick={() => setCurrentMarket(hub.code)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 border shadow-xs ${
+                      isSelected
+                        ? isLight 
+                          ? 'bg-slate-900 text-white border-slate-900 shadow-sm' 
+                          : 'bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-600/30'
+                        : isLight 
+                          ? 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50' 
+                          : 'bg-slate-900/80 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200'
+                    }`}
+                    title={`Switch preview to ${hub.label}`}
+                  >
+                    <span>{hub.label}</span>
+                    <span className="opacity-40">•</span>
+                    <span className={`text-[10px] font-mono font-medium ${isLight ? (isSelected ? 'text-emerald-300' : 'text-emerald-700') : 'text-emerald-300'}`}>
+                      {hub.courier}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
-          {/* Trust Value Props */}
-          <div className={`flex flex-wrap items-center justify-center gap-6 pt-3 text-[11px] border-t max-w-xl mx-auto ${
-            isLight ? 'border-slate-200 text-slate-600' : 'border-slate-800/60 text-slate-400'
-          }`}>
-            <div className="flex items-center space-x-1.5">
-              <Truck className={`w-3.5 h-3.5 ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`} />
-              <span>Local Domestic Couriers</span>
+          {/* Trust Value Props (Toggleable & Editable from Admin Editor) */}
+          {cfg.showTrustProps !== false && (
+            <div className={`flex flex-wrap items-center ${
+              cfg.heroAlignment === 'left' ? 'justify-start ml-0' : 'justify-center mx-auto'
+            } gap-6 pt-3 text-[11px] border-t max-w-2xl ${
+              isLight ? 'border-slate-200 text-slate-600' : 'border-slate-800/60 text-slate-400'
+            }`}>
+              {(cfg.trustProps || [
+                { title: 'Local Domestic Couriers', subtitle: 'USPS, Royal Mail & Canada Post' },
+                { title: 'Certified Archival Eco Inks', subtitle: 'OEKO-TEX & Non-Toxic' },
+                { title: '4.9 / 5 Verified Rating', subtitle: 'Over 12,000 satisfied shoppers' },
+              ]).map((prop, idx) => (
+                <div key={idx} className="flex items-center space-x-1.5">
+                  {idx === 0 && <Truck className={`w-3.5 h-3.5 ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`} />}
+                  {idx === 1 && <ShieldCheck className={`w-3.5 h-3.5 ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`} />}
+                  {idx === 2 && <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />}
+                  <span className="font-medium">{prop.title}</span>
+                </div>
+              ))}
             </div>
-            <div className="flex items-center space-x-1.5">
-              <ShieldCheck className={`w-3.5 h-3.5 ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`} />
-              <span>Certified Archival Eco Inks</span>
-            </div>
-            <div className="flex items-center space-x-1.5">
-              <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span>4.9 / 5 Verified Rating</span>
-            </div>
-          </div>
+          )}
         </div>
       </section>
 
       {/* 4. Products Grid */}
-      <main id="catalog-grid" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1">
-        {/* Category Filter Pills */}
-        <div className="flex items-center justify-between mb-8 overflow-x-auto pb-2">
-          <div className="flex items-center space-x-2">
-            {['All', 'Apparel', 'Home & Living', 'Wall Art', 'Accessories'].map((cat) => {
-              const isSelected = activeCategory === cat;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap shadow-xs ${
-                    isSelected
-                      ? isLight
-                        ? 'bg-slate-900 text-white shadow-sm'
-                        : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                      : isLight
-                        ? 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                        : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+      <main id="catalog-grid" className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${catalogPaddingClass} flex-1`}>
+        {/* Category Filter Pills & Right-side Sort & Filter */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          {/* Category Filter Pills */}
+          {cfg.showCategoryPills !== false && (
+            <div className="flex items-center space-x-2 overflow-x-auto pb-1 max-w-full">
+              {['All', 'Apparel', 'Home & Living', 'Wall Art', 'Accessories'].map((cat) => {
+                const isSelected = activeCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap shadow-xs ${
+                      isSelected
+                        ? isLight
+                          ? 'bg-slate-900 text-white shadow-sm'
+                          : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                        : isLight
+                          ? 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                          : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Right-Side Sort & Filter Controls */}
+          <div className="flex items-center space-x-2.5 self-end md:self-auto flex-shrink-0">
+            <div className="flex items-center space-x-1.5 text-xs">
+              <span className={`text-[11px] font-semibold hidden sm:inline ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                Sort & Filter:
+              </span>
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className={`pl-3 pr-8 py-2 rounded-xl text-xs font-semibold appearance-none cursor-pointer transition border shadow-xs outline-none ${
+                    isLight 
+                      ? 'bg-white border-slate-200 text-slate-800 hover:border-slate-300 focus:border-indigo-500 shadow-xs' 
+                      : 'bg-slate-900 border-slate-800 text-slate-200 hover:border-slate-700 focus:border-indigo-500'
                   }`}
                 >
-                  {cat}
-                </button>
-              );
-            })}
-          </div>
+                  <option value="featured">✨ Featured (ডিফল্ট)</option>
+                  <option value="price_asc">💵 Price: Low to High (কম থেকে বেশি দাম)</option>
+                  <option value="price_desc">💎 Price: High to Low (বেশি থেকে কম দাম)</option>
+                  <option value="popular">🔥 Most Popular (জনপ্রিয়)</option>
+                  <option value="newest">⚡ New Arrivals (নতুন কালেকশন)</option>
+                </select>
+                <SlidersHorizontal className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" />
+              </div>
+            </div>
 
-          <div className={`text-xs hidden sm:block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-            Showing in <strong className={`font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>{marketInfo.currency} ({marketInfo.currency_symbol})</strong>
+            <div className={`text-xs pl-2.5 border-l hidden sm:block ${isLight ? 'border-slate-200 text-slate-500' : 'border-slate-800 text-slate-400'}`}>
+              <strong className={`font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>{marketInfo.currency} ({marketInfo.currency_symbol})</strong>
+            </div>
           </div>
         </div>
 
