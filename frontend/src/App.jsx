@@ -11,6 +11,7 @@ import LogsViewer from './components/LogsViewer';
 import AdminProductManager from './components/AdminProductManager';
 import AdminPayments from './components/AdminPayments';
 import AdminShortcutModal from './components/AdminShortcutModal';
+import AdminStorefrontEditor, { DEFAULT_STOREFRONT_CONFIG } from './components/AdminStorefrontEditor';
 
 export default function App() {
   // viewMode is 'store' (for regular customers) or 'admin' (for operations staff)
@@ -41,6 +42,20 @@ export default function App() {
   const [storeTheme, setStoreTheme] = useState(() => {
     return localStorage.getItem('printflow_storefront_theme') || 'light';
   });
+
+  // Storefront Visual & Layout Configuration (Headings, Columns, Spacing, Texts)
+  const [storefrontConfig, setStorefrontConfig] = useState(() => {
+    const saved = localStorage.getItem('printflow_storefront_config');
+    if (saved) {
+      try { return JSON.parse(saved); } catch(e) {}
+    }
+    return DEFAULT_STOREFRONT_CONFIG;
+  });
+
+  const handleSaveStorefrontConfig = (newConfig) => {
+    setStorefrontConfig(newConfig);
+    localStorage.setItem('printflow_storefront_config', JSON.stringify(newConfig));
+  };
 
   const handleToggleStoreTheme = (theme) => {
     const nextTheme = theme || (storeTheme === 'light' ? 'dark' : 'light');
@@ -131,6 +146,7 @@ export default function App() {
           onEnterAdminStudio={() => setViewMode('admin')}
           storeTheme={storeTheme}
           onToggleStoreTheme={handleToggleStoreTheme}
+          storefrontConfig={storefrontConfig}
         />
       )}
 
@@ -157,6 +173,15 @@ export default function App() {
             {activeAdminTab === 'products' && (
               <AdminProductManager 
                 currentMarket={currentMarket} 
+                onSwitchToStore={() => setViewMode('store')}
+                storeTheme={storeTheme}
+                onToggleStoreTheme={handleToggleStoreTheme}
+              />
+            )}
+            {activeAdminTab === 'editor' && (
+              <AdminStorefrontEditor
+                storefrontConfig={storefrontConfig}
+                onSaveConfig={handleSaveStorefrontConfig}
                 onSwitchToStore={() => setViewMode('store')}
                 storeTheme={storeTheme}
                 onToggleStoreTheme={handleToggleStoreTheme}

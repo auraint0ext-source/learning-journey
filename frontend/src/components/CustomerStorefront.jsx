@@ -7,6 +7,8 @@ import {
   Sun, Moon
 } from 'lucide-react';
 
+import { DEFAULT_STOREFRONT_CONFIG } from './AdminStorefrontEditor';
+
 export default function CustomerStorefront({ 
   currentMarket, 
   setCurrentMarket, 
@@ -15,9 +17,23 @@ export default function CustomerStorefront({
   isAdminAuthenticated, 
   onEnterAdminStudio,
   storeTheme = 'light',
-  onToggleStoreTheme
+  onToggleStoreTheme,
+  storefrontConfig
 }) {
+  const cfg = storefrontConfig || DEFAULT_STOREFRONT_CONFIG;
   const isLight = storeTheme === 'light';
+
+  // Dynamic layout calculations
+  const gridColumnsClass = cfg.gridColumns === 2 
+    ? 'grid-cols-1 sm:grid-cols-2'
+    : cfg.gridColumns === 3
+    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+    : cfg.gridColumns === 5
+    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'
+    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+    
+  const gridGapClass = cfg.gridGap === 'compact' ? 'gap-4' : cfg.gridGap === 'spacious' ? 'gap-8' : 'gap-6';
+  const cardRadiusClass = cfg.cardRadius === 'lg' ? 'rounded-lg' : cfg.cardRadius === 'xl' ? 'rounded-xl' : cfg.cardRadius === '3xl' ? 'rounded-3xl' : 'rounded-2xl';
 
   const [products, setProducts] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
@@ -333,28 +349,26 @@ export default function CustomerStorefront({
       isLight ? 'bg-[#f8f9fa] text-slate-900' : 'bg-slate-950 text-slate-100'
     }`}>
       {/* 1. Customer Top Announcement Bar */}
-      <div className={`text-[11px] py-1.5 px-4 sm:px-8 lg:px-12 flex items-center justify-between w-full transition-colors ${
-        isLight 
-          ? 'bg-slate-100 border-b border-slate-200 text-slate-700' 
-          : 'bg-gradient-to-r from-indigo-950 via-purple-950 to-indigo-950 border-b border-indigo-500/20 text-white'
-      }`}>
-        <div className="flex items-center space-x-2 mx-auto sm:mx-0">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span className={`font-semibold ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
-            Printed Domestically in USA, UK & Canada • Zero Customs Duties • Fast 2-Day Local Production
-          </span>
+      {cfg.showAnnouncement && (
+        <div className={`text-[11px] py-1.5 px-4 sm:px-8 lg:px-12 flex items-center justify-between w-full transition-colors ${
+          isLight 
+            ? 'bg-slate-100 border-b border-slate-200 text-slate-700' 
+            : 'bg-gradient-to-r from-indigo-950 via-purple-950 to-indigo-950 border-b border-indigo-500/20 text-white'
+        }`}>
+          <div className="flex items-center space-x-2 mx-auto sm:mx-0">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span className={`font-semibold ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
+              {cfg.announcementText}
+            </span>
+          </div>
+          <div className={`hidden sm:flex items-center space-x-3 text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+            <span>{cfg.announcementFacilities}</span>
+          </div>
         </div>
-        <div className={`hidden sm:flex items-center space-x-3 text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-          <span>🇺🇸 Detroit Facility</span>
-          <span>•</span>
-          <span>🇬🇧 London Facility</span>
-          <span>•</span>
-          <span>🇨🇦 Toronto Facility</span>
-        </div>
-      </div>
+      )}
 
       {/* 2. Customer Navigation Header */}
       <nav className={`sticky top-0 z-40 w-full transition-colors ${
@@ -371,7 +385,7 @@ export default function CustomerStorefront({
                 P
               </div>
               <span className={`font-extrabold text-lg tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                PrintFlow
+                {cfg.brandName || 'PrintFlow'}
               </span>
             </div>
 
@@ -449,7 +463,9 @@ export default function CustomerStorefront({
       </nav>
 
       {/* 3. Hero Banner */}
-      <section className={`relative overflow-hidden py-10 sm:py-12 border-b transition-colors ${
+      <section className={`relative overflow-hidden border-b transition-colors ${
+        cfg.heroPadding === 'compact' ? 'py-8 sm:py-10' : cfg.heroPadding === 'spacious' ? 'py-14 sm:py-20' : 'py-10 sm:py-12'
+      } ${
         isLight
           ? 'bg-white border-slate-200'
           : 'bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 border-slate-800/80'
@@ -458,36 +474,40 @@ export default function CustomerStorefront({
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[250px] bg-indigo-600/10 blur-[90px] rounded-full pointer-events-none animate-pulse"></div>
         )}
 
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4">
+        <div className={`max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-4 ${
+          cfg.heroAlignment === 'left' ? 'text-left' : 'text-center'
+        }`}>
           {/* Live production status badge */}
-          <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold shadow-xs border ${
-            isLight
-              ? 'bg-slate-100 border-slate-200 text-slate-700'
-              : 'bg-slate-900/90 border-indigo-500/30 text-slate-300 shadow-inner'
-          }`}>
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span>Live Production Hub:</span>
-            <span className={isLight ? 'text-emerald-700 font-bold' : 'text-emerald-400 font-bold'}>
-              {marketInfo.fulfillment_hub}
-            </span>
-          </div>
+          {cfg.showLiveHubBadge && (
+            <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold shadow-xs border ${
+              isLight
+                ? 'bg-slate-100 border-slate-200 text-slate-700'
+                : 'bg-slate-900/90 border-indigo-500/30 text-slate-300 shadow-inner'
+            }`}>
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span>{cfg.liveHubBadgeLabel || 'Live Production Hub:'}</span>
+              <span className={isLight ? 'text-emerald-700 font-bold' : 'text-emerald-400 font-bold'}>
+                {marketInfo.fulfillment_hub}
+              </span>
+            </div>
+          )}
 
-          <h1 className={`text-3xl sm:text-5xl font-black tracking-tight leading-tight max-w-2xl mx-auto ${
-            isLight ? 'text-slate-900' : 'text-white'
-          }`}>
-            Custom Goods Printed{' '}
+          <h1 className={`text-3xl sm:text-5xl font-black tracking-tight leading-tight max-w-2xl ${
+            cfg.heroAlignment === 'left' ? '' : 'mx-auto'
+          } ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            {cfg.heroTitlePrefix}{' '}
             <span className={isLight ? 'text-indigo-600' : 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400'}>
-              Domestically.
+              {cfg.heroTitleAccent}
             </span>
           </h1>
 
-          <p className={`text-xs sm:text-sm max-w-lg mx-auto leading-relaxed ${
-            isLight ? 'text-slate-600' : 'text-slate-400'
-          }`}>
-            Premium vintage apparel, gallery canvas wall art, and ceramic goods printed locally in {marketInfo.country_name || currentMarket}. No cross-border delays or customs fees.
+          <p className={`text-xs sm:text-sm max-w-lg leading-relaxed ${
+            cfg.heroAlignment === 'left' ? '' : 'mx-auto'
+          } ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+            {cfg.heroSubtitle}
           </p>
 
           {/* Interactive Regional Hub & Courier Switcher */}
@@ -576,14 +596,14 @@ export default function CustomerStorefront({
           </div>
         </div>
 
-        {/* Product Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* Product Cards with Custom Columns & Spacing */}
+        <div className={`grid ${gridColumnsClass} ${gridGapClass}`}>
           {filteredProducts.map((p) => {
             const price = getPrice(p.base_price_usd);
             return (
               <div
                 key={p.id}
-                className={`rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between group ${
+                className={`${cardRadiusClass} overflow-hidden transition-all duration-300 flex flex-col justify-between group ${
                   isLight
                     ? 'bg-white border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300'
                     : 'bg-slate-900 border border-slate-800 hover:border-indigo-500/50 shadow-xl'
@@ -1265,60 +1285,36 @@ export default function CustomerStorefront({
       )}
 
       {/* 7. Customer Reviews Section */}
-      <section className={`py-16 border-t transition-colors ${
-        isLight ? 'bg-slate-100/70 border-slate-200' : 'bg-slate-900/40 border-slate-800'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
-          <div className="space-y-2">
-            <h2 className={`text-2xl font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>What Our Customers Say</h2>
-            <p className={`text-xs ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Verified domestic reviews from the United States, United Kingdom, and Canada</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-            <div className={`rounded-2xl p-6 space-y-3 border shadow-xs ${
-              isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
-            }`}>
-              <div className="flex text-amber-400">
-                {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-current" />)}
-              </div>
-              <p className={`text-xs leading-relaxed ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-                "The Heavyweight Vintage Hoodie arrived in only 3 days via USPS from the Detroit facility! The DTG print quality is extraordinary."
-              </p>
-              <div className={`text-[11px] font-medium ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-                — Emily R., <span className={isLight ? 'text-slate-900 font-bold' : 'text-white'}>Brooklyn, New York 🇺🇸</span>
-              </div>
+      {cfg.showReviews && (
+        <section className={`py-16 border-t transition-colors ${
+          isLight ? 'bg-slate-100/70 border-slate-200' : 'bg-slate-900/40 border-slate-800'
+        }`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+            <div className="space-y-2">
+              <h2 className={`text-2xl font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>{cfg.reviewsTitle}</h2>
+              <p className={`text-xs ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>{cfg.reviewsSubtitle}</p>
             </div>
 
-            <div className={`rounded-2xl p-6 space-y-3 border shadow-xs ${
-              isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
-            }`}>
-              <div className="flex text-amber-400">
-                {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-current" />)}
-              </div>
-              <p className={`text-xs leading-relaxed ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-                "So glad it was fulfilled by Prodigi in Hampshire. Zero import taxes or Royal Mail customs hold-ups. The ceramic mug is beautiful!"
-              </p>
-              <div className={`text-[11px] font-medium ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-                — James W., <span className={isLight ? 'text-slate-900 font-bold' : 'text-white'}>London, UK 🇬🇧</span>
-              </div>
-            </div>
-
-            <div className={`rounded-2xl p-6 space-y-3 border shadow-xs ${
-              isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
-            }`}>
-              <div className="flex text-amber-400">
-                {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-current" />)}
-              </div>
-              <p className={`text-xs leading-relaxed ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-                "Shipped from Toronto directly to Vancouver via Canada Post. The museum canvas colors are vibrant and crystal clear."
-              </p>
-              <div className={`text-[11px] font-medium ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-                — Sophie L., <span className={isLight ? 'text-slate-900 font-bold' : 'text-white'}>Vancouver, BC 🇨🇦</span>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+              {(cfg.reviews || []).map((rev) => (
+                <div key={rev.id} className={`rounded-2xl p-6 space-y-3 border shadow-xs ${
+                  isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
+                }`}>
+                  <div className="flex text-amber-400">
+                    {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-current" />)}
+                  </div>
+                  <p className={`text-xs leading-relaxed ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                    {rev.comment}
+                  </p>
+                  <div className={`text-[11px] font-medium ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                    — {rev.name}, <span className={isLight ? 'text-slate-900 font-bold' : 'text-white'}>{rev.location}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 8. Footer */}
       <footer className={`py-10 text-xs border-t transition-colors ${
@@ -1328,13 +1324,13 @@ export default function CustomerStorefront({
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
             <div>
               <div className="flex items-center justify-center md:justify-start space-x-2">
-                <span className={`font-extrabold text-base ${isLight ? 'text-slate-900' : 'text-white'}`}>PrintFlow Studio</span>
+                <span className={`font-extrabold text-base ${isLight ? 'text-slate-900' : 'text-white'}`}>{cfg.brandName}</span>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full ${
                   isLight ? 'bg-slate-100 text-slate-600' : 'bg-slate-800 text-slate-400'
-                }`}>Domestic POD</span>
+                }`}>{cfg.badgeTag}</span>
               </div>
               <p className={`text-[11px] mt-1 ${isLight ? 'text-slate-500' : 'text-slate-500'}`}>
-                Local direct-to-garment & archival printing facilities in USA (Detroit), UK (London) & Canada (Toronto).
+                {cfg.footerTagline}
               </p>
             </div>
 
@@ -1348,7 +1344,7 @@ export default function CustomerStorefront({
           <div className={`pt-6 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] ${
             isLight ? 'border-slate-100' : 'border-slate-900'
           }`}>
-            <p>© 2026 PrintFlow Global Ltd. All rights reserved.</p>
+            <p>{cfg.copyrightText}</p>
 
             {/* Zero visible admin link for normal shoppers. Only authenticated staff in preview mode can return */}
             <div>

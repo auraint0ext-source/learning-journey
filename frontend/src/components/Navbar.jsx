@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers, ShoppingBag, Radio, Terminal, Globe2, Sparkles, MessageSquare, ExternalLink, LogOut, Package, CreditCard, KeyRound, Sun, Moon, Palette } from 'lucide-react';
+import { Layers, ShoppingBag, Radio, Terminal, Globe2, Sparkles, MessageSquare, ExternalLink, LogOut, Package, CreditCard, KeyRound, Sun, Moon, Palette, LayoutTemplate } from 'lucide-react';
 
 export default function Navbar({ 
   activeTab, 
@@ -97,7 +97,23 @@ export default function Navbar({
               <span className="hidden md:inline">Manage Products</span>
             </button>
 
-            {/* 5. Ads & Leads */}
+            {/* 5. Storefront Layout & Content Editor */}
+            <button
+              onClick={() => setActiveTab('editor')}
+              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                activeTab === 'editor'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <LayoutTemplate className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden md:inline">Storefront Editor</span>
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+                Live
+              </span>
+            </button>
+
+            {/* 6. Ads & Leads */}
             <button
               onClick={() => setActiveTab('ads')}
               className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
