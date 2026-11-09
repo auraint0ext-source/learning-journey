@@ -569,11 +569,14 @@ export default function CustomerStorefront({
       )}
 
       {/* 2. Customer Navigation Header with VistaPrint Global Search */}
-      <nav className={`sticky top-0 z-40 w-full transition-colors ${
-        isLight 
-          ? 'bg-white/95 backdrop-blur border-b border-slate-200/90 shadow-xs' 
-          : 'bg-slate-900/95 backdrop-blur border-b border-slate-800 shadow-xs'
-      }`}>
+      <nav 
+        className={`sticky top-0 z-40 w-full transition-colors ${
+          isLight 
+            ? 'bg-white shadow-xs' 
+            : 'bg-slate-900/95 backdrop-blur border-b border-slate-800 shadow-xs'
+        }`}
+        style={{ backgroundColor: isLight ? '#ffffff' : undefined }}
+      >
         <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-4">
           {/* Logo & Brand Identity */}
           <div 
@@ -716,9 +719,10 @@ export default function CustomerStorefront({
         {/* VistaPrint Full-Width Mega Menu Bar */}
         {cfg.showMegaMenu !== false && (
           <div 
-            className={`border-t relative ${
-              isLight ? 'bg-slate-50/95 border-slate-200/90' : 'bg-slate-950/80 border-slate-800'
+            className={`relative ${
+              isLight ? 'bg-white border-t border-slate-100 border-b border-slate-200/60' : 'bg-slate-950/80 border-t border-b border-slate-800'
             }`}
+            style={{ backgroundColor: isLight ? '#ffffff' : undefined }}
             onMouseLeave={handleMenuMouseLeave}
           >
             <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto text-xs font-semibold py-1">
@@ -727,8 +731,8 @@ export default function CustomerStorefront({
                   onClick={() => { setActiveCategory('All'); setSearchQuery(''); setActiveMegaMenu(null); }}
                   className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap ${
                     activeCategory === 'All' && !searchQuery
-                      ? isLight ? 'bg-slate-900 text-white font-bold' : 'bg-indigo-600 text-white font-bold'
-                      : isLight ? 'text-slate-700 hover:bg-slate-200/60' : 'text-slate-300 hover:bg-slate-800'
+                      ? isLight ? 'bg-indigo-50 text-indigo-700 font-bold border border-indigo-200/60' : 'bg-indigo-600 text-white font-bold'
+                      : isLight ? 'text-slate-700 hover:bg-slate-100' : 'text-slate-300 hover:bg-slate-800'
                   }`}
                 >
                   All Products
@@ -751,8 +755,8 @@ export default function CustomerStorefront({
                         }}
                         className={`px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 whitespace-nowrap ${
                           isOpen || isCatActive
-                            ? isLight ? 'bg-slate-900 text-white font-bold' : 'bg-indigo-600 text-white font-bold'
-                            : isLight ? 'text-slate-700 hover:bg-slate-200/60' : 'text-slate-300 hover:bg-slate-800'
+                            ? isLight ? 'bg-indigo-50 text-indigo-700 font-bold border border-indigo-200/60' : 'bg-indigo-600 text-white font-bold'
+                            : isLight ? 'text-slate-700 hover:bg-slate-100 hover:text-slate-900' : 'text-slate-300 hover:bg-slate-800'
                         }`}
                       >
                         <span>{menu.title}</span>
@@ -794,11 +798,12 @@ export default function CustomerStorefront({
 
               return (
                 <div 
-                  className={`absolute top-full left-0 right-0 z-50 border-b border-t shadow-2xl backdrop-blur-2xl transition-all duration-200 animate-in fade-in slide-in-from-top-1 ${
+                  className={`absolute top-full left-0 right-0 z-50 border-b shadow-xl transition-all duration-200 animate-in fade-in slide-in-from-top-1 ${
                     isLight 
-                      ? 'bg-white/98 border-slate-200 text-slate-900 shadow-slate-300/60' 
-                      : 'bg-slate-900/98 border-slate-800 text-white shadow-black/80'
+                      ? 'bg-white border-slate-200/80 text-slate-900 shadow-slate-300/40' 
+                      : 'bg-slate-900 border-slate-800 text-white shadow-black/80'
                   }`}
+                  style={{ backgroundColor: isLight ? '#ffffff' : '#0f172a' }}
                   onMouseEnter={handlePanelMouseEnter}
                   onMouseLeave={handleMenuMouseLeave}
                 >
