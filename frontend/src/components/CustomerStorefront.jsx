@@ -9,7 +9,7 @@ import {
 
 import { DEFAULT_STOREFRONT_CONFIG } from './AdminStorefrontEditor';
 
-export const DEFAULT_CATALOG_PRODUCTS = [
+const DEFAULT_CATALOG_PRODUCTS = [
   // 1. Marketing & Business Collateral
   {
     id: 1,
