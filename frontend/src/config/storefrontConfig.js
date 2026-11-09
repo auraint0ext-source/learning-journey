@@ -503,5 +503,11 @@ export const DEFAULT_STOREFRONT_CONFIG = {
       rightQuote: '“Sturdy steel H-stakes hold firmly in high-traffic grass verges.”',
       rightCaption: 'Corrugated Fluted Lawn Yard Signs'
     }
-  ]
+  ],
+
+  // 11. Luxury 3D Boutique Atelier Background with Frosted Glass Parallax
+  enableLuxury3dBackground: true,
+  luxuryBgVenue: 'atelier', // 'atelier' | 'flagship' | 'workshop'
+  luxuryBgBlur: 'medium',   // 'subtle' | 'medium' | 'deep'
+  luxuryBgDepth: 'dynamic'  // 'dynamic' | 'fixed'
 };

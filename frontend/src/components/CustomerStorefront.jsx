@@ -284,6 +284,30 @@ export default function CustomerStorefront({
     setSelectedProduct(matched);
   };
 
+  // 3D Luxury Boutique Parallax Motion Scroll Listener
+  const [scrollY, setScrollY] = useState(0);
+  useEffect(() => {
+    const onScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Compute 3D Depth Zoom factor based on scroll
+  const scrollRatio = Math.min(1, Math.max(0, scrollY / 2200));
+  const boutiqueZoomScale = (1.02 + scrollRatio * 0.15).toFixed(3);
+  const boutiqueTranslateY = (scrollRatio * -30).toFixed(1);
+
+  // Venue image selection
+  const venueImage = cfg.luxuryBgVenue === 'flagship'
+    ? 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&fit=crop&w=2000&q=80'
+    : cfg.luxuryBgVenue === 'workshop'
+    ? 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=2000&q=80'
+    : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=2000&q=80';
+
+  const blurAmount = cfg.luxuryBgBlur === 'subtle' ? '10px' : cfg.luxuryBgBlur === 'deep' ? '22px' : '15px';
+
   const handleMenuMouseEnter = (idx) => {
     if (megaMenuTimeoutRef.current) {
       clearTimeout(megaMenuTimeoutRef.current);
@@ -762,15 +786,38 @@ export default function CustomerStorefront({
   }, [products, activeCategory, searchQuery, sortBy]);
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${
-      isLight ? 'bg-[#f8f9fa] text-slate-900' : 'bg-slate-950 text-slate-100'
+    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 relative overflow-x-hidden ${
+      isLight ? (cfg.enableLuxury3dBackground ? 'bg-transparent text-slate-900' : 'bg-[#f8f9fa] text-slate-900') : 'bg-slate-950 text-slate-100'
     }`}>
+      {/* 3D Luxury Boutique Atelier Parallax Glass Background */}
+      {cfg.enableLuxury3dBackground !== false && (
+        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+          <div 
+            className="absolute -inset-10 bg-cover bg-center transition-transform duration-300 ease-out will-change-transform"
+            style={{
+              backgroundImage: `url('${venueImage}')`,
+              filter: isLight 
+                ? `blur(${blurAmount}) brightness(0.97) saturate(1.15)` 
+                : `blur(${blurAmount}) brightness(0.38) saturate(1.2)`,
+              transform: cfg.luxuryBgDepth !== 'fixed' ? `scale(${boutiqueZoomScale}) translateY(${boutiqueTranslateY}px)` : 'scale(1.05)',
+              transformOrigin: 'center center'
+            }}
+          />
+          {/* Subtle Ambient Glass Tint Overlay */}
+          <div className={`absolute inset-0 ${
+            isLight 
+              ? 'bg-gradient-to-b from-white/75 via-white/55 to-white/75' 
+              : 'bg-gradient-to-b from-slate-950/85 via-slate-950/75 to-slate-950/90'
+          }`} />
+        </div>
+      )}
+
       {/* 1. Customer Top Announcement Bar */}
       {cfg.showAnnouncement && (
-        <div className={`text-[11px] py-1.5 px-4 sm:px-8 lg:px-12 flex items-center justify-between w-full transition-colors ${
+        <div className={`relative z-10 text-[11px] py-1.5 px-4 sm:px-8 lg:px-12 flex items-center justify-between w-full transition-colors ${
           isLight 
-            ? 'bg-slate-100 border-b border-slate-200 text-slate-700' 
-            : 'bg-gradient-to-r from-indigo-950 via-purple-950 to-indigo-950 border-b border-indigo-500/20 text-white'
+            ? 'bg-white/80 backdrop-blur-md border-b border-slate-200/60 text-slate-700' 
+            : 'bg-gradient-to-r from-indigo-950/90 via-purple-950/90 to-indigo-950/90 border-b border-indigo-500/20 text-white backdrop-blur-md'
         }`}>
           <div className="flex items-center space-x-2 mx-auto sm:mx-0">
             <span className="relative flex h-2 w-2">

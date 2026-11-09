@@ -206,6 +206,7 @@ export default function AdminStorefrontEditor({
           { id: 'badges', label: 'Trust Badges & Couriers', icon: ShieldCheck },
           { id: 'reviews', label: 'Customer Reviews', icon: Star },
           { id: 'footer', label: 'Footer & Branding', icon: Sliders },
+          { id: 'background', label: '3D Luxury Background (থ্রিডি ব্যাকগ্রাউন্ড)', icon: Sparkles },
         ].map(tab => {
           const Icon = tab.icon;
           const isActive = activeSection === tab.id;
@@ -1619,6 +1620,96 @@ export default function AdminStorefrontEditor({
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono"
                   />
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Section 10: 3D Luxury Background & Parallax */}
+          {activeSection === 'background' && (
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div className="flex items-center space-x-2">
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <h2 className="text-sm font-bold text-white uppercase tracking-wider">3D Luxury Boutique Parallax Background</h2>
+                </div>
+                <span className="text-[10px] text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full font-mono">
+                  Atelier Glass
+                </span>
+              </div>
+
+              {/* Master Toggle */}
+              <div className="flex items-center justify-between p-3.5 bg-slate-950 border border-slate-800 rounded-xl">
+                <div>
+                  <label className="text-xs font-bold text-white block">Enable 3D Boutique Atelier Background</label>
+                  <p className="text-[11px] text-slate-400">
+                    Replaces plain white with an elegant luxury flagship boutique view seen through frosted glassmorphism.
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={config.enableLuxury3dBackground !== false}
+                  onChange={(e) => handleFieldChange('enableLuxury3dBackground', e.target.checked)}
+                  className="rounded text-indigo-600 focus:ring-indigo-500 w-5 h-5 cursor-pointer"
+                />
+              </div>
+
+              {/* Venue Selection */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-slate-400 font-semibold mb-1 text-xs">
+                    Store Venue & Architecture (বুটিক ভেন্যু):
+                  </label>
+                  <select
+                    value={config.luxuryBgVenue || 'atelier'}
+                    onChange={(e) => handleFieldChange('luxuryBgVenue', e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:border-indigo-500 text-xs"
+                  >
+                    <option value="atelier">Luxury Modern Design Atelier (লাক্সারি স্টুডিও)</option>
+                    <option value="flagship">High-End Flagship Boutique (মডার্ন ফ্ল্যাগশিপ স্টোর)</option>
+                    <option value="workshop">Artisan Architectural Workshop (আর্কিটেকচারাল ওয়ার্কশপ)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 font-semibold mb-1 text-xs">
+                    Frosted Glass Blur (গ্লাস ব্লার মাত্রা):
+                  </label>
+                  <select
+                    value={config.luxuryBgBlur || 'medium'}
+                    onChange={(e) => handleFieldChange('luxuryBgBlur', e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:border-indigo-500 text-xs"
+                  >
+                    <option value="subtle">Subtle Glass (10px Blur - হালকা)</option>
+                    <option value="medium">Balanced Glass (14px Blur - ব্যালান্সড)</option>
+                    <option value="deep">Deep Frosted Velvet (22px Blur - গভীর)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Parallax Depth Mode */}
+              <div>
+                <label className="block text-slate-400 font-semibold mb-1 text-xs">
+                  Scroll Motion Depth (স্ক্রল ৩ডি মুভমেন্ট):
+                </label>
+                <select
+                  value={config.luxuryBgDepth || 'dynamic'}
+                  onChange={(e) => handleFieldChange('luxuryBgDepth', e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:border-indigo-500 text-xs"
+                >
+                  <option value="dynamic">Dynamic 3D Zoom on Scroll (নিচে নামলে ভেতরে ঢোকার ভাব)</option>
+                  <option value="fixed">Fixed Static Perspective (স্থির দৃষ্টিকোণ)</option>
+                </select>
+              </div>
+
+              {/* Visual Demonstration Card */}
+              <div className="p-4 rounded-xl border border-slate-800 bg-slate-950 space-y-2 text-xs">
+                <div className="flex items-center space-x-2 text-amber-400 font-bold">
+                  <Sparkles className="w-4 h-4" />
+                  <span>How it works on your Storefront:</span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  As customers scroll down or move their cursor, the background smoothly zooms in and shifts perspective—creating the impression of walking deeper into a physical luxury boutique. All product cards and photos sit on crisp frosted white glass, preserving 100% legibility and trust.
+                </p>
               </div>
             </div>
           )}
