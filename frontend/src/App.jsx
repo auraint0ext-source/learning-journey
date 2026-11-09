@@ -59,6 +59,7 @@ export default function App() {
         return { 
           ...DEFAULT_STOREFRONT_CONFIG, 
           ...parsed, 
+          luxuryBgGlassOpacity: parsed.luxuryBgGlassOpacity !== undefined ? parsed.luxuryBgGlassOpacity : DEFAULT_STOREFRONT_CONFIG.luxuryBgGlassOpacity,
           megaMenuVersion: 4,
           megaMenuCategories: megaMenuCats,
           promoSlides: promoSlides,

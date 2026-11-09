@@ -803,12 +803,17 @@ export default function CustomerStorefront({
               transformOrigin: 'center center'
             }}
           />
-          {/* Subtle Ambient Glass Tint Overlay */}
-          <div className={`absolute inset-0 ${
-            isLight 
-              ? 'bg-gradient-to-b from-white/75 via-white/55 to-white/75' 
-              : 'bg-gradient-to-b from-slate-950/85 via-slate-950/75 to-slate-950/90'
-          }`} />
+          {/* Dynamic Frosted Glass Tint Overlay powered by Admin 0-100% Slider */}
+          <div 
+            className="absolute inset-0 transition-all duration-300 pointer-events-none" 
+            style={{
+              backgroundColor: isLight 
+                ? `rgba(255, 255, 255, ${(cfg.luxuryBgGlassOpacity ?? 25) / 100})` 
+                : `rgba(2, 6, 23, ${Math.min(0.95, ((cfg.luxuryBgGlassOpacity ?? 25) + 35) / 100)})`,
+              backdropFilter: `blur(${blurAmount})`,
+              WebkitBackdropFilter: `blur(${blurAmount})`
+            }} 
+          />
         </div>
       )}
 
@@ -1557,8 +1562,10 @@ export default function CustomerStorefront({
 
       {/* 3.1 VistaPrint-Style "Explore Popular Categories" 6-Tile Grid */}
       {cfg.showCategoryShowcase !== false && (
-        <section id="category-showcase" className={`border-b transition-colors py-10 sm:py-14 ${
-          isLight ? 'bg-white border-slate-200' : 'bg-slate-900/60 border-slate-800/80'
+        <section id="category-showcase" className={`border-b transition-colors py-10 sm:py-14 relative z-10 ${
+          isLight 
+            ? (cfg.enableLuxury3dBackground ? 'bg-white/50 backdrop-blur-sm border-slate-200/60' : 'bg-white border-slate-200')
+            : 'bg-slate-900/60 border-slate-800/80'
         }`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
@@ -1640,8 +1647,10 @@ export default function CustomerStorefront({
 
       {/* 3.2 VistaPrint 100% Satisfaction Guarantee Banner */}
       {cfg.showSatisfactionGuarantee !== false && (
-        <section className={`border-b transition-colors py-6 ${
-          isLight ? 'bg-amber-50/60 border-amber-200/60 text-slate-900' : 'bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 border-slate-800 text-white'
+        <section className={`border-b transition-colors py-6 relative z-10 ${
+          isLight 
+            ? (cfg.enableLuxury3dBackground ? 'bg-amber-50/50 backdrop-blur-sm border-amber-200/50 text-slate-900' : 'bg-amber-50/60 border-amber-200/60 text-slate-900') 
+            : 'bg-gradient-to-r from-slate-950 via-indigo-950/20 to-slate-950 border-slate-800 text-white'
         }`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1685,7 +1694,7 @@ export default function CustomerStorefront({
       )}
 
       {/* 4. Products Grid */}
-      <main id="catalog-grid" className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${catalogPaddingClass} flex-1`}>
+      <main id="catalog-grid" className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${catalogPaddingClass} flex-1 relative z-10`}>
         {/* Category Filter Pills & Right-side Sort & Filter */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           {/* Category Filter Pills */}
@@ -1810,10 +1819,21 @@ export default function CustomerStorefront({
             return (
               <div
                 key={p.id}
-                className={`${cardRadiusClass} overflow-hidden transition-all duration-300 flex flex-col justify-between group ${
+                onClick={() => {
+                  setSelectedProduct(p);
+                  setSelectedSize('L');
+                  setSelectedColor('Vintage Black');
+                  setSelectedFinish('Matte');
+                  setModalQuantity(1);
+                }}
+                className={`${cardRadiusClass} overflow-hidden transition-all duration-300 flex flex-col justify-between group cursor-pointer ${
                   isLight
-                    ? 'bg-white border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300'
-                    : 'bg-slate-900 border border-slate-800 hover:border-indigo-500/50 shadow-xl'
+                    ? (cfg.enableLuxury3dBackground
+                        ? 'bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-sm hover:shadow-2xl hover:border-indigo-400 hover:-translate-y-1 hover:bg-white'
+                        : 'bg-white border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5')
+                    : (cfg.enableLuxury3dBackground
+                        ? 'bg-slate-900/95 backdrop-blur-md border border-slate-800 hover:border-indigo-500/70 shadow-xl hover:shadow-2xl hover:-translate-y-1 hover:bg-slate-900'
+                        : 'bg-slate-900 border border-slate-800 hover:border-indigo-500/50 shadow-xl hover:-translate-y-0.5')
                 }`}
               >
                 <div>
@@ -1844,13 +1864,13 @@ export default function CustomerStorefront({
                       {[...Array(5)].map((_, i) => (
                         <Star key={i} className="w-3 h-3 fill-current" />
                       ))}
-                      <span className={`text-[10px] ml-1 ${isLight ? 'text-slate-400' : 'text-slate-400'}`}>(48)</span>
+                      <span className={`text-[10px] ml-1 font-semibold ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>(48)</span>
                     </div>
 
-                    <h3 className={`font-bold text-sm line-clamp-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                    <h3 className={`font-bold text-sm line-clamp-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors ${isLight ? 'text-slate-900' : 'text-white'}`}>
                       {p.title}
                     </h3>
-                    <p className={`text-xs line-clamp-2 leading-relaxed ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                    <p className={`text-xs line-clamp-2 leading-relaxed font-normal ${isLight ? 'text-slate-600' : 'text-slate-300'}`}>
                       {p.description}
                     </p>
                   </div>
@@ -1866,23 +1886,25 @@ export default function CustomerStorefront({
                         {marketInfo.currency_symbol}{price}
                       </div>
                     </div>
-                    <span className={`text-[10px] ${isLight ? 'text-slate-400' : 'text-slate-500'}`}>
+                    <span className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                       +{marketInfo.currency_symbol}{marketInfo.shipping_base_rate} ship
                     </span>
                   </div>
 
                   <button
-                    onClick={() => {
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setSelectedProduct(p);
                       setSelectedSize('L');
                       setSelectedColor('Vintage Black');
                       setSelectedFinish('Matte');
                       setModalQuantity(1);
                     }}
-                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center space-x-2 border shadow-xs ${
+                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center space-x-2 border shadow-sm min-h-[42px] cursor-pointer ${
                       isLight
-                        ? 'bg-slate-900 hover:bg-slate-800 text-white border-slate-900'
-                        : 'bg-slate-800 hover:bg-indigo-600 text-white border-slate-700 hover:border-indigo-500'
+                        ? 'bg-slate-900 hover:bg-slate-800 text-white border-slate-900 hover:shadow-md'
+                        : 'bg-indigo-600 hover:bg-indigo-500 text-white border-indigo-500 hover:border-indigo-400 shadow-md'
                     }`}
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
@@ -3072,8 +3094,10 @@ export default function CustomerStorefront({
       )}
 
       {/* 8. Footer */}
-      <footer className={`py-10 text-xs border-t transition-colors ${
-        isLight ? 'bg-white border-slate-200 text-slate-500' : 'bg-slate-950 border-slate-800 text-slate-500'
+      <footer className={`py-10 text-xs border-t transition-colors relative z-10 ${
+        isLight 
+          ? (cfg.enableLuxury3dBackground ? 'bg-white/70 backdrop-blur-md border-slate-200/60 text-slate-600' : 'bg-white border-slate-200 text-slate-500')
+          : 'bg-slate-950 border-slate-800 text-slate-500'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">

@@ -1705,6 +1705,72 @@ export default function AdminStorefrontEditor({
                 </div>
               </div>
 
+              {/* Frosted Glass Transparency / Opacity Continuous Slider (0% - 100%) */}
+              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="block text-white font-bold text-xs">
+                      Glass Tint Transparency (গ্লাস ট্রান্সপারেন্সি স্লাইডার 0% - 100%):
+                    </label>
+                    <p className="text-[11px] text-slate-400">
+                      ব্যাকগ্রাউন্ড কতটুকু স্পষ্ট বা কাঁচের মতো স্বচ্ছ দেখা যাবে তা নির্ধারণ করুন। ০% মানে সম্পূর্ণ স্বচ্ছ কাঁচ, ১০০% মানে নিরেট সাদা।
+                    </p>
+                  </div>
+                  <div className="text-right flex-shrink-0 ml-3">
+                    <span className="text-sm font-black font-mono text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2.5 py-1 rounded-lg">
+                      {config.luxuryBgGlassOpacity ?? 25}%
+                    </span>
+                    <span className="block text-[10px] text-slate-400 mt-0.5">
+                      {(config.luxuryBgGlassOpacity ?? 25) <= 10 ? '✨ Crystal Transparent' : (config.luxuryBgGlassOpacity ?? 25) <= 30 ? '💎 High Clarity Luxe' : (config.luxuryBgGlassOpacity ?? 25) <= 60 ? '❄️ Balanced Frosted' : '☁️ Frosted Veil'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={config.luxuryBgGlassOpacity ?? 25}
+                    onChange={(e) => handleFieldChange('luxuryBgGlassOpacity', parseInt(e.target.value))}
+                    className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                  />
+                  <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+                    <span>0% (সম্পূর্ণ ট্রান্সপারেন্ট)</span>
+                    <span>25% (লুক্স গ্লাস)</span>
+                    <span>50% (ব্যালান্সড)</span>
+                    <span>75% (কুয়াশাচ্ছন্ন)</span>
+                    <span>100% (সলিড)</span>
+                  </div>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[10px] text-slate-400 font-semibold mr-1">কুইক প্রিসেটস:</span>
+                  {[
+                    { label: '0% ক্লিয়ার কাঁচ', val: 0 },
+                    { label: '15% ক্রিস্টাল গ্লাস', val: 15 },
+                    { label: '25% ডিফল্ট লাক্সারি', val: 25 },
+                    { label: '40% সেমি ফ্রস্টেড', val: 40 },
+                    { label: '65% সফট কুয়াশা', val: 65 }
+                  ].map((preset) => (
+                    <button
+                      key={preset.val}
+                      type="button"
+                      onClick={() => handleFieldChange('luxuryBgGlassOpacity', preset.val)}
+                      className={`text-[10px] px-2.5 py-1 rounded-lg font-medium transition border ${
+                        (config.luxuryBgGlassOpacity ?? 25) === preset.val
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-bold'
+                          : 'bg-slate-900 text-slate-400 hover:text-white border-slate-800 hover:border-slate-700'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Parallax Depth Mode */}
               <div>
                 <label className="block text-slate-400 font-semibold mb-1 text-xs">

@@ -509,5 +509,6 @@ export const DEFAULT_STOREFRONT_CONFIG = {
   enableLuxury3dBackground: true,
   luxuryBgVenue: 'atelier', // 'atelier' | 'flagship' | 'workshop'
   luxuryBgBlur: 'medium',   // 'subtle' | 'medium' | 'deep'
-  luxuryBgDepth: 'dynamic'  // 'dynamic' | 'fixed'
+  luxuryBgDepth: 'dynamic', // 'dynamic' | 'fixed'
+  luxuryBgGlassOpacity: 25  // 0% (crystal clear transparent) to 100% (solid white tint)
 };
