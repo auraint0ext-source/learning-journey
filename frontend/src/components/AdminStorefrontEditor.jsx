@@ -5,7 +5,8 @@ import {
   Layers, MessageSquare, Truck, ShieldCheck, Star, Palette,
   Smartphone, Monitor, Megaphone, Shield, RefreshCw, Search,
   Briefcase, Shirt, Coffee, Image, Tag, BadgePercent, Check, Package,
-  Plus, Trash2, ArrowUp, ArrowDown, ChevronUp, ChevronDown
+  Plus, Trash2, ArrowUp, ArrowDown, ChevronUp, ChevronDown,
+  Sun, Moon, KeyRound, ShoppingBag, ExternalLink
 } from 'lucide-react';
 
 import { DEFAULT_STOREFRONT_CONFIG, VISTA_MEGA_MENU_CATEGORIES } from '../config/storefrontConfig';
@@ -15,8 +16,12 @@ export default function AdminStorefrontEditor({
   onSaveConfig,
   onSwitchToStore,
   storeTheme = 'light',
-  onToggleStoreTheme
+  onToggleStoreTheme,
+  onOpenShortcutModal,
+  shortcutConfig
 }) {
+  const isLight = storeTheme === 'light';
+
   const [config, setConfig] = useState(() => {
     return storefrontConfig || DEFAULT_STOREFRONT_CONFIG;
   });
@@ -133,7 +138,7 @@ export default function AdminStorefrontEditor({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 ${isLight ? 'admin-light-mode' : ''}`}>
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-2 px-4 py-3 rounded-xl shadow-2xl bg-emerald-950/90 text-emerald-200 border border-emerald-500/40 text-xs font-semibold animate-bounce">
@@ -143,27 +148,94 @@ export default function AdminStorefrontEditor({
       )}
 
       {/* Header Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+      <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-6 rounded-2xl shadow-xl transition-colors border ${
+        isLight ? 'bg-white border-slate-200 shadow-slate-200/50 text-slate-900' : 'bg-slate-900 border-slate-800 text-white'
+      }`}>
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center border border-amber-500/30">
-            <LayoutTemplate className="w-5 h-5 text-amber-400" />
+          <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center border border-amber-500/30">
+            <LayoutTemplate className="w-5 h-5 text-amber-500" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h1 className="text-xl font-bold text-white tracking-tight">Storefront Visual & Layout Editor</h1>
-              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              <h1 className={`text-xl font-bold tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>Storefront Visual & Layout Editor</h1>
+              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30">
                 Live Studio
               </span>
             </div>
-            <p className="text-xs text-slate-400">
-              Customize headings, grid columns, spacing, announcement ribbons, and reviews on the customer storefront.
+            <p className={`text-xs ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+              Customize headings, grid columns, spacing, 3D luxury glass, and reviews on the customer storefront.
             </p>
           </div>
         </div>
 
-        {/* Action Controls */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Quick Toggle 3D Luxury Background */}
+        {/* Action Controls - Prominently containing Theme Toggle, Hotkey, Live Store, 3D BG, and Publish */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* 1. Theme Switcher (Light / Dark) */}
+          <div className={`flex items-center p-1 rounded-xl border ${
+            isLight ? 'bg-slate-100 border-slate-200' : 'bg-slate-950 border-slate-800'
+          }`}>
+            <button
+              type="button"
+              onClick={() => onToggleStoreTheme && onToggleStoreTheme('light')}
+              className={`flex items-center space-x-1 px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                isLight ? 'bg-amber-400 text-slate-950 font-bold shadow-xs' : 'text-slate-400 hover:text-white'
+              }`}
+              title="Light Mode (সম্পূর্ণ লাইট মোড)"
+            >
+              <Sun className="w-3.5 h-3.5" />
+              <span>Light</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onToggleStoreTheme && onToggleStoreTheme('dark')}
+              className={`flex items-center space-x-1 px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                !isLight ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="Dark Mode (ডার্ক মোড)"
+            >
+              <Moon className="w-3.5 h-3.5" />
+              <span>Dark</span>
+            </button>
+          </div>
+
+          {/* 2. Stealth Hotkey Button */}
+          {onOpenShortcutModal && (
+            <button
+              type="button"
+              onClick={onOpenShortcutModal}
+              className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition shadow-xs ${
+                isLight 
+                  ? 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-300' 
+                  : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border-amber-500/30'
+              }`}
+              title="Customize Stealth Admin Access Shortcut"
+            >
+              <KeyRound className="w-3.5 h-3.5 text-amber-500" />
+              <span className="hidden sm:inline">Hotkey:</span>
+              <span className={`font-mono text-[10px] font-bold px-1.5 py-0.2 rounded border ${
+                isLight ? 'bg-amber-100 border-amber-300' : 'bg-amber-950/40 border-amber-500/30'
+              }`}>
+                {shortcutConfig?.modifier?.includes('Alt') ? 'Alt+' : 'Shift+'}{shortcutConfig?.key || 'A'}
+              </span>
+            </button>
+          )}
+
+          {/* 3. View Live Store Button */}
+          <button
+            type="button"
+            onClick={onSwitchToStore}
+            className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm border ${
+              isLight
+                ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-300'
+                : 'bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border-emerald-500/40'
+            }`}
+            title="Preview changes directly in Customer Storefront"
+          >
+            <Eye className="w-3.5 h-3.5 text-emerald-500" />
+            <span>View Live Store</span>
+          </button>
+
+          {/* 4. Quick Toggle 3D Luxury Background */}
           <button
             type="button"
             onClick={() => {
@@ -173,39 +245,33 @@ export default function AdminStorefrontEditor({
             }}
             className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition shadow-sm ${
               config.enableLuxury3dBackground !== false
-                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 hover:bg-amber-500/30'
-                : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+                ? (isLight ? 'bg-amber-50 text-amber-900 border-amber-400' : 'bg-amber-500/20 text-amber-300 border-amber-500/50 hover:bg-amber-500/30')
+                : (isLight ? 'bg-slate-100 text-slate-600 border-slate-300 hover:text-slate-900' : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white')
             }`}
             title="Toggle 3D Luxury Boutique Parallax Background On/Off"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>3D Background: {config.enableLuxury3dBackground !== false ? 'ON' : 'OFF'}</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span>3D BG: {config.enableLuxury3dBackground !== false ? 'ON' : 'OFF'}</span>
           </button>
 
+          {/* 5. Reset Defaults */}
           <button
             type="button"
             onClick={handleReset}
-            className="flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
+            className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition ${
+              isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300' : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+            }`}
             title="Reset to default theme values"
           >
             <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
-            <span className="hidden sm:inline">Reset Defaults</span>
+            <span className="hidden xl:inline">Reset Defaults</span>
           </button>
 
-          <button
-            type="button"
-            onClick={onSwitchToStore}
-            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 border border-indigo-500/40 transition shadow-sm"
-            title="Preview changes directly in Customer Storefront"
-          >
-            <Eye className="w-3.5 h-3.5 text-indigo-400" />
-            <span>View Live Store</span>
-          </button>
-
+          {/* 6. Publish Changes */}
           <button
             type="button"
             onClick={handleSave}
-            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30 transition"
+            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition cursor-pointer"
           >
             <Save className="w-4 h-4" />
             <span>Publish Changes</span>
@@ -214,7 +280,9 @@ export default function AdminStorefrontEditor({
       </div>
 
       {/* Editor Sub-Navigation Tabs */}
-      <div className="flex space-x-1.5 bg-slate-900 p-1.5 rounded-2xl border border-slate-800 overflow-x-auto">
+      <div className={`flex space-x-1.5 p-1.5 rounded-2xl border overflow-x-auto ${
+        isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-slate-900 border-slate-800'
+      }`}>
         {[
           { id: 'hero', label: 'Hero & Titles (শিরোনাম)', icon: Type },
           { id: 'background', label: '✨ 3D Luxury Background (থ্রিডি ব্যাকগ্রাউন্ড)', icon: Sparkles },
@@ -235,8 +303,10 @@ export default function AdminStorefrontEditor({
               onClick={() => setActiveSection(tab.id)}
               className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 isActive
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30 font-bold'
+                  : isLight
+                    ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -1800,288 +1870,412 @@ export default function AdminStorefrontEditor({
           )}
         </div>
 
-        {/* Right Column: Live Responsive Preview (5 cols) */}
-        <div className="lg:col-span-5 space-y-3">
+        {/* Right Column: Live Responsive Preview (5 cols) - Sticky & Smoothly Scrollable */}
+        <div className="lg:col-span-5 sticky top-20 self-start space-y-2.5">
           <div className="flex items-center justify-between text-xs px-1">
             <div className="flex items-center space-x-2">
-              <span className="font-bold text-white">Live Visual Preview</span>
-              <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.2 rounded-full font-mono">
-                Real-Time
+              <span className={`font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>Live Visual Preview</span>
+              <span className="text-[10px] text-emerald-500 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.2 rounded-full font-mono font-bold">
+                ● Live & Scrollable
               </span>
             </div>
 
-            <div className="flex items-center space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
-              <button
-                type="button"
-                onClick={() => setPreviewDevice('desktop')}
-                className={`p-1.5 rounded-lg transition ${previewDevice === 'desktop' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
-                title="Desktop View"
-              >
-                <Monitor className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setPreviewDevice('mobile')}
-                className={`p-1.5 rounded-lg transition ${previewDevice === 'mobile' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
-                title="Mobile View"
-              >
-                <Smartphone className="w-3.5 h-3.5" />
-              </button>
+            <div className="flex items-center space-x-2">
+              <span className={`text-[10px] font-medium hidden sm:inline ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                🖱️ নিচে স্ক্রল করুন
+              </span>
+              <div className={`flex items-center space-x-1 p-1 rounded-xl border ${
+                isLight ? 'bg-slate-100 border-slate-200' : 'bg-slate-900 border-slate-800'
+              }`}>
+                <button
+                  type="button"
+                  onClick={() => setPreviewDevice('desktop')}
+                  className={`p-1.5 rounded-lg transition ${previewDevice === 'desktop' ? 'bg-indigo-600 text-white' : isLight ? 'text-slate-600 hover:text-slate-900' : 'text-slate-400 hover:text-white'}`}
+                  title="Desktop View"
+                >
+                  <Monitor className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewDevice('mobile')}
+                  className={`p-1.5 rounded-lg transition ${previewDevice === 'mobile' ? 'bg-indigo-600 text-white' : isLight ? 'text-slate-600 hover:text-slate-900' : 'text-slate-400 hover:text-white'}`}
+                  title="Mobile View"
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Interactive Scaled Preview Frame */}
-          <div className={`border rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${
-            storeTheme === 'light' ? 'bg-[#f8f9fa] border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+          {/* Interactive Scaled Preview Frame with Browser Chrome & Inner Scroll */}
+          <div className={`border rounded-2xl shadow-2xl transition-all duration-300 overflow-hidden flex flex-col ${
+            isLight ? 'bg-white border-slate-300 shadow-slate-200/60 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
           } ${previewDevice === 'mobile' ? 'max-w-[340px] mx-auto' : 'w-full'}`}>
-            {/* 1. Preview Announcement Bar */}
-            {config.showAnnouncement && (
-              <div className={`text-[9px] py-1 px-3 border-b truncate text-center ${
-                storeTheme === 'light' ? 'bg-slate-100 border-slate-200 text-slate-700' : 'bg-indigo-950/60 border-indigo-500/20 text-indigo-200'
-              }`}>
-                {config.announcementText}
-              </div>
-            )}
-
-            {/* 2. Preview Nav Header with Search */}
-            <div className={`px-3 py-2 border-b flex items-center justify-between gap-2 text-xs ${
-              storeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
+            
+            {/* Browser Header Bar */}
+            <div className={`px-3 py-1.5 border-b flex items-center justify-between text-[10px] ${
+              isLight ? 'bg-slate-100 border-slate-200 text-slate-600' : 'bg-slate-900 border-slate-800 text-slate-400'
             }`}>
-              <div className="flex items-center space-x-1.5 flex-shrink-0">
-                <div className={`w-5 h-5 rounded-md flex items-center justify-center font-bold text-[10px] text-white ${
-                  storeTheme === 'light' ? 'bg-slate-900' : 'bg-indigo-600'
-                }`}>
-                  P
-                </div>
-                <span className="font-extrabold text-[11px] truncate">{config.brandName}</span>
+              <div className="flex items-center space-x-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
               </div>
-              {config.showSearchBar !== false && (
-                <div className={`flex-1 flex items-center px-2 py-1 rounded-lg text-[9px] border truncate ${
-                  storeTheme === 'light' ? 'bg-slate-100 text-slate-400 border-slate-200' : 'bg-slate-950 text-slate-500 border-slate-800'
-                }`}>
-                  <Search className="w-2.5 h-2.5 mr-1 opacity-50 flex-shrink-0" />
-                  <span className="truncate">{config.searchPlaceholder || 'Search products...'}</span>
-                </div>
-              )}
-              <div className="text-[10px] opacity-60 flex-shrink-0">Cart (2)</div>
+              <div className={`px-2.5 py-0.5 rounded-md border text-[9px] font-mono flex items-center space-x-1 ${
+                isLight ? 'bg-white border-slate-200 text-slate-700' : 'bg-slate-950 border-slate-800 text-slate-300'
+              }`}>
+                <span>🔒 printflow.store/live-preview</span>
+              </div>
+              <span className="text-[9px] font-semibold text-emerald-500">Online</span>
             </div>
 
-            {/* Vista Mega Menu Horizontal Preview Bar */}
-            {config.showMegaMenu !== false && (
-              <div className={`px-2 py-1 flex items-center space-x-2.5 text-[8px] font-semibold overflow-x-auto no-scrollbar ${
-                storeTheme === 'light' ? 'bg-slate-50 text-slate-700' : 'bg-slate-900/80 text-slate-300'
+            {/* Scrollable Viewport - Lets user scroll down through the entire store */}
+            <div 
+              id="admin-preview-viewport"
+              className="overflow-y-auto max-h-[calc(100vh-250px)] sm:max-h-[660px] scroll-smooth relative"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: isLight ? '#cbd5e1 #f1f5f9' : '#475569 #0f172a'
+              }}
+            >
+              {/* Optional 3D Luxury Background Preview Layer */}
+              {config.enableLuxury3dBackground !== false && (
+                <div 
+                  className="absolute inset-0 pointer-events-none bg-cover bg-center opacity-30 fixed"
+                  style={{
+                    backgroundImage: `url('${config.luxuryBgVenue === 'flagship' ? 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=1200' : config.luxuryBgVenue === 'workshop' ? 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200' : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200'}')`,
+                    filter: `blur(${config.luxuryBgBlur === 'subtle' ? '6px' : config.luxuryBgBlur === 'deep' ? '16px' : '10px'})`
+                  }}
+                />
+              )}
+
+              {/* 1. Preview Announcement Bar */}
+              {config.showAnnouncement && (
+                <div id="admin-preview-top" className={`relative z-10 text-[9px] py-1 px-3 border-b truncate text-center ${
+                  isLight ? 'bg-slate-100 border-slate-200 text-slate-700' : 'bg-indigo-950/60 border-indigo-500/20 text-indigo-200'
+                }`}>
+                  {config.announcementText}
+                </div>
+              )}
+
+              {/* 2. Preview Nav Header with Search */}
+              <div className={`relative z-10 px-3 py-2 border-b flex items-center justify-between gap-2 text-xs ${
+                isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
               }`}>
-                {(config.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories).slice(0, 6).map((c, i) => (
-                  <span key={i} className="whitespace-nowrap hover:text-indigo-400 cursor-pointer flex items-center space-x-1">
-                    <span>{c.title}</span>
-                    {c.badge && (
-                      <span className="text-[6px] px-1 py-0.2 rounded-full font-bold bg-amber-500/20 text-amber-500">
-                        {c.badge}
-                      </span>
-                    )}
+                <div className="flex items-center space-x-1.5 flex-shrink-0">
+                  <div className={`w-5 h-5 rounded-md flex items-center justify-center font-bold text-[10px] text-white ${
+                    isLight ? 'bg-slate-900' : 'bg-indigo-600'
+                  }`}>
+                    P
+                  </div>
+                  <span className="font-extrabold text-[11px] truncate">{config.brandName}</span>
+                </div>
+                {config.showSearchBar !== false && (
+                  <div className={`flex-1 flex items-center px-2 py-1 rounded-lg text-[9px] border truncate ${
+                    isLight ? 'bg-slate-100 text-slate-400 border-slate-200' : 'bg-slate-950 text-slate-500 border-slate-800'
+                  }`}>
+                    <Search className="w-2.5 h-2.5 mr-1 opacity-50 flex-shrink-0" />
+                    <span className="truncate">{config.searchPlaceholder || 'Search products...'}</span>
+                  </div>
+                )}
+                <div className="text-[10px] opacity-60 flex-shrink-0">Bag (2)</div>
+              </div>
+
+              {/* Vista Mega Menu Horizontal Preview Bar */}
+              {config.showMegaMenu !== false && (
+                <div className={`relative z-10 px-2 py-1 flex items-center space-x-2 text-[8px] font-semibold overflow-x-auto no-scrollbar ${
+                  isLight ? 'bg-slate-50 text-slate-700' : 'bg-slate-900/80 text-slate-300'
+                }`}>
+                  {(config.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories).slice(0, 6).map((c, i) => (
+                    <span key={i} className="whitespace-nowrap hover:text-indigo-400 cursor-pointer flex items-center space-x-1">
+                      <span>{c.title}</span>
+                      {c.badge && (
+                        <span className="text-[6px] px-1 py-0.2 rounded-full font-bold bg-amber-500/20 text-amber-500">
+                          {c.badge}
+                        </span>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Vista-Style Promotional Photo Slider Preview */}
+              {config.showPromoSlider !== false && (
+                <div className={`relative z-10 p-2.5 border-b ${
+                  isLight ? 'bg-gradient-to-r from-amber-50/70 via-white to-amber-50/70 border-slate-200' : 'bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border-slate-800'
+                }`}>
+                  <div className="flex items-center justify-between text-[7px] font-bold text-amber-500 uppercase mb-1">
+                    <span>{config.promoBadgeText || 'VISTAPRINT SPECIAL OFFER'}</span>
+                    <span className="font-mono bg-amber-500/10 px-1 py-0.2 rounded border border-amber-500/20">CODE: {config.promoCode || 'SAVE25'}</span>
+                  </div>
+                  
+                  {/* Dual flanking photos with center SAVE 25% */}
+                  <div className="grid grid-cols-12 gap-1.5 items-center">
+                    <div className="col-span-3 relative rounded-md overflow-hidden aspect-[4/3] bg-slate-800">
+                      <img 
+                        src={(config.promoSlides && config.promoSlides[0]?.leftImage) || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=300'} 
+                        alt="" 
+                        className="w-full h-full object-cover" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-1">
+                        <div className="text-[6px] text-white italic truncate font-serif">“Premium finish”</div>
+                        <div className="text-[5px] text-amber-300 font-semibold truncate">Cards</div>
+                      </div>
+                    </div>
+
+                    <div className="col-span-6 text-center px-1">
+                      <div className="font-black text-sm text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-500 leading-none">
+                        {config.promoDiscountHeadline || 'SAVE 25%'}
+                      </div>
+                      <div className="text-[7px] font-semibold mt-0.5 truncate">
+                        Marketing, Apparel & Art
+                      </div>
+                      <div className="text-[6px] opacity-75 line-clamp-1 mt-0.5">
+                        Use code {config.promoCode || 'SAVE25'}
+                      </div>
+                    </div>
+
+                    <div className="col-span-3 relative rounded-md overflow-hidden aspect-[4/3] bg-slate-800">
+                      <img 
+                        src={(config.promoSlides && config.promoSlides[0]?.rightImage) || 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=300'} 
+                        alt="" 
+                        className="w-full h-full object-cover" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-1">
+                        <div className="text-[6px] text-white italic truncate font-serif">“Fast dispatch”</div>
+                        <div className="text-[5px] text-emerald-300 font-semibold truncate">Flyers</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 3. Preview Hero */}
+              <div id="admin-preview-hero" className={`relative z-10 p-4 border-b ${
+                isLight ? 'bg-white/80 backdrop-blur-sm border-slate-200' : 'bg-slate-900/40 border-slate-800'
+              } ${config.heroAlignment === 'left' ? 'text-left' : 'text-center'} ${
+                config.heroTopGap === 'none' ? 'pt-2' : config.heroTopGap === 'lg' ? 'pt-8' : config.heroTopGap === 'normal' ? 'pt-6' : 'pt-4'
+              }`}>
+                {config.showLiveHubBadge !== false && (
+                  <span className="inline-block text-[9px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 mb-1.5">
+                    ● {config.liveHubBadgeLabel || 'Live Production Hub:'} Detroit / London
                   </span>
-                ))}
+                )}
+                <h3 className={`font-extrabold leading-tight ${
+                  config.heroTitleSize === 'sm' ? 'text-xs sm:text-sm' :
+                  config.heroTitleSize === 'lg' ? 'text-base sm:text-lg' :
+                  config.heroTitleSize === 'xl' ? 'text-lg sm:text-xl' :
+                  'text-sm sm:text-base'
+                }`}>
+                  {config.heroTitlePrefix}{' '}
+                  <span className={isLight ? 'text-indigo-600' : 'text-indigo-400'}>
+                    {config.heroTitleAccent}
+                  </span>
+                </h3>
+                <p className={`opacity-75 line-clamp-2 max-w-sm ${config.heroAlignment === 'left' ? '' : 'mx-auto'} ${
+                  config.heroSubtitleSize === 'xs' ? 'text-[9px]' :
+                  config.heroSubtitleSize === 'base' ? 'text-[11px]' :
+                  config.heroSubtitleSize === 'lg' ? 'text-xs' :
+                  'text-[10px]'
+                } ${
+                  config.heroSubtitleSpacing === 'tight' ? 'mt-0.5' :
+                  config.heroSubtitleSpacing === 'relaxed' ? 'mt-2' :
+                  config.heroSubtitleSpacing === 'loose' ? 'mt-3' :
+                  'mt-1'
+                }`}>
+                  {config.heroSubtitle}
+                </p>
+
+                {config.showHubSwitcher !== false && (
+                  <div className={`flex flex-wrap gap-1 mt-2.5 ${config.heroAlignment === 'left' ? 'justify-start' : 'justify-center'}`}>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">🇺🇸 USA</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">🇬🇧 UK</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">🇨🇦 Canada</span>
+                  </div>
+                )}
               </div>
-            )}
 
-            {/* Vista-Style Promotional Photo Slider Preview */}
-            {config.showPromoSlider !== false && (
-              <div className={`p-2.5 border-b relative ${
-                storeTheme === 'light' ? 'bg-gradient-to-r from-amber-50/70 via-white to-amber-50/70 border-slate-200' : 'bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border-slate-800'
-              }`}>
-                <div className="flex items-center justify-between text-[7px] font-bold text-amber-500 uppercase mb-1">
-                  <span>{config.promoBadgeText || 'VISTAPRINT SPECIAL OFFER'}</span>
-                  <span className="font-mono bg-amber-500/10 px-1 py-0.2 rounded border border-amber-500/20">CODE: {config.promoCode || 'SAVE25'}</span>
-                </div>
-                
-                {/* Dual flanking photos with center SAVE 25% */}
-                <div className="grid grid-cols-12 gap-1.5 items-center">
-                  {/* Left Photo Card */}
-                  <div className="col-span-3 relative rounded-md overflow-hidden aspect-[4/3] bg-slate-800">
-                    <img 
-                      src={(config.promoSlides && config.promoSlides[0]?.leftImage) || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=300'} 
-                      alt="" 
-                      className="w-full h-full object-cover" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-1">
-                      <div className="text-[6px] text-white italic truncate font-serif">“Make an impression”</div>
-                      <div className="text-[5px] text-amber-300 font-semibold truncate">Business Cards</div>
-                    </div>
+              {/* Preview Vista Category Showcase Tiles */}
+              {config.showCategoryShowcase !== false && (
+                <div id="admin-preview-categories" className={`relative z-10 p-3 border-b space-y-1.5 ${
+                  isLight ? 'bg-white/90 border-slate-200' : 'bg-slate-900/60 border-slate-800'
+                }`}>
+                  <div className="text-[10px] font-bold text-center">{config.categoryShowcaseTitle || 'Explore Popular Categories'}</div>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {(config.categoryShowcaseCards || DEFAULT_STOREFRONT_CONFIG.categoryShowcaseCards).slice(0, 3).map((tile, i) => (
+                      <div key={i} className={`p-1.5 rounded-lg border text-center ${
+                        isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
+                      }`}>
+                        <img src={tile.image} alt="" className="w-full aspect-square object-cover rounded mb-1" />
+                        <div className="text-[8px] font-bold truncate">{tile.title}</div>
+                        <div className="text-[8px] font-mono text-emerald-600 font-bold">${tile.startingPrice}</div>
+                      </div>
+                    ))}
                   </div>
-
-                  {/* Center Offer Box */}
-                  <div className="col-span-6 text-center px-1">
-                    <div className="font-black text-sm text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-500 leading-none">
-                      {config.promoDiscountHeadline || 'SAVE 25%'}
-                    </div>
-                    <div className="text-[7px] font-semibold text-slate-700 dark:text-slate-200 mt-0.5 truncate">
-                      Marketing, Apparel & Art
-                    </div>
-                    <div className="text-[6px] text-slate-500 line-clamp-1 mt-0.5">
-                      Use code {config.promoCode || 'SAVE25'} at checkout
-                    </div>
-                  </div>
-
-                  {/* Right Photo Card */}
-                  <div className="col-span-3 relative rounded-md overflow-hidden aspect-[4/3] bg-slate-800">
-                    <img 
-                      src={(config.promoSlides && config.promoSlides[0]?.rightImage) || 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=300'} 
-                      alt="" 
-                      className="w-full h-full object-cover" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-1">
-                      <div className="text-[6px] text-white italic truncate font-serif">“Elevate your brand”</div>
-                      <div className="text-[5px] text-emerald-300 font-semibold truncate">Marketing Flyers</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Dot indicators */}
-                <div className="flex justify-center items-center space-x-1 mt-1.5">
-                  <span className="w-3 h-0.5 rounded-full bg-indigo-500"></span>
-                  <span className="w-1 h-0.5 rounded-full bg-slate-400 opacity-50"></span>
-                  <span className="w-1 h-0.5 rounded-full bg-slate-400 opacity-50"></span>
-                  <span className="w-1 h-0.5 rounded-full bg-slate-400 opacity-50"></span>
-                </div>
-              </div>
-            )}
-
-            {/* 3. Preview Hero */}
-            <div className={`p-4 border-b ${
-              storeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-slate-900/40 border-slate-800'
-            } ${config.heroAlignment === 'left' ? 'text-left' : 'text-center'} ${
-              config.heroTopGap === 'none' ? 'pt-2' : config.heroTopGap === 'lg' ? 'pt-8' : config.heroTopGap === 'normal' ? 'pt-6' : 'pt-4'
-            }`}>
-              {config.showLiveHubBadge !== false && (
-                <span className="inline-block text-[9px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 mb-1.5">
-                  ● {config.liveHubBadgeLabel || 'Live Production Hub:'} Detroit / London
-                </span>
-              )}
-              <h3 className={`font-extrabold leading-tight ${
-                config.heroTitleSize === 'sm' ? 'text-xs sm:text-sm' :
-                config.heroTitleSize === 'lg' ? 'text-base sm:text-lg' :
-                config.heroTitleSize === 'xl' ? 'text-lg sm:text-xl' :
-                'text-sm sm:text-base'
-              }`}>
-                {config.heroTitlePrefix}{' '}
-                <span className={storeTheme === 'light' ? 'text-indigo-600' : 'text-indigo-400'}>
-                  {config.heroTitleAccent}
-                </span>
-              </h3>
-              <p className={`opacity-75 line-clamp-2 max-w-sm ${config.heroAlignment === 'left' ? '' : 'mx-auto'} ${
-                config.heroSubtitleSize === 'xs' ? 'text-[9px]' :
-                config.heroSubtitleSize === 'base' ? 'text-[11px]' :
-                config.heroSubtitleSize === 'lg' ? 'text-xs' :
-                'text-[10px]'
-              } ${
-                config.heroSubtitleSpacing === 'tight' ? 'mt-0.5' :
-                config.heroSubtitleSpacing === 'relaxed' ? 'mt-2' :
-                config.heroSubtitleSpacing === 'loose' ? 'mt-3' :
-                'mt-1'
-              }`}>
-                {config.heroSubtitle}
-              </p>
-
-              {/* Regional Hub Switcher preview */}
-              {config.showHubSwitcher !== false && (
-                <div className={`flex flex-wrap gap-1 mt-2.5 ${config.heroAlignment === 'left' ? 'justify-start' : 'justify-center'}`}>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">🇺🇸 USA</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">🇬🇧 UK</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">🇨🇦 Canada</span>
                 </div>
               )}
-            </div>
 
-            {/* Preview Vista Category Showcase Tiles */}
-            {config.showCategoryShowcase !== false && (
-              <div className="p-3 border-b space-y-1.5">
-                <div className="text-[10px] font-bold text-center">{config.categoryShowcaseTitle || 'Explore Popular Categories'}</div>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {(config.categoryShowcaseCards || DEFAULT_STOREFRONT_CONFIG.categoryShowcaseCards).slice(0, 3).map((tile, i) => (
-                    <div key={i} className={`p-1.5 rounded-lg border text-center ${
-                      storeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
-                    }`}>
-                      <img src={tile.image} alt="" className="w-full aspect-square object-cover rounded mb-1" />
-                      <div className="text-[8px] font-bold truncate">{tile.title}</div>
-                      <div className="text-[8px] font-mono text-emerald-600 font-bold">${tile.startingPrice}</div>
+              {/* Preview 100% Satisfaction Guarantee */}
+              {config.showSatisfactionGuarantee !== false && (
+                <div className={`relative z-10 px-3 py-2 border-b flex items-center space-x-2 text-[9px] ${
+                  isLight ? 'bg-amber-50/70 border-amber-200/60 text-amber-900' : 'bg-indigo-950/40 border-indigo-500/20 text-indigo-300'
+                }`}>
+                  <ShieldCheck className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                  <span className="font-bold truncate">{config.guaranteeHeading || '100% Satisfaction Guaranteed'}</span>
+                </div>
+              )}
+
+              {/* 4. Preview Products Grid - Complete with Description & Configure & Buy Button */}
+              <div id="admin-preview-catalog" className={`relative z-10 p-4 space-y-3 ${
+                config.catalogPadding === 'compact' ? 'py-2' : config.catalogPadding === 'spacious' ? 'py-6' : 'py-4'
+              }`}>
+                <div className="flex items-center justify-between text-[11px] font-bold">
+                  <span>{config.catalogTitle}</span>
+                  <span className="text-[9px] opacity-60 font-mono">
+                    {config.gridColumns} cols • {config.gridGap}
+                  </span>
+                </div>
+
+                {/* Grid with dynamic columns and gap */}
+                <div className={`grid ${
+                  config.gridColumns === 2 ? 'grid-cols-2' : config.gridColumns === 3 ? 'grid-cols-3' : config.gridColumns === 5 ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2'
+                } ${
+                  config.gridGap === 'compact' ? 'gap-2' : config.gridGap === 'spacious' ? 'gap-3.5' : 'gap-2.5'
+                }`}>
+                  {[
+                    { 
+                      name: 'Foam Board Rigid Presentation Poster', 
+                      cat: 'Signs & Banners',
+                      price: '$29.00', 
+                      desc: 'Lightweight 3/16-inch dense polystyrene foam core board with matte paper finish. Easel ready.',
+                      img: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400&auto=format&fit=crop&q=80' 
+                    },
+                    { 
+                      name: 'Heavyweight Unisex POD Vintage Hoodie', 
+                      cat: 'Apparel',
+                      price: '$48.00', 
+                      desc: 'Ultra-soft 350 GSM brushed cotton fleece hoodie with double-needle split stitching.',
+                      img: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=400&auto=format&fit=crop&q=80' 
+                    },
+                    { 
+                      name: 'Ceramic Coffee Mug (11oz)', 
+                      cat: 'Gifts',
+                      price: '$18.50', 
+                      desc: 'Glossy ceramic mug with vibrant sublimation print. Dishwasher and microwave safe.',
+                      img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&auto=format&fit=crop&q=80' 
+                    },
+                    { 
+                      name: 'Archival Museum Canvas Art Print', 
+                      cat: 'Wall Art',
+                      price: '$64.00', 
+                      desc: 'Solid pine stretcher bars, acid-free poly-cotton canvas, museum grade finish.',
+                      img: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=400&auto=format&fit=crop&q=80' 
+                    }
+                  ].map((mock, i) => (
+                    <div
+                      key={i}
+                      className={`border p-2 flex flex-col justify-between overflow-hidden shadow-xs rounded-${config.cardRadius} transition-all duration-200 ${
+                        isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
+                      }`}
+                    >
+                      <div>
+                        <div className="relative aspect-square rounded-lg overflow-hidden mb-1.5 bg-slate-100">
+                          <img src={mock.img} alt="" className="w-full h-full object-cover" />
+                          <span className="absolute top-1 left-1 text-[7px] font-bold px-1 py-0.2 rounded bg-black/60 text-white backdrop-blur-xs">
+                            {mock.cat}
+                          </span>
+                        </div>
+                        <div className="font-bold text-[10px] line-clamp-1">{mock.name}</div>
+                        <div className={`text-[8px] line-clamp-2 mt-0.5 leading-tight ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                          {mock.desc}
+                        </div>
+                      </div>
+
+                      <div className="mt-2 pt-1.5 border-t border-slate-200/50 dark:border-slate-800/80">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[10px] font-mono font-bold text-emerald-600">{mock.price}</span>
+                          <span className="text-[7px] text-slate-400">+ship</span>
+                        </div>
+                        <button
+                          type="button"
+                          className={`w-full py-1 px-1.5 rounded-lg text-[8px] font-bold flex items-center justify-center space-x-1 ${
+                            isLight ? 'bg-slate-900 text-white' : 'bg-indigo-600 text-white'
+                          }`}
+                        >
+                          <ShoppingBag className="w-2.5 h-2.5" />
+                          <span>Configure & Buy</span>
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* Preview 100% Satisfaction Guarantee */}
-            {config.showSatisfactionGuarantee !== false && (
-              <div className={`px-3 py-2 border-b flex items-center space-x-2 text-[9px] ${
-                storeTheme === 'light' ? 'bg-amber-50/60 border-amber-200/60 text-amber-900' : 'bg-indigo-950/40 border-indigo-500/20 text-indigo-300'
+              {/* 5. Preview Trust Props */}
+              {config.showTrustProps !== false && (
+                <div id="admin-preview-reviews" className={`relative z-10 p-3 border-t grid grid-cols-3 gap-2 text-center text-[9px] ${
+                  isLight ? 'bg-slate-50 border-slate-200 text-slate-700' : 'bg-slate-900/60 border-slate-800 text-slate-300'
+                }`}>
+                  {config.trustProps.map((p, idx) => (
+                    <div key={idx} className="truncate">
+                      <div className="font-bold truncate">{p.title}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* 6. Preview Footer */}
+              <div id="admin-preview-footer" className={`relative z-10 p-3 border-t text-center text-[9px] space-y-0.5 ${
+                isLight ? 'bg-white border-slate-200 text-slate-500' : 'bg-slate-950 border-slate-900 text-slate-500'
               }`}>
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
-                <span className="font-bold truncate">{config.guaranteeHeading || '100% Satisfaction Guaranteed'}</span>
-              </div>
-            )}
-
-            {/* 4. Preview Products Grid (Accurately reflecting columns & spacing) */}
-            <div className={`p-4 space-y-3 ${
-              config.catalogPadding === 'compact' ? 'py-2' : config.catalogPadding === 'spacious' ? 'py-6' : 'py-4'
-            }`}>
-              <div className="flex items-center justify-between text-[11px] font-bold">
-                <span>{config.catalogTitle}</span>
-                <span className="text-[9px] opacity-60 font-mono">
-                  {config.gridColumns} cols • {config.gridGap}
-                </span>
-              </div>
-
-              {/* Grid with dynamic columns and gap */}
-              <div className={`grid ${
-                config.gridColumns === 2 ? 'grid-cols-2' : config.gridColumns === 3 ? 'grid-cols-3' : config.gridColumns === 5 ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-2 sm:grid-cols-4'
-              } ${
-                config.gridGap === 'compact' ? 'gap-2' : config.gridGap === 'spacious' ? 'gap-4' : 'gap-2.5'
-              }`}>
-                {[
-                  { name: 'Hoodie', price: '$48.00', img: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=400&auto=format&fit=crop&q=80' },
-                  { name: 'Ceramic Mug', price: '$18.50', img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&auto=format&fit=crop&q=80' },
-                  { name: 'Canvas Art', price: '$64.00', img: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=400&auto=format&fit=crop&q=80' },
-                  { name: 'Dad Cap', price: '$24.00', img: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&auto=format&fit=crop&q=80' }
-                ].slice(0, config.gridColumns >= 4 ? 4 : config.gridColumns).map((mock, i) => (
-                  <div
-                    key={i}
-                    className={`border p-2 flex flex-col justify-between overflow-hidden shadow-xs ${
-                      storeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
-                    } rounded-${config.cardRadius}`}
-                  >
-                    <img src={mock.img} alt="" className="w-full aspect-square object-cover rounded-lg mb-1.5" />
-                    <div className="font-bold text-[10px] truncate">{mock.name}</div>
-                    <div className="text-[10px] font-mono font-bold text-emerald-600 mt-0.5">{mock.price}</div>
-                  </div>
-                ))}
+                <div className="font-bold text-slate-800 dark:text-slate-200">{config.brandName} • {config.badgeTag}</div>
+                <div className="text-[8px] opacity-75">{config.copyrightText}</div>
               </div>
             </div>
 
-            {/* 5. Preview Trust Props */}
-            {config.showTrustProps !== false && (
-              <div className={`p-3 border-t grid grid-cols-3 gap-2 text-center text-[9px] ${
-                storeTheme === 'light' ? 'bg-slate-50 border-slate-200 text-slate-700' : 'bg-slate-900/60 border-slate-800 text-slate-300'
-              }`}>
-                {config.trustProps.map((p, idx) => (
-                  <div key={idx} className="truncate">
-                    <div className="font-bold truncate">{p.title}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* 6. Preview Footer */}
-            <div className={`p-3 border-t text-center text-[9px] space-y-0.5 ${
-              storeTheme === 'light' ? 'bg-white border-slate-200 text-slate-500' : 'bg-slate-950 border-slate-900 text-slate-500'
+            {/* Quick Section Jump Navigator Footer */}
+            <div className={`px-2.5 py-1.5 border-t flex items-center justify-between text-[9px] font-semibold ${
+              isLight ? 'bg-slate-100 border-slate-200 text-slate-600' : 'bg-slate-900 border-slate-800 text-slate-400'
             }`}>
-              <div className="font-bold text-slate-800">{config.brandName} • {config.badgeTag}</div>
-              <div className="text-[8px] opacity-75">{config.copyrightText}</div>
+              <span className="shrink-0 text-slate-400 text-[8px]">Quick Jump:</span>
+              <div className="flex items-center space-x-1 shrink-0 text-[8px]">
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('admin-preview-viewport')?.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="px-1.5 py-0.5 rounded hover:bg-indigo-500/10 hover:text-indigo-600 transition"
+                >
+                  Top ⬆
+                </button>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('admin-preview-hero')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="px-1.5 py-0.5 rounded hover:bg-indigo-500/10 hover:text-indigo-600 transition"
+                >
+                  Hero
+                </button>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('admin-preview-catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="px-1.5 py-0.5 rounded hover:bg-indigo-500/10 hover:text-indigo-600 transition"
+                >
+                  Catalog
+                </button>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('admin-preview-footer')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="px-1.5 py-0.5 rounded hover:bg-indigo-500/10 hover:text-indigo-600 transition"
+                >
+                  Footer ⬇
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="p-3 bg-slate-900/60 border border-slate-800 rounded-xl text-center">
-            <p className="text-[11px] text-slate-400">
-              💡 Any edits you make update this live preview immediately. Click <strong>Publish Changes</strong> to push live to the customer storefront.
+          <div className={`p-2.5 rounded-xl text-center border ${
+            isLight ? 'bg-indigo-50/60 border-indigo-200/60 text-indigo-900' : 'bg-slate-900/60 border-slate-800 text-slate-400'
+          }`}>
+            <p className="text-[11px]">
+              💡 <strong>ইন্টারেক্টিভ স্ক্রল ভিউ:</strong> মাউস দিয়ে ডানপাশের ফ্রেমের ভেতরে স্ক্রল করে সম্পূর্ণ স্টোরফ্রন্ট উপর থেকে নিচ পর্যন্ত লাইভ দেখতে পারবেন।
             </p>
           </div>
         </div>

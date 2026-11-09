@@ -153,7 +153,7 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${viewMode === 'store' && storeTheme === 'light' ? 'bg-[#f8f9fa] text-slate-900' : 'bg-slate-950 text-slate-100'}`}>
+    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${storeTheme === 'light' ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'}`}>
       {/* 1. If in Customer View: Only the pure, clean retail e-commerce website is shown */}
       {viewMode === 'store' && (
         <CustomerStorefront
@@ -204,6 +204,8 @@ export default function App() {
                 onSwitchToStore={() => setViewMode('store')}
                 storeTheme={storeTheme}
                 onToggleStoreTheme={handleToggleStoreTheme}
+                onOpenShortcutModal={() => setIsShortcutModalOpen(true)}
+                shortcutConfig={shortcutConfig}
               />
             )}
             {activeAdminTab === 'ads' && <MarketingHub currentMarket={currentMarket} />}
