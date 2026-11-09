@@ -43,6 +43,22 @@ export default function CustomerStorefront({
     xl: 'text-4xl sm:text-6xl',
   }[cfg.heroTitleSize || 'md'] || 'text-2xl sm:text-4xl';
 
+  // Hero Subtitle Size (Extra Small 12px, Small 14px, Medium 16px, Large 18px)
+  const heroSubtitleSizeClass = {
+    xs: 'text-[11px] sm:text-xs',
+    sm: 'text-xs sm:text-sm',
+    base: 'text-sm sm:text-base',
+    lg: 'text-base sm:text-lg',
+  }[cfg.heroSubtitleSize || 'sm'] || 'text-xs sm:text-sm';
+
+  // Hero Subtitle Spacing / Margin Gap
+  const heroSubtitleSpacingClass = {
+    tight: 'mt-1',
+    normal: 'mt-2.5',
+    relaxed: 'mt-4',
+    loose: 'mt-6',
+  }[cfg.heroSubtitleSpacing || 'normal'] || 'mt-2.5';
+
   // Hero Top Spacing / Gap
   const heroTopGapClass = {
     none: 'pt-2 sm:pt-4',
@@ -542,7 +558,7 @@ export default function CustomerStorefront({
             </span>
           </h1>
 
-          <p className={`text-xs sm:text-sm max-w-2xl leading-relaxed ${
+          <p className={`${heroSubtitleSizeClass} ${heroSubtitleSpacingClass} max-w-2xl leading-relaxed ${
             cfg.heroAlignment === 'left' ? '' : 'mx-auto'
           } ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
             {cfg.heroSubtitle}

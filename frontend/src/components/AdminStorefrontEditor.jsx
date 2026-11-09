@@ -18,6 +18,8 @@ export const DEFAULT_STOREFRONT_CONFIG = {
   heroSubtitle: 'Premium vintage apparel, gallery canvas wall art, and ceramic goods printed locally in USA, UK, and Canada. No cross-border delays or customs fees.',
   heroAlignment: 'left', // 'center' | 'left'
   heroTitleSize: 'md', // 'sm' (28px) | 'md' (36px) | 'lg' (48px) | 'xl' (60px)
+  heroSubtitleSize: 'sm', // 'xs' (12px) | 'sm' (14px) | 'base' (16px) | 'lg' (18px)
+  heroSubtitleSpacing: 'normal', // 'tight' (mt-1) | 'normal' (mt-2.5) | 'relaxed' (mt-4) | 'loose' (mt-6)
   heroTopGap: 'sm', // 'none' | 'sm' | 'normal' | 'lg'
   heroPadding: 'normal', // 'compact' | 'normal' | 'spacious'
   showLiveHubBadge: true,
@@ -271,6 +273,70 @@ export default function AdminStorefrontEditor({
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-slate-200 focus:outline-none focus:border-indigo-500"
                     placeholder="Short description highlighting domestic hubs and fast shipping..."
                   />
+                </div>
+
+                {/* Subtitle Font Size Control */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-slate-300 font-semibold">Subtitle Text Size (ডেসক্রিপশন/সাবটাইটেল সাইজ):</label>
+                    <span className="text-[10px] text-indigo-400 font-mono font-bold">
+                      {config.heroSubtitleSize === 'xs' ? '12px (Compact)' : config.heroSubtitleSize === 'base' ? '16px (Medium)' : config.heroSubtitleSize === 'lg' ? '18px (Large)' : '14px (Standard - Default)'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[
+                      { id: 'xs', label: 'Extra Small', desc: 'খুব ছোট (12px)' },
+                      { id: 'sm', label: 'Small', desc: 'স্বাভাবিক (14px)' },
+                      { id: 'base', label: 'Medium', desc: 'মাঝারি (16px)' },
+                      { id: 'lg', label: 'Large', desc: 'বড় (18px)' },
+                    ].map(s => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => handleFieldChange('heroSubtitleSize', s.id)}
+                        className={`py-2 px-1 rounded-xl border text-center transition ${
+                          (config.heroSubtitleSize || 'sm') === s.id
+                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <div className="font-bold text-xs">{s.label}</div>
+                        <div className="text-[9px] opacity-60">{s.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Subtitle Spacing / Margin Control */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-slate-300 font-semibold">Subtitle Spacing / Gap (সাবটাইটেলের ফাঁকা জায়গা):</label>
+                    <span className="text-[10px] text-amber-400 font-mono font-bold">
+                      {config.heroSubtitleSpacing === 'tight' ? 'Tight Gap (mt-1)' : config.heroSubtitleSpacing === 'relaxed' ? 'Relaxed Gap (mt-4)' : config.heroSubtitleSpacing === 'loose' ? 'Loose Gap (mt-6)' : 'Normal Gap (mt-2.5)'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[
+                      { id: 'tight', label: 'Tight', desc: 'কম ফাঁকা' },
+                      { id: 'normal', label: 'Normal', desc: 'স্বাভাবিক' },
+                      { id: 'relaxed', label: 'Relaxed', desc: 'বেশি ফাঁকা' },
+                      { id: 'loose', label: 'Loose', desc: 'সর্বোচ্চ' },
+                    ].map(sp => (
+                      <button
+                        key={sp.id}
+                        type="button"
+                        onClick={() => handleFieldChange('heroSubtitleSpacing', sp.id)}
+                        className={`py-1.5 px-1 rounded-xl border text-center transition ${
+                          (config.heroSubtitleSpacing || 'normal') === sp.id
+                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <div className="font-bold text-xs">{sp.label}</div>
+                        <div className="text-[9px] opacity-60">{sp.desc}</div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Title Font Size Control */}
@@ -867,7 +933,17 @@ export default function AdminStorefrontEditor({
                   {config.heroTitleAccent}
                 </span>
               </h3>
-              <p className={`text-[10px] opacity-75 mt-1 line-clamp-2 max-w-sm ${config.heroAlignment === 'left' ? '' : 'mx-auto'}`}>
+              <p className={`opacity-75 line-clamp-2 max-w-sm ${config.heroAlignment === 'left' ? '' : 'mx-auto'} ${
+                config.heroSubtitleSize === 'xs' ? 'text-[9px]' :
+                config.heroSubtitleSize === 'base' ? 'text-[11px]' :
+                config.heroSubtitleSize === 'lg' ? 'text-xs' :
+                'text-[10px]'
+              } ${
+                config.heroSubtitleSpacing === 'tight' ? 'mt-0.5' :
+                config.heroSubtitleSpacing === 'relaxed' ? 'mt-2' :
+                config.heroSubtitleSpacing === 'loose' ? 'mt-3' :
+                'mt-1'
+              }`}>
                 {config.heroSubtitle}
               </p>
 
