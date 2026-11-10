@@ -67,7 +67,7 @@ export default function Navbar({
             <button
               type="button"
               onClick={onToggleSidebar}
-              title={isSidebarCollapsed ? 'Expand Navigation Sidebar (সাইডবার খুলুন)' : 'Collapse Navigation Sidebar (সাইডবার গুটিয়ে নিন)'}
+              title={isSidebarCollapsed ? 'Expand Navigation Sidebar' : 'Collapse Navigation Sidebar'}
               className={`p-2 rounded-xl border transition cursor-pointer flex items-center space-x-1.5 ${
                 storeTheme === 'light'
                   ? 'bg-slate-100 hover:bg-slate-200/80 border-slate-300 text-slate-800'

@@ -106,7 +106,7 @@ export default function AdminSidebar({
             <button
               type="button"
               onClick={() => setIsCollapsed(true)}
-              title="Collapse Sidebar (সাইডবার গুটিয়ে নিন)"
+              title="Collapse Sidebar"
               className={`p-1.5 rounded-lg border transition cursor-pointer ${
                 isLight 
                   ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700' 
@@ -120,7 +120,7 @@ export default function AdminSidebar({
           <button
             type="button"
             onClick={() => setIsCollapsed(false)}
-            title="Expand Sidebar (সাইডবার খুলুন)"
+            title="Expand Sidebar"
             className={`mx-auto p-1.5 rounded-lg border transition cursor-pointer ${
               isLight 
                 ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700' 

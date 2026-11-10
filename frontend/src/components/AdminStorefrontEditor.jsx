@@ -6,7 +6,7 @@ import {
   Smartphone, Monitor, Megaphone, Shield, RefreshCw, Search,
   Briefcase, Shirt, Coffee, Image, Tag, BadgePercent, Check, Package,
   Plus, Trash2, ArrowUp, ArrowDown, ChevronUp, ChevronDown,
-  Sun, Moon, KeyRound, ShoppingBag, ExternalLink
+  Sun, Moon, KeyRound, ShoppingBag, ExternalLink, Globe
 } from 'lucide-react';
 
 import { DEFAULT_STOREFRONT_CONFIG, VISTA_MEGA_MENU_CATEGORIES, TYPOGRAPHY_TARGET_ITEMS, SUPPORTED_FONTS } from '../config/storefrontConfig';
@@ -33,6 +33,11 @@ export default function AdminStorefrontEditor({
   const [toastMessage, setToastMessage] = useState(null);
   const [previewDevice, setPreviewDevice] = useState('desktop'); // 'desktop' | 'mobile'
 
+  // Language management state
+  const [newLangCode, setNewLangCode] = useState('');
+  const [newLangName, setNewLangName] = useState('');
+  const [newLangFlag, setNewLangFlag] = useState('🌐');
+
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
@@ -40,6 +45,56 @@ export default function AdminStorefrontEditor({
 
   const handleFieldChange = (field, value) => {
     setConfig(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddLanguage = () => {
+    if (!newLangName.trim() || !newLangCode.trim()) {
+      showToast('Please enter both language name and code');
+      return;
+    }
+    const currentList = config.languages || DEFAULT_STOREFRONT_CONFIG.languages || [];
+    if (currentList.some(l => l.code.toLowerCase() === newLangCode.trim().toLowerCase())) {
+      showToast(`Language code "${newLangCode}" is already added.`);
+      return;
+    }
+    const updated = [
+      ...currentList,
+      {
+        code: newLangCode.trim().toLowerCase(),
+        name: newLangName.trim(),
+        flag: newLangFlag.trim() || '🌐'
+      }
+    ];
+    setConfig(prev => ({ ...prev, languages: updated }));
+    setNewLangCode('');
+    setNewLangName('');
+    setNewLangFlag('🌐');
+    showToast(`Added language: ${newLangName.trim()}`);
+  };
+
+  const handleRemoveLanguage = (codeToRemove) => {
+    const currentList = config.languages || DEFAULT_STOREFRONT_CONFIG.languages || [];
+    if (currentList.length <= 1) {
+      showToast('You must keep at least one active language.');
+      return;
+    }
+    const updated = currentList.filter(l => l.code !== codeToRemove);
+    setConfig(prev => ({
+      ...prev,
+      languages: updated,
+      defaultLanguage: prev.defaultLanguage === codeToRemove ? updated[0].code : prev.defaultLanguage
+    }));
+    showToast(`Removed language: ${codeToRemove.toUpperCase()}`);
+  };
+
+  const handleSocialLinkChange = (network, url) => {
+    setConfig(prev => ({
+      ...prev,
+      socialLinks: {
+        ...(prev.socialLinks || DEFAULT_STOREFRONT_CONFIG.socialLinks || {}),
+        [network]: url
+      }
+    }));
   };
 
   const handleTypographyChange = (itemKey, updatedTypo) => {
@@ -193,7 +248,7 @@ export default function AdminStorefrontEditor({
               className={`flex items-center space-x-1 px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 isLight ? 'bg-amber-400 text-slate-950 font-bold shadow-xs' : 'text-slate-400 hover:text-white'
               }`}
-              title="Light Mode (সম্পূর্ণ লাইট মোড)"
+              title="Light Mode"
             >
               <Sun className="w-3.5 h-3.5" />
               <span>Light</span>
@@ -204,7 +259,7 @@ export default function AdminStorefrontEditor({
               className={`flex items-center space-x-1 px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 !isLight ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
-              title="Dark Mode (ডার্ক মোড)"
+              title="Dark Mode"
             >
               <Moon className="w-3.5 h-3.5" />
               <span>Dark</span>
@@ -297,13 +352,15 @@ export default function AdminStorefrontEditor({
         isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-slate-900 border-slate-800'
       }`}>
         {[
-          { id: 'hero', label: 'Hero & Titles (শিরোনাম)', icon: Type, target: 'heroTitle' },
-          { id: 'background', label: '✨ 3D Luxury Background (থ্রিডি ব্যাকগ্রাউন্ড)', icon: Sparkles },
-          { id: 'megamenu', label: 'Mega Menu & Search (মেনু ও সার্চ)', icon: Layers, target: 'megaMenuHeadings' },
-          { id: 'promoslider', label: 'Promo Slider & SAVE 25% (স্লাইডার ও ছাড়)', icon: BadgePercent, target: 'promoHeadline' },
-          { id: 'vistaspec', label: 'Categories & Bulk Tiers (ভিস্তা ক্যাটাগরি ও ছাড়)', icon: Grid, target: 'productTitle' },
-          { id: 'layout', label: 'Columns & Spacing (কলাম ও স্পেসিং)', icon: Columns },
+          { id: 'hero', label: 'Hero & Titles', icon: Type, target: 'heroTitle' },
+          { id: 'background', label: '3D Luxury Background', icon: Sparkles },
+          { id: 'megamenu', label: 'Mega Menu & Search', icon: Layers, target: 'megaMenuHeadings' },
+          { id: 'promoslider', label: 'Promo Slider & Offers', icon: BadgePercent, target: 'promoHeadline' },
+          { id: 'vistaspec', label: 'Categories & Bulk Tiers', icon: Grid, target: 'productTitle' },
+          { id: 'layout', label: 'Columns & Spacing', icon: Columns },
           { id: 'announcement', label: 'Announcement Ribbon', icon: Megaphone, target: 'heroBadge' },
+          { id: 'languages', label: 'Languages & Localization', icon: Globe },
+          { id: 'socials', label: 'Social Media & Live Chat', icon: MessageSquare },
           { id: 'badges', label: 'Trust Badges & Couriers', icon: ShieldCheck },
           { id: 'reviews', label: 'Customer Reviews', icon: Star },
           { id: 'footer', label: 'Footer & Branding', icon: Sliders, target: 'footerText' },
@@ -351,7 +408,7 @@ export default function AdminStorefrontEditor({
         {/* Left Column: Configuration Forms (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
 
-          {/* Section 1: Hero & Titles (শিরোনাম) */}
+          {/* Section 1: Hero & Titles */}
           {activeSection === 'hero' && (
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -365,7 +422,7 @@ export default function AdminStorefrontEditor({
               <div className="space-y-3 text-xs">
                 <div>
                   <label className="block text-slate-300 font-semibold mb-1">
-                    Hero Title Prefix (শিরোনামের শুরুর অংশ):
+                    Hero Title Prefix:
                   </label>
                   <input
                     type="text"
@@ -378,7 +435,7 @@ export default function AdminStorefrontEditor({
 
                 <div>
                   <label className="block text-slate-300 font-semibold mb-1">
-                    Title Highlight / Accent Word (হাইলাইট শব্দ):
+                    Title Highlight / Accent Word:
                   </label>
                   <input
                     type="text"
@@ -392,7 +449,7 @@ export default function AdminStorefrontEditor({
 
                 <div>
                   <label className="block text-slate-300 font-semibold mb-1">
-                    Hero Subtitle / Description (বর্ণনা):
+                    Hero Subtitle / Description:
                   </label>
                   <textarea
                     rows="3"
@@ -406,17 +463,17 @@ export default function AdminStorefrontEditor({
                 {/* Subtitle Font Size Control */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="text-slate-300 font-semibold">Subtitle Text Size (ডেসক্রিপশন/সাবটাইটেল সাইজ):</label>
+                    <label className="text-slate-300 font-semibold">Subtitle Text Size:</label>
                     <span className="text-[10px] text-indigo-400 font-mono font-bold">
                       {config.heroSubtitleSize === 'xs' ? '12px (Compact)' : config.heroSubtitleSize === 'base' ? '16px (Medium)' : config.heroSubtitleSize === 'lg' ? '18px (Large)' : '14px (Standard - Default)'}
                     </span>
                   </div>
                   <div className="grid grid-cols-4 gap-1.5">
                     {[
-                      { id: 'xs', label: 'Extra Small', desc: 'খুব ছোট (12px)' },
-                      { id: 'sm', label: 'Small', desc: 'স্বাভাবিক (14px)' },
-                      { id: 'base', label: 'Medium', desc: 'মাঝারি (16px)' },
-                      { id: 'lg', label: 'Large', desc: 'বড় (18px)' },
+                      { id: 'xs', label: 'Extra Small', desc: 'Extra Small (12px)' },
+                      { id: 'sm', label: 'Small', desc: 'Small (14px)' },
+                      { id: 'base', label: 'Medium', desc: 'Medium (16px)' },
+                      { id: 'lg', label: 'Large', desc: 'Large (18px)' },
                     ].map(s => (
                       <button
                         key={s.id}
@@ -442,17 +499,17 @@ export default function AdminStorefrontEditor({
                 {/* Subtitle Spacing / Margin Control */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className={`font-semibold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Subtitle Spacing / Gap (সাবটাইটেলের ফাঁকা জায়গা):</label>
+                    <label className={`font-semibold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Subtitle Spacing / Gap:</label>
                     <span className="text-[10px] text-amber-500 font-mono font-bold">
                       {config.heroSubtitleSpacing === 'tight' ? 'Tight Gap (mt-1)' : config.heroSubtitleSpacing === 'relaxed' ? 'Relaxed Gap (mt-4)' : config.heroSubtitleSpacing === 'loose' ? 'Loose Gap (mt-6)' : 'Normal Gap (mt-2.5)'}
                     </span>
                   </div>
                   <div className="grid grid-cols-4 gap-1.5">
                     {[
-                      { id: 'tight', label: 'Tight', desc: 'কম ফাঁকা' },
-                      { id: 'normal', label: 'Normal', desc: 'স্বাভাবিক' },
-                      { id: 'relaxed', label: 'Relaxed', desc: 'বেশি ফাঁকা' },
-                      { id: 'loose', label: 'Loose', desc: 'সর্বোচ্চ' },
+                      { id: 'tight', label: 'Tight', desc: 'Tight' },
+                      { id: 'normal', label: 'Normal', desc: 'Normal' },
+                      { id: 'relaxed', label: 'Relaxed', desc: 'Relaxed' },
+                      { id: 'loose', label: 'Loose', desc: 'Loose' },
                     ].map(sp => (
                       <button
                         key={sp.id}
@@ -478,17 +535,17 @@ export default function AdminStorefrontEditor({
                 {/* Title Font Size Control */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className={`font-semibold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Title Text Size (টাইটেলের টেক্সট সাইজ):</label>
+                    <label className={`font-semibold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Title Text Size:</label>
                     <span className={`text-[10px] font-mono font-bold ${isLight ? 'text-slate-700' : 'text-indigo-400'}`}>
                       {config.heroTitleSize === 'sm' ? '28pt (Compact)' : config.heroTitleSize === 'lg' ? '48pt (Large)' : config.heroTitleSize === 'xl' ? '60pt (Extra Large)' : '36pt (Medium - Default)'}
                     </span>
                   </div>
                   <div className="grid grid-cols-4 gap-1.5">
                     {[
-                      { id: 'sm', label: 'Small', desc: 'ছোট (28pt)' },
-                      { id: 'md', label: 'Medium', desc: 'মাঝারি (36pt)' },
-                      { id: 'lg', label: 'Large', desc: 'বড় (48pt)' },
-                      { id: 'xl', label: 'XL', desc: 'ম্যাক্স (60pt)' },
+                      { id: 'sm', label: 'Small', desc: 'Small (28pt)' },
+                      { id: 'md', label: 'Medium', desc: 'Medium (36pt)' },
+                      { id: 'lg', label: 'Large', desc: 'Large (48pt)' },
+                      { id: 'xl', label: 'XL', desc: 'Max (60pt)' },
                     ].map(s => (
                       <button
                         key={s.id}
@@ -514,17 +571,17 @@ export default function AdminStorefrontEditor({
                 {/* Hero Top Spacing / Gap Control */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className={`font-semibold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Title Top Gap / Spacing (টাইটেলের উপরের স্পেস):</label>
+                    <label className={`font-semibold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Title Top Gap / Spacing:</label>
                     <span className="text-[10px] text-amber-500 font-mono font-bold">
                       {config.heroTopGap === 'none' ? 'Minimal Gap' : config.heroTopGap === 'normal' ? 'Normal Gap' : config.heroTopGap === 'lg' ? 'Large Gap' : 'Compact Gap (Default)'}
                     </span>
                   </div>
                   <div className="grid grid-cols-4 gap-1.5">
                     {[
-                      { id: 'none', label: 'Minimal', desc: 'খুব কম' },
-                      { id: 'sm', label: 'Compact', desc: 'কম ফাঁকা' },
-                      { id: 'normal', label: 'Normal', desc: 'স্বাভাবিক' },
-                      { id: 'lg', label: 'Spacious', desc: 'বেশি ফাঁকা' },
+                      { id: 'none', label: 'Minimal', desc: 'Minimal' },
+                      { id: 'sm', label: 'Compact', desc: 'Tight' },
+                      { id: 'normal', label: 'Normal', desc: 'Normal' },
+                      { id: 'lg', label: 'Spacious', desc: 'Relaxed' },
                     ].map(g => (
                       <button
                         key={g.id}
@@ -549,7 +606,7 @@ export default function AdminStorefrontEditor({
 
                 <div className="grid grid-cols-2 gap-3 pt-2">
                   <div>
-                    <label className={`block font-semibold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Text Alignment (অ্যালাইনমেন্ট):</label>
+                    <label className={`block font-semibold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Text Alignment:</label>
                     <div className="grid grid-cols-2 gap-1.5">
                       <button
                         type="button"
@@ -565,7 +622,7 @@ export default function AdminStorefrontEditor({
                         }`}
                       >
                         <AlignLeft className="w-3.5 h-3.5" />
-                        <span>Left (বামে)</span>
+                        <span>Left</span>
                       </button>
                       <button
                         type="button"
@@ -587,7 +644,7 @@ export default function AdminStorefrontEditor({
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Section Padding (উচ্চতা):</label>
+                    <label className="block text-slate-300 font-semibold mb-1">Section Padding:</label>
                     <select
                       value={config.heroPadding}
                       onChange={(e) => handleFieldChange('heroPadding', e.target.value)}
@@ -618,7 +675,7 @@ export default function AdminStorefrontEditor({
                 <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
                   <div>
                     <span className="text-white font-semibold">Domestic Country Switcher Pills (🇺🇸 USA, 🇬🇧 UK, 🇨🇦 Canada)</span>
-                    <p className="text-[10px] text-slate-500">Show or hide the domestic market buttons (টিক দিলে দেখাবে, উঠালে হাইড হবে)</p>
+                    <p className="text-[10px] text-slate-500">Show or hide the domestic market buttons (toggle to show or hide)</p>
                   </div>
                   <input
                     type="checkbox"
@@ -632,17 +689,17 @@ export default function AdminStorefrontEditor({
                 <div className="pt-4 border-t border-slate-800 space-y-3">
                   <h3 className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center space-x-1.5">
                     <Type className="w-3.5 h-3.5" />
-                    <span>Hero Typography & Docs Styling (শিরোনামের ফন্ট ফরম্যাটিং)</span>
+                    <span>Hero Typography & Docs Styling</span>
                   </h3>
                   <WordDocsTypographyToolbar
-                    label="Hero Main Title — Word / Docs Formatting (মূল শিরোনামের ফন্ট)"
+                    label="Hero Main Title — Word / Docs Formatting"
                     value={config?.typography?.heroTitle}
                     onChange={(val) => handleTypographyChange('heroTitle', val)}
                     isLight={isLight}
                     sampleText={`${config.heroTitlePrefix || 'Custom Goods Printed'} ${config.heroTitleAccent || 'Domestically'}`}
                   />
                   <WordDocsTypographyToolbar
-                    label="Hero Subtitle — Word / Docs Formatting (সাবটাইটেলের ফন্ট)"
+                    label="Hero Subtitle — Word / Docs Formatting"
                     value={config?.typography?.heroSubtitle}
                     onChange={(val) => handleTypographyChange('heroSubtitle', val)}
                     isLight={isLight}
@@ -653,7 +710,7 @@ export default function AdminStorefrontEditor({
             </div>
           )}
 
-          {/* Section: Mega Menu & Global Search (মেনু ও সার্চ) */}
+          {/* Section: Mega Menu & Global Search */}
           {activeSection === 'megamenu' && (
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -670,17 +727,17 @@ export default function AdminStorefrontEditor({
               <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
                 <h3 className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center space-x-1.5">
                   <Type className="w-3.5 h-3.5" />
-                  <span>Mega Menu Typography & Docs Formatting (মেনু টেক্সট স্টাইল)</span>
+                  <span>Mega Menu Typography & Docs Formatting</span>
                 </h3>
                 <WordDocsTypographyToolbar
-                  label="Column Headings (মেনু কলাম হেডিং)"
+                  label="Column Headings"
                   value={config?.typography?.megaMenuHeadings}
                   onChange={(val) => handleTypographyChange('megaMenuHeadings', val)}
                   isLight={isLight}
                   sampleText="SPECIAL OFFERS & DEALS"
                 />
                 <WordDocsTypographyToolbar
-                  label="Flyout Links (সাবমেনু আইটেম লিংক)"
+                  label="Flyout Links"
                   value={config?.typography?.megaMenuItems}
                   onChange={(val) => handleTypographyChange('megaMenuItems', val)}
                   isLight={isLight}
@@ -709,7 +766,7 @@ export default function AdminStorefrontEditor({
                 {config.showSearchBar !== false && (
                   <div>
                     <label className="block text-[11px] text-slate-400 font-semibold mb-1">
-                      Search Bar Placeholder Text (সার্চ বক্সের লেখা):
+                      Search Bar Placeholder Text:
                     </label>
                     <input
                       type="text"
@@ -747,7 +804,7 @@ export default function AdminStorefrontEditor({
                       <div className="flex items-center space-x-2 pb-2 border-b border-slate-800">
                         <Type className="w-4 h-4 text-indigo-400" />
                         <span className="text-xs font-bold text-white uppercase tracking-wider">
-                          Dropdown Typography & Spacing (ড্রপডাউন ফন্ট সাইজ ও স্পেসিং)
+                          Dropdown Typography & Spacing
                         </span>
                       </div>
 
@@ -755,7 +812,7 @@ export default function AdminStorefrontEditor({
                         {/* 1. Dropdown Items Font Size */}
                         <div>
                           <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
-                            Submenu Item Font Size (আইটেম ফন্ট):
+                            Submenu Item Font Size:
                           </label>
                           <select
                             value={config.dropdownItemFontSize || 'sm'}
@@ -772,7 +829,7 @@ export default function AdminStorefrontEditor({
                         {/* 2. Column Heading Font Size */}
                         <div>
                           <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
-                            Column Heading Size (কলাম হেডিং):
+                            Column Heading Size:
                           </label>
                           <select
                             value={config.dropdownHeadingFontSize || 'sm'}
@@ -789,32 +846,32 @@ export default function AdminStorefrontEditor({
                         {/* 3. Dropdown Vertical Padding */}
                         <div>
                           <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
-                            Flyout Padding (ড্রপডাউন প্যাডিং):
+                            Flyout Padding:
                           </label>
                           <select
                             value={config.dropdownPadding || 'normal'}
                             onChange={(e) => handleFieldChange('dropdownPadding', e.target.value)}
                             className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-medium focus:border-indigo-500"
                           >
-                            <option value="compact">Compact (কম ফাঁকা - 16px)</option>
-                            <option value="normal">Normal (স্ট্যান্ডার্ড - 24px)</option>
-                            <option value="spacious">Spacious (বেশি ফাঁকা - 32px)</option>
+                            <option value="compact">Compact (16px)</option>
+                            <option value="normal">Normal (24px)</option>
+                            <option value="spacious">Spacious (32px)</option>
                           </select>
                         </div>
 
                         {/* 4. Submenu Item Vertical Spacing */}
                         <div>
                           <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
-                            Item Spacing / Gap (আইটেমগুলোর ফাঁক):
+                            Item Spacing / Gap:
                           </label>
                           <select
                             value={config.dropdownItemSpacing || 'normal'}
                             onChange={(e) => handleFieldChange('dropdownItemSpacing', e.target.value)}
                             className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-medium focus:border-indigo-500"
                           >
-                            <option value="compact">Compact (ঘন / Tight)</option>
-                            <option value="normal">Normal (স্ট্যান্ডার্ড)</option>
-                            <option value="spacious">Spacious (ছড়ানো / Relaxed)</option>
+                            <option value="compact">Compact (Tight)</option>
+                            <option value="normal">Normal (Standard)</option>
+                            <option value="spacious">Spacious (Relaxed)</option>
                           </select>
                         </div>
                       </div>
@@ -823,7 +880,7 @@ export default function AdminStorefrontEditor({
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-800 text-xs">
                         <div>
                           <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
-                            Menu Bar Item Size (মূল মেনু ফন্ট):
+                            Menu Bar Item Size:
                           </label>
                           <select
                             value={config.menuBarFontSize || 'sm'}
@@ -839,22 +896,22 @@ export default function AdminStorefrontEditor({
 
                         <div>
                           <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
-                            Menu Bar Tab Spacing (মেনু ট্যাব দূরত্ব):
+                            Menu Bar Tab Spacing:
                           </label>
                           <select
                             value={config.menuBarItemSpacing || 'normal'}
                             onChange={(e) => handleFieldChange('menuBarItemSpacing', e.target.value)}
                             className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-medium focus:border-indigo-500"
                           >
-                            <option value="compact">Compact (কাছাকাছি)</option>
-                            <option value="normal">Normal (স্ট্যান্ডার্ড)</option>
-                            <option value="relaxed">Relaxed (ছড়িয়ে রাখা)</option>
+                            <option value="compact">Compact (Tight)</option>
+                            <option value="normal">Normal (Standard)</option>
+                            <option value="relaxed">Relaxed (Spacious)</option>
                           </select>
                         </div>
 
                         <div>
                           <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
-                            Column Horizontal Gap (কলামের মধ্যকার গ্যাপ):
+                            Column Horizontal Gap:
                           </label>
                           <select
                             value={config.dropdownColumnGap || 'normal'}
@@ -872,21 +929,21 @@ export default function AdminStorefrontEditor({
                       <div className="pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
-                            Submenu Item Click Flow (সাবমেনু ক্লিক অ্যাকশন):
+                            Submenu Item Click Flow:
                           </label>
                           <select
                             value={config.submenuClickAction || 'configurator'}
                             onChange={(e) => handleFieldChange('submenuClickAction', e.target.value)}
                             className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-medium focus:border-indigo-500"
                           >
-                            <option value="configurator">Open VistaPrint Product Configurator (সরাসরি অর্ডার কনফিগারেশন)</option>
-                            <option value="filter">Filter Storefront Catalog (ক্যাটালগ সার্চ ও ফিল্টার)</option>
+                            <option value="configurator">Open VistaPrint Product Configurator (Direct Order)</option>
+                            <option value="filter">Filter Storefront Catalog (Catalog Search & Filter)</option>
                           </select>
                         </div>
 
                         <div>
                           <label className="block text-slate-400 font-semibold mb-1 text-[11px]">
-                            Default Card Order Quantity (ডিফল্ট কার্ড কোয়ান্টিটি):
+                            Default Card Order Quantity:
                           </label>
                           <select
                             value={config.defaultCardQuantity || 100}
@@ -955,7 +1012,7 @@ export default function AdminStorefrontEditor({
                                     disabled={idx === 0}
                                     onClick={() => handleMoveMenuItem(idx, -1)}
                                     className={`p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition ${idx === 0 ? 'opacity-30 cursor-not-allowed' : ''}`}
-                                    title="Move item up (বাম দিকে নিন)"
+                                    title="Move item up"
                                   >
                                     <ArrowUp className="w-3 h-3" />
                                   </button>
@@ -964,7 +1021,7 @@ export default function AdminStorefrontEditor({
                                     disabled={idx === totalCats - 1}
                                     onClick={() => handleMoveMenuItem(idx, 1)}
                                     className={`p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition ${idx === totalCats - 1 ? 'opacity-30 cursor-not-allowed' : ''}`}
-                                    title="Move item down (ডান দিকে নিন)"
+                                    title="Move item down"
                                   >
                                     <ArrowDown className="w-3 h-3" />
                                   </button>
@@ -999,7 +1056,7 @@ export default function AdminStorefrontEditor({
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                               <div>
                                 <label className="block text-[10px] text-slate-400 mb-1 font-semibold">
-                                  Menu Title (মেনুর নাম):
+                                  Menu Title:
                                 </label>
                                 <input
                                   type="text"
@@ -1012,26 +1069,26 @@ export default function AdminStorefrontEditor({
 
                               <div>
                                 <label className="block text-[10px] text-slate-400 mb-1 font-semibold">
-                                  Category Key (ফিল্টার কিওয়ার্ড):
+                                  Category Key:
                                 </label>
                                 <select
                                   value={cat.categoryKey}
                                   onChange={(e) => handleMegaMenuCategoryChange(idx, 'categoryKey', e.target.value)}
                                   className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 text-xs focus:border-indigo-500 focus:outline-none"
                                 >
-                                  <option value="Deals">🔥 Deals (প্রোমো ছাড়)</option>
-                                  <option value="Holiday">🎄 Holiday Cards (ক্রিসমাস ও হলিডে)</option>
-                                  <option value="Gifts">🎁 Gifts & Calendars (ক্যালেন্ডার ও গিফট)</option>
-                                  <option value="Marketing">💼 Marketing & Business (বিজনেস কার্ড)</option>
-                                  <option value="Apparel">👕 Clothing & Bags (টি-শার্ট ও হুডি)</option>
-                                  <option value="Wall Art">🖼️ Signs & Wall Art (ব্যানার ও আর্ট)</option>
-                                  <option value="Accessories">🏷️ Labels & Stickers (স্টিকার ও বক্স)</option>
+                                  <option value="Deals">🔥 Deals (Promo & Offers)</option>
+                                  <option value="Holiday">🎄 Holiday Cards (Festive & Seasonal)</option>
+                                  <option value="Gifts">🎁 Gifts & Calendars (Wall & Desk)</option>
+                                  <option value="Marketing">💼 Marketing & Business (Cards & Stationery)</option>
+                                  <option value="Apparel">👕 Clothing & Bags (Apparel & Accessories)</option>
+                                  <option value="Wall Art">🖼️ Signs & Wall Art (Banners & Canvas)</option>
+                                  <option value="Accessories">🏷️ Labels & Stickers (Packaging & Decals)</option>
                                 </select>
                               </div>
 
                               <div>
                                 <label className="block text-[10px] text-slate-400 mb-1 font-semibold">
-                                  Badge Label (ঐচ্ছিক ব্যাজ):
+                                  Badge Label (Optional):
                                 </label>
                                 <input
                                   type="text"
@@ -1047,7 +1104,7 @@ export default function AdminStorefrontEditor({
                             <div>
                               <div className="flex items-center justify-between mb-1">
                                 <label className="text-[10px] text-slate-400 font-semibold">
-                                  Dropdown Subcategories (সাবমেনু আইটেমসমূহ - কমা দিয়ে লিখুন):
+                                  Dropdown Subcategories (comma-separated):
                                 </label>
                                 <span className="text-[9px] text-slate-500">{(cat.subcategories || []).length} sub-items</span>
                               </div>
@@ -1080,14 +1137,14 @@ export default function AdminStorefrontEditor({
             </div>
           )}
 
-          {/* Section: Vista Promotional Photo Slider & SAVE 25% (স্লাইডার ও কোটেশন) */}
+          {/* Section: Vista Promotional Photo Slider & SAVE 25% */}
           {activeSection === 'promoslider' && (
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                 <div className="flex items-center space-x-2">
                   <BadgePercent className="w-4 h-4 text-amber-400" />
                   <h2 className="text-sm font-bold text-white uppercase tracking-wider">
-                    Vista Promotional Photo Slider (দুই পাশে ছবি, মাঝে SAVE 25% ও কোটেশন)
+                    Vista Promotional Photo Slider (Featured Carousel)
                   </h2>
                 </div>
                 <span className="text-[10px] text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded font-mono">
@@ -1121,7 +1178,7 @@ export default function AdminStorefrontEditor({
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
                         <label className="block text-[11px] text-slate-400 font-semibold mb-1">
-                          Discount Headline (বড় লেখা):
+                          Discount Headline:
                         </label>
                         <input
                           type="text"
@@ -1133,7 +1190,7 @@ export default function AdminStorefrontEditor({
                       </div>
                       <div>
                         <label className="block text-[11px] text-slate-400 font-semibold mb-1">
-                          Promo Coupon Code (কুপন কোড):
+                          Promo Coupon Code:
                         </label>
                         <input
                           type="text"
@@ -1145,7 +1202,7 @@ export default function AdminStorefrontEditor({
                       </div>
                       <div>
                         <label className="block text-[11px] text-slate-400 font-semibold mb-1">
-                          Top Badge Label (টপ ব্যাজ):
+                          Top Badge Label:
                         </label>
                         <input
                           type="text"
@@ -1159,7 +1216,7 @@ export default function AdminStorefrontEditor({
 
                     <div>
                       <label className="block text-[11px] text-slate-400 font-semibold mb-1">
-                        Promo Subtitle / Description (অফারের বিস্তারিত):
+                        Promo Subtitle / Description:
                       </label>
                       <input
                         type="text"
@@ -1174,7 +1231,7 @@ export default function AdminStorefrontEditor({
                   {/* Individual Slides Configuration */}
                   <div className="space-y-3">
                     <label className="block text-[11px] text-slate-300 font-bold uppercase tracking-wider">
-                      Configure Photo Slides (ছবি, কোটেশন ও ক্যাপশন):
+                      Configure Photo Slides:
                     </label>
 
                     {(config.promoSlides || DEFAULT_STOREFRONT_CONFIG.promoSlides).map((slide, sIdx) => (
@@ -1186,7 +1243,7 @@ export default function AdminStorefrontEditor({
 
                         {/* Left Photo & Quote */}
                         <div className="p-2.5 bg-slate-900/80 rounded-lg space-y-1.5 border border-slate-800">
-                          <div className="font-semibold text-indigo-300 text-[11px]">Left Photo & Quote (বামের ছবি ও ক্যাপশন):</div>
+                          <div className="font-semibold text-indigo-300 text-[11px]">Left Photo & Quote:</div>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <div>
                               <label className="block text-[10px] text-slate-400">Image URL:</label>
@@ -1208,7 +1265,7 @@ export default function AdminStorefrontEditor({
                             </div>
                           </div>
                           <div>
-                            <label className="block text-[10px] text-slate-400">Quotation / Callout (ছবির উপরের কোটেশন):</label>
+                            <label className="block text-[10px] text-slate-400">Quotation / Callout:</label>
                             <input
                               type="text"
                               value={slide.leftQuote}
@@ -1220,7 +1277,7 @@ export default function AdminStorefrontEditor({
 
                         {/* Right Photo & Quote */}
                         <div className="p-2.5 bg-slate-900/80 rounded-lg space-y-1.5 border border-slate-800">
-                          <div className="font-semibold text-emerald-300 text-[11px]">Right Photo & Quote (ডানের ছবি ও ক্যাপশন):</div>
+                          <div className="font-semibold text-emerald-300 text-[11px]">Right Photo & Quote:</div>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <div>
                               <label className="block text-[10px] text-slate-400">Image URL:</label>
@@ -1242,7 +1299,7 @@ export default function AdminStorefrontEditor({
                             </div>
                           </div>
                           <div>
-                            <label className="block text-[10px] text-slate-400">Quotation / Callout (ছবির উপরের কোটেশন):</label>
+                            <label className="block text-[10px] text-slate-400">Quotation / Callout:</label>
                             <input
                               type="text"
                               value={slide.rightQuote}
@@ -1276,24 +1333,24 @@ export default function AdminStorefrontEditor({
               <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
                 <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-1.5">
                   <Type className="w-3.5 h-3.5" />
-                  <span>Product Card Typography & Docs Formatting (প্রোডাক্ট কার্ড টেক্সট স্টাইল)</span>
+                  <span>Product Card Typography & Docs Formatting</span>
                 </h3>
                 <WordDocsTypographyToolbar
-                  label="Product Title (প্রোডাক্টের নাম/টাইটেল)"
+                  label="Product Title"
                   value={config?.typography?.productTitle}
                   onChange={(val) => handleTypographyChange('productTitle', val)}
                   isLight={isLight}
                   sampleText="Premium 16pt Soft-Touch Business Cards"
                 />
                 <WordDocsTypographyToolbar
-                  label="Product Price Tag (প্রোডাক্টের দাম)"
+                  label="Product Price Tag"
                   value={config?.typography?.productPrice}
                   onChange={(val) => handleTypographyChange('productPrice', val)}
                   isLight={isLight}
                   sampleText="From $19.99"
                 />
                 <WordDocsTypographyToolbar
-                  label="Product Description (প্রোডাক্টের ডেসক্রিপশন)"
+                  label="Product Description"
                   value={config?.typography?.productDesc}
                   onChange={(val) => handleTypographyChange('productDesc', val)}
                   isLight={isLight}
@@ -1305,7 +1362,7 @@ export default function AdminStorefrontEditor({
               <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-white font-bold text-xs">Explore Popular Categories Showcase (ভিজ্যুয়াল টপ টাইলস)</span>
+                    <span className="text-white font-bold text-xs">Explore Popular Categories Showcase</span>
                     <p className="text-[10px] text-slate-500">Shows 6 photography category cards with starting prices below hero</p>
                   </div>
                   <input
@@ -1468,7 +1525,7 @@ export default function AdminStorefrontEditor({
             </div>
           )}
 
-          {/* Section 2: Columns & Spacing (কলাম ও স্পেসিং লেআউট) */}
+          {/* Section 2: Columns & Spacing */}
           {activeSection === 'layout' && (
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -1483,7 +1540,7 @@ export default function AdminStorefrontEditor({
                 {/* Column Count Selector */}
                 <div>
                   <label className="block text-slate-300 font-semibold mb-1.5">
-                    Grid Columns on Desktop (ডেস্কটপ কলাম সংখ্যা):
+                    Grid Columns on Desktop:
                   </label>
                   <div className="grid grid-cols-4 gap-2">
                     {[2, 3, 4, 5].map(cols => (
@@ -1511,7 +1568,7 @@ export default function AdminStorefrontEditor({
                 {/* Grid Spacing / Gap Selector */}
                 <div>
                   <label className={`block font-semibold mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-                    Grid Gap / Item Spacing (আইটেমগুলোর মধ্যকার ফাঁকা জায়গা):
+                    Grid Gap / Item Spacing:
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     {[
@@ -1543,7 +1600,7 @@ export default function AdminStorefrontEditor({
                 {/* Catalog Section Vertical Spacing */}
                 <div>
                   <label className={`block font-semibold mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-                    Product Section Vertical Spacing (প্রোডাক্ট সেকশন প্যাডিং / স্পেস):
+                    Product Section Vertical Spacing:
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     {[
@@ -1575,7 +1632,7 @@ export default function AdminStorefrontEditor({
                 {/* Card Corner Radius */}
                 <div>
                   <label className={`block font-semibold mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-                    Product Card Corner Curvature (কোণার রাউন্ডনেস):
+                    Product Card Corner Curvature:
                   </label>
                   <div className="grid grid-cols-4 gap-2">
                     {[
@@ -1670,14 +1727,16 @@ export default function AdminStorefrontEditor({
 
           {/* Section 4: Trust Badges & Couriers */}
           {activeSection === 'badges' && (
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className={`rounded-2xl p-6 space-y-4 shadow-xl border ${
+              isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-200/50' : 'bg-slate-900 border-slate-800 text-white'
+            }`}>
+              <div className={`flex items-center justify-between pb-3 border-b ${isLight ? 'border-slate-100' : 'border-slate-800'}`}>
                 <div className="flex items-center space-x-2">
                   <ShieldCheck className="w-4 h-4 text-indigo-400" />
-                  <h2 className="text-sm font-bold text-white uppercase tracking-wider">Trust Badges & Couriers</h2>
+                  <h2 className={`text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>Trust Badges & Couriers</h2>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-[10px] text-slate-400">Show Row:</span>
+                  <span className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Show Row:</span>
                   <input
                     type="checkbox"
                     checked={config.showTrustProps !== false}
@@ -1689,9 +1748,11 @@ export default function AdminStorefrontEditor({
 
               <div className="space-y-3 text-xs">
                 {config.trustProps.map((prop, idx) => (
-                  <div key={idx} className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+                  <div key={idx} className={`p-3 rounded-xl space-y-2 border ${
+                    isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'
+                  }`}>
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-indigo-300">Badge #{idx + 1}</span>
+                      <span className={`font-bold ${isLight ? 'text-indigo-600' : 'text-indigo-300'}`}>Badge #{idx + 1}</span>
                       <span className="text-[10px] text-slate-500">{idx === 0 ? 'Courier' : idx === 1 ? 'Eco Inks' : 'Social Proof'}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
@@ -1701,7 +1762,9 @@ export default function AdminStorefrontEditor({
                           type="text"
                           value={prop.title}
                           onChange={(e) => handleTrustPropChange(idx, 'title', e.target.value)}
-                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                          className={`w-full rounded-lg px-2.5 py-1.5 border outline-none ${
+                            isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                          }`}
                         />
                       </div>
                       <div>
@@ -1710,7 +1773,9 @@ export default function AdminStorefrontEditor({
                           type="text"
                           value={prop.subtitle}
                           onChange={(e) => handleTrustPropChange(idx, 'subtitle', e.target.value)}
-                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                          className={`w-full rounded-lg px-2.5 py-1.5 border outline-none ${
+                            isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                          }`}
                         />
                       </div>
                     </div>
@@ -1720,16 +1785,426 @@ export default function AdminStorefrontEditor({
             </div>
           )}
 
-          {/* Section 5: Customer Reviews */}
-          {activeSection === 'reviews' && (
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          {/* Section: Languages & Localization (Requirement 2 & 3) */}
+          {activeSection === 'languages' && (
+            <div className={`rounded-2xl p-6 space-y-5 shadow-xl border ${
+              isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-200/50' : 'bg-slate-900 border-slate-800 text-white'
+            }`}>
+              <div className={`flex items-center justify-between pb-3 border-b ${isLight ? 'border-slate-100' : 'border-slate-800'}`}>
                 <div className="flex items-center space-x-2">
-                  <Star className="w-4 h-4 text-amber-400" />
-                  <h2 className="text-sm font-bold text-white uppercase tracking-wider">Customer Reviews Section</h2>
+                  <Globe className="w-4 h-4 text-indigo-400" />
+                  <h2 className={`text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                    Languages & Global Localization
+                  </h2>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-[10px] text-slate-400">Enable Section:</span>
+                  <span className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Enable Switcher:</span>
+                  <input
+                    type="checkbox"
+                    checked={config.showLanguageSelector !== false}
+                    onChange={(e) => handleFieldChange('showLanguageSelector', e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              {/* Default Language Picker */}
+              <div className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'
+              }`}>
+                <div>
+                  <span className={`font-bold text-xs block ${isLight ? 'text-slate-900' : 'text-white'}`}>Default Store Language</span>
+                  <p className={`text-[11px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                    Primary language shown when international customers first visit the storefront
+                  </p>
+                </div>
+                <select
+                  value={config.defaultLanguage || 'en'}
+                  onChange={(e) => handleFieldChange('defaultLanguage', e.target.value)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border outline-none cursor-pointer ${
+                    isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                  }`}
+                >
+                  {(config.languages || DEFAULT_STOREFRONT_CONFIG.languages).map(lang => (
+                    <option key={lang.code} value={lang.code}>
+                      {lang.flag} {lang.name} ({lang.code.toUpperCase()})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Active Languages List */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className={`text-xs font-bold ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
+                    Active Languages ({(config.languages || DEFAULT_STOREFRONT_CONFIG.languages).length})
+                  </span>
+                  <span className="text-[10px] text-slate-400">Available in customer header dropdown</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {(config.languages || DEFAULT_STOREFRONT_CONFIG.languages).map((lang) => {
+                    const isDefault = (config.defaultLanguage || 'en') === lang.code;
+                    return (
+                      <div
+                        key={lang.code}
+                        className={`p-3 rounded-xl border flex items-center justify-between transition ${
+                          isLight ? 'bg-slate-50 border-slate-200 hover:border-slate-300' : 'bg-slate-950 border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-2.5">
+                          <span className="text-xl">{lang.flag}</span>
+                          <div>
+                            <div className="flex items-center space-x-1.5">
+                              <span className={`font-bold text-xs ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                                {lang.name}
+                              </span>
+                              {isDefault && (
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[10px] text-slate-400 font-mono uppercase">{lang.code}</span>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveLanguage(lang.code)}
+                          disabled={(config.languages || DEFAULT_STOREFRONT_CONFIG.languages).length <= 1}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                          title={`Remove ${lang.name}`}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Add New Language Form */}
+              <div className={`p-4 rounded-xl border space-y-3 ${
+                isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <span className={`font-bold text-xs ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                    Add New Language
+                  </span>
+                  <span className="text-[10px] text-slate-400">Add any regional language to your storefront</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                  <div className="sm:col-span-1">
+                    <label className="block text-[10px] text-slate-400 mb-1">Flag Emoji:</label>
+                    <input
+                      type="text"
+                      value={newLangFlag}
+                      onChange={(e) => setNewLangFlag(e.target.value)}
+                      placeholder="e.g. 🇧🇷"
+                      className={`w-full px-2.5 py-1.5 rounded-lg text-xs text-center border outline-none ${
+                        isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-[10px] text-slate-400 mb-1">Language Name:</label>
+                    <input
+                      type="text"
+                      value={newLangName}
+                      onChange={(e) => setNewLangName(e.target.value)}
+                      placeholder="e.g. Portuguese (Português)"
+                      className={`w-full px-2.5 py-1.5 rounded-lg text-xs border outline-none ${
+                        isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                  <div className="sm:col-span-1">
+                    <label className="block text-[10px] text-slate-400 mb-1">Code (2-letter):</label>
+                    <div className="flex items-center space-x-1.5">
+                      <input
+                        type="text"
+                        value={newLangCode}
+                        onChange={(e) => setNewLangCode(e.target.value)}
+                        placeholder="pt"
+                        maxLength={5}
+                        className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-mono uppercase text-center border outline-none ${
+                          isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddLanguage}
+                        className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center space-x-1 transition shadow-xs cursor-pointer shrink-0"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Add</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Popular Language Quick Presets */}
+                <div className="pt-2">
+                  <span className="text-[10px] text-slate-400 font-semibold block mb-1.5">Quick Popular Presets:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { flag: '🇩🇪', name: 'Deutsch', code: 'de' },
+                      { flag: '🇯🇵', name: '日本語', code: 'ja' },
+                      { flag: '🇮🇹', name: 'Italiano', code: 'it' },
+                      { flag: '🇧🇷', name: 'Português', code: 'pt' },
+                      { flag: '🇳🇱', name: 'Nederlands', code: 'nl' },
+                      { flag: '🇨🇳', name: '中文', code: 'zh' },
+                      { flag: '🇸🇦', name: 'العربية', code: 'ar' },
+                      { flag: '🇰🇷', name: '한국어', code: 'ko' },
+                    ].map(preset => {
+                      const isAdded = (config.languages || DEFAULT_STOREFRONT_CONFIG.languages).some(l => l.code === preset.code);
+                      return (
+                        <button
+                          key={preset.code}
+                          type="button"
+                          onClick={() => {
+                            if (isAdded) {
+                              handleRemoveLanguage(preset.code);
+                            } else {
+                              const updated = [...(config.languages || DEFAULT_STOREFRONT_CONFIG.languages), preset];
+                              setConfig(prev => ({ ...prev, languages: updated }));
+                              showToast(`Added ${preset.name}`);
+                            }
+                          }}
+                          className={`px-2 py-1 rounded-lg text-[11px] font-medium border flex items-center space-x-1 transition cursor-pointer ${
+                            isAdded
+                              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 font-bold'
+                              : isLight ? 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100' : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
+                          }`}
+                        >
+                          <span>{preset.flag}</span>
+                          <span>{preset.name}</span>
+                          <span className="text-[9px] opacity-70">({isAdded ? '✓' : '+'})</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Section: Social Media & Live Chat (Requirement 1, 4, 6) */}
+          {activeSection === 'socials' && (
+            <div className={`rounded-2xl p-6 space-y-5 shadow-xl border ${
+              isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-200/50' : 'bg-slate-900 border-slate-800 text-white'
+            }`}>
+              <div className={`flex items-center justify-between pb-3 border-b ${isLight ? 'border-slate-100' : 'border-slate-800'}`}>
+                <div className="flex items-center space-x-2">
+                  <MessageSquare className="w-4 h-4 text-indigo-400" />
+                  <h2 className={`text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                    Social Media Icons & Customer Support Chat
+                  </h2>
+                </div>
+                <span className="text-[10px] text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded font-mono">
+                  Omnichannel
+                </span>
+              </div>
+
+              {/* Toggles */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className={`p-3.5 rounded-xl border flex items-center justify-between ${
+                  isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'
+                }`}>
+                  <div>
+                    <span className={`text-xs font-bold block ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                      Header Social Media Icons
+                    </span>
+                    <p className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                      Display social links in the top header / announcement bar
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={config.showSocialIcons !== false}
+                    onChange={(e) => handleFieldChange('showSocialIcons', e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
+                  />
+                </div>
+
+                <div className={`p-3.5 rounded-xl border flex items-center justify-between ${
+                  isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'
+                }`}>
+                  <div>
+                    <span className={`text-xs font-bold block ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                      Footer Social Media Icons
+                    </span>
+                    <p className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                      Display brand social channels at the bottom footer section
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={config.showFooterSocials !== false}
+                    onChange={(e) => handleFieldChange('showFooterSocials', e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              {/* Social URLs */}
+              <div className={`p-4 rounded-xl border space-y-3 ${
+                isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'
+              }`}>
+                <span className={`font-bold text-xs uppercase tracking-wider block ${isLight ? 'text-slate-900' : 'text-indigo-300'}`}>
+                  Brand Social Channel Profiles
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <label className="block text-[11px] text-slate-400 font-semibold mb-1">Instagram Profile URL:</label>
+                    <input
+                      type="text"
+                      value={config.socialLinks?.instagram || 'https://instagram.com/printflow'}
+                      onChange={(e) => handleSocialLinkChange('instagram', e.target.value)}
+                      placeholder="https://instagram.com/yourbrand"
+                      className={`w-full px-2.5 py-1.5 rounded-lg border outline-none font-mono text-xs ${
+                        isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 font-semibold mb-1">Facebook Page URL:</label>
+                    <input
+                      type="text"
+                      value={config.socialLinks?.facebook || 'https://facebook.com/printflow'}
+                      onChange={(e) => handleSocialLinkChange('facebook', e.target.value)}
+                      placeholder="https://facebook.com/yourbrand"
+                      className={`w-full px-2.5 py-1.5 rounded-lg border outline-none font-mono text-xs ${
+                        isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 font-semibold mb-1">X (Twitter) URL:</label>
+                    <input
+                      type="text"
+                      value={config.socialLinks?.twitter || 'https://x.com/printflow'}
+                      onChange={(e) => handleSocialLinkChange('twitter', e.target.value)}
+                      placeholder="https://x.com/yourbrand"
+                      className={`w-full px-2.5 py-1.5 rounded-lg border outline-none font-mono text-xs ${
+                        isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 font-semibold mb-1">Pinterest URL:</label>
+                    <input
+                      type="text"
+                      value={config.socialLinks?.pinterest || 'https://pinterest.com/printflow'}
+                      onChange={(e) => handleSocialLinkChange('pinterest', e.target.value)}
+                      placeholder="https://pinterest.com/yourbrand"
+                      className={`w-full px-2.5 py-1.5 rounded-lg border outline-none font-mono text-xs ${
+                        isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 font-semibold mb-1">TikTok URL:</label>
+                    <input
+                      type="text"
+                      value={config.socialLinks?.tiktok || 'https://tiktok.com/@printflow'}
+                      onChange={(e) => handleSocialLinkChange('tiktok', e.target.value)}
+                      placeholder="https://tiktok.com/@yourbrand"
+                      className={`w-full px-2.5 py-1.5 rounded-lg border outline-none font-mono text-xs ${
+                        isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 font-semibold mb-1">YouTube Channel URL:</label>
+                    <input
+                      type="text"
+                      value={config.socialLinks?.youtube || 'https://youtube.com/@printflow'}
+                      onChange={(e) => handleSocialLinkChange('youtube', e.target.value)}
+                      placeholder="https://youtube.com/@yourbrand"
+                      className={`w-full px-2.5 py-1.5 rounded-lg border outline-none font-mono text-xs ${
+                        isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Customer Chat & AI Support Settings */}
+              <div className={`p-4 rounded-xl border space-y-3.5 ${
+                isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className={`font-bold text-xs block ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                      Storefront Live Chatbot & Human Moderator Routing
+                    </span>
+                    <p className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                      Provides an interactive floating chat widget on storefront with AI answers & one-click human moderator transfer
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={config.showLiveChat !== false}
+                    onChange={(e) => handleFieldChange('showLiveChat', e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <label className="block text-[11px] text-slate-400 font-semibold mb-1">AI Chatbot Persona Name:</label>
+                    <input
+                      type="text"
+                      value={config.chatBotName || 'PrintFlow AI Assistant'}
+                      onChange={(e) => handleFieldChange('chatBotName', e.target.value)}
+                      className={`w-full px-2.5 py-1.5 rounded-lg border outline-none text-xs ${
+                        isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 font-semibold mb-1">Assigned Human Moderator Name:</label>
+                    <input
+                      type="text"
+                      value={config.chatModeratorName || 'Sarah Jenkins (Senior Support Moderator)'}
+                      onChange={(e) => handleFieldChange('chatModeratorName', e.target.value)}
+                      className={`w-full px-2.5 py-1.5 rounded-lg border outline-none text-xs ${
+                        isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] text-slate-400 font-semibold mb-1">Default Welcome Greeting:</label>
+                  <input
+                    type="text"
+                    value={config.chatWelcomeMessage || 'Hi there! 👋 Welcome to PrintFlow. How can we help you today with your custom prints?'}
+                    onChange={(e) => handleFieldChange('chatWelcomeMessage', e.target.value)}
+                    className={`w-full px-2.5 py-1.5 rounded-lg border outline-none text-xs ${
+                      isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                    }`}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Section 5: Customer Reviews */}
+          {activeSection === 'reviews' && (
+            <div className={`rounded-2xl p-6 space-y-4 shadow-xl border ${
+              isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-200/50' : 'bg-slate-900 border-slate-800 text-white'
+            }`}>
+              <div className={`flex items-center justify-between pb-3 border-b ${isLight ? 'border-slate-100' : 'border-slate-800'}`}>
+                <div className="flex items-center space-x-2">
+                  <Star className="w-4 h-4 text-amber-400" />
+                  <h2 className={`text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>Customer Reviews Section</h2>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Enable Section:</span>
                   <input
                     type="checkbox"
                     checked={config.showReviews}
@@ -1742,29 +2217,35 @@ export default function AdminStorefrontEditor({
               <div className="space-y-3 text-xs">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Section Title:</label>
+                    <label className={`block font-semibold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Section Title:</label>
                     <input
                       type="text"
                       value={config.reviewsTitle}
                       onChange={(e) => handleFieldChange('reviewsTitle', e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-bold"
+                      className={`w-full rounded-xl px-3 py-2 font-bold border outline-none ${
+                        isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+                      }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Section Subtitle:</label>
+                    <label className={`block font-semibold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Section Subtitle:</label>
                     <input
                       type="text"
                       value={config.reviewsSubtitle}
                       onChange={(e) => handleFieldChange('reviewsSubtitle', e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white"
+                      className={`w-full rounded-xl px-3 py-2 border outline-none ${
+                        isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+                      }`}
                     />
                   </div>
                 </div>
 
                 <div className="pt-2 space-y-3">
-                  <label className="block text-slate-300 font-semibold">Editable Review Cards:</label>
+                  <label className={`block font-semibold ${isLight ? 'text-slate-800' : 'text-slate-300'}`}>Editable Review Cards:</label>
                   {config.reviews.map((rev, idx) => (
-                    <div key={rev.id} className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+                    <div key={rev.id} className={`p-3 rounded-xl space-y-2 border ${
+                      isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'
+                    }`}>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <label className="block text-[11px] text-slate-400 mb-0.5">Author Name:</label>
@@ -1772,7 +2253,9 @@ export default function AdminStorefrontEditor({
                             type="text"
                             value={rev.name}
                             onChange={(e) => handleReviewChange(idx, 'name', e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-white"
+                            className={`w-full rounded-lg px-2.5 py-1 border outline-none ${
+                              isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                            }`}
                           />
                         </div>
                         <div>
@@ -1781,7 +2264,9 @@ export default function AdminStorefrontEditor({
                             type="text"
                             value={rev.location}
                             onChange={(e) => handleReviewChange(idx, 'location', e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-white"
+                            className={`w-full rounded-lg px-2.5 py-1 border outline-none ${
+                              isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                            }`}
                           />
                         </div>
                       </div>
@@ -1791,7 +2276,9 @@ export default function AdminStorefrontEditor({
                           rows="2"
                           value={rev.comment}
                           onChange={(e) => handleReviewChange(idx, 'comment', e.target.value)}
-                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-white"
+                          className={`w-full rounded-lg px-2.5 py-1 border outline-none ${
+                            isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                          }`}
                         />
                       </div>
                     </div>
@@ -1803,54 +2290,66 @@ export default function AdminStorefrontEditor({
 
           {/* Section 6: Footer & Branding */}
           {activeSection === 'footer' && (
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className={`rounded-2xl p-6 space-y-4 shadow-xl border ${
+              isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-200/50' : 'bg-slate-900 border-slate-800 text-white'
+            }`}>
+              <div className={`flex items-center justify-between pb-3 border-b ${isLight ? 'border-slate-100' : 'border-slate-800'}`}>
                 <div className="flex items-center space-x-2">
                   <Sliders className="w-4 h-4 text-indigo-400" />
-                  <h2 className="text-sm font-bold text-white uppercase tracking-wider">Footer & Branding</h2>
+                  <h2 className={`text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>Footer & Branding</h2>
                 </div>
-                <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded">Storefront Base</span>
+                <span className={`text-[10px] px-2 py-0.5 rounded ${
+                  isLight ? 'bg-slate-100 text-slate-600' : 'bg-slate-800 text-slate-400'
+                }`}>Storefront Base</span>
               </div>
 
               <div className="space-y-3 text-xs">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Brand Name:</label>
+                    <label className={`block font-semibold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Brand Name:</label>
                     <input
                       type="text"
                       value={config.brandName}
                       onChange={(e) => handleFieldChange('brandName', e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-bold"
+                      className={`w-full rounded-xl px-3 py-2 font-bold border outline-none ${
+                        isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+                      }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Badge Tag:</label>
+                    <label className={`block font-semibold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Badge Tag:</label>
                     <input
                       type="text"
                       value={config.badgeTag}
                       onChange={(e) => handleFieldChange('badgeTag', e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white"
+                      className={`w-full rounded-xl px-3 py-2 border outline-none ${
+                        isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+                      }`}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Footer Tagline:</label>
+                  <label className={`block font-semibold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Footer Tagline:</label>
                   <input
                     type="text"
                     value={config.footerTagline}
                     onChange={(e) => handleFieldChange('footerTagline', e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white"
+                    className={`w-full rounded-xl px-3 py-2 border outline-none ${
+                      isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+                    }`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Copyright Line:</label>
+                  <label className={`block font-semibold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Copyright Line:</label>
                   <input
                     type="text"
                     value={config.copyrightText}
                     onChange={(e) => handleFieldChange('copyrightText', e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono"
+                    className={`w-full rounded-xl px-3 py-2 font-mono border outline-none ${
+                      isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+                    }`}
                   />
                 </div>
               </div>
@@ -1890,31 +2389,31 @@ export default function AdminStorefrontEditor({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-slate-400 font-semibold mb-1 text-xs">
-                    Store Venue & Architecture (বুটিক ভেন্যু):
+                    Store Venue & Architecture:
                   </label>
                   <select
                     value={config.luxuryBgVenue || 'atelier'}
                     onChange={(e) => handleFieldChange('luxuryBgVenue', e.target.value)}
                     className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:border-indigo-500 text-xs"
                   >
-                    <option value="atelier">Luxury Modern Design Atelier (লাক্সারি স্টুডিও)</option>
-                    <option value="flagship">High-End Flagship Boutique (মডার্ন ফ্ল্যাগশিপ স্টোর)</option>
-                    <option value="workshop">Artisan Architectural Workshop (আর্কিটেকচারাল ওয়ার্কশপ)</option>
+                    <option value="atelier">Luxury Modern Design Atelier</option>
+                    <option value="flagship">High-End Flagship Boutique</option>
+                    <option value="workshop">Artisan Architectural Workshop</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-slate-400 font-semibold mb-1 text-xs">
-                    Frosted Glass Blur (গ্লাস ব্লার মাত্রা):
+                    Frosted Glass Blur:
                   </label>
                   <select
                     value={config.luxuryBgBlur || 'medium'}
                     onChange={(e) => handleFieldChange('luxuryBgBlur', e.target.value)}
                     className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:border-indigo-500 text-xs"
                   >
-                    <option value="subtle">Subtle Glass (10px Blur - হালকা)</option>
-                    <option value="medium">Balanced Glass (14px Blur - ব্যালান্সড)</option>
-                    <option value="deep">Deep Frosted Velvet (22px Blur - গভীর)</option>
+                    <option value="subtle">Subtle Glass (10px Blur)</option>
+                    <option value="medium">Balanced Glass (14px Blur)</option>
+                    <option value="deep">Deep Frosted Velvet (22px Blur)</option>
                   </select>
                 </div>
               </div>
@@ -1924,10 +2423,10 @@ export default function AdminStorefrontEditor({
                 <div className="flex items-center justify-between">
                   <div>
                     <label className="block text-white font-bold text-xs">
-                      Glass Tint Transparency (গ্লাস ট্রান্সপারেন্সি স্লাইডার 0% - 100%):
+                      Glass Tint Transparency (0% - 100%):
                     </label>
                     <p className="text-[11px] text-slate-400">
-                      ব্যাকগ্রাউন্ড কতটুকু স্পষ্ট বা কাঁচের মতো স্বচ্ছ দেখা যাবে তা নির্ধারণ করুন। ০% মানে সম্পূর্ণ স্বচ্ছ কাঁচ, ১০০% মানে নিরেট সাদা।
+                      Adjust background transparency. 0% is crystal-clear glass, 100% is solid opaque.
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0 ml-3">
@@ -1951,23 +2450,23 @@ export default function AdminStorefrontEditor({
                     className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
                   />
                   <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-                    <span>0% (সম্পূর্ণ ট্রান্সপারেন্ট)</span>
-                    <span>25% (লুক্স গ্লাস)</span>
-                    <span>50% (ব্যালান্সড)</span>
-                    <span>75% (কুয়াশাচ্ছন্ন)</span>
-                    <span>100% (সলিড)</span>
+                    <span>0% (Transparent)</span>
+                    <span>25% (Luxe Glass)</span>
+                    <span>50% (Balanced)</span>
+                    <span>75% (Frosted)</span>
+                    <span>100% (Solid)</span>
                   </div>
                 </div>
 
                 {/* Quick Presets */}
                 <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  <span className="text-[10px] text-slate-400 font-semibold mr-1">কুইক প্রিসেটস:</span>
+                  <span className="text-[10px] text-slate-400 font-semibold mr-1">Quick Presets:</span>
                   {[
-                    { label: '0% ক্লিয়ার কাঁচ', val: 0 },
-                    { label: '15% ক্রিস্টাল গ্লাস', val: 15 },
-                    { label: '25% ডিফল্ট লাক্সারি', val: 25 },
-                    { label: '40% সেমি ফ্রস্টেড', val: 40 },
-                    { label: '65% সফট কুয়াশা', val: 65 }
+                    { label: '0% Clear Glass', val: 0 },
+                    { label: '15% Crystal Glass', val: 15 },
+                    { label: '25% Luxury Glass', val: 25 },
+                    { label: '40% Semi-Frosted', val: 40 },
+                    { label: '65% Soft Mist', val: 65 }
                   ].map((preset) => (
                     <button
                       key={preset.val}
@@ -1988,15 +2487,15 @@ export default function AdminStorefrontEditor({
               {/* Parallax Depth Mode */}
               <div>
                 <label className="block text-slate-400 font-semibold mb-1 text-xs">
-                  Scroll Motion Depth (স্ক্রল ৩ডি মুভমেন্ট):
+                  Scroll Motion Depth:
                 </label>
                 <select
                   value={config.luxuryBgDepth || 'dynamic'}
                   onChange={(e) => handleFieldChange('luxuryBgDepth', e.target.value)}
                   className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:border-indigo-500 text-xs"
                 >
-                  <option value="dynamic">Dynamic 3D Zoom on Scroll (নিচে নামলে ভেতরে ঢোকার ভাব)</option>
-                  <option value="fixed">Fixed Static Perspective (স্থির দৃষ্টিকোণ)</option>
+                  <option value="dynamic">Dynamic 3D Zoom on Scroll</option>
+                  <option value="fixed">Fixed Static Perspective</option>
                 </select>
               </div>
 
@@ -2027,7 +2526,7 @@ export default function AdminStorefrontEditor({
 
             <div className="flex items-center space-x-2">
               <span className={`text-[10px] font-medium hidden sm:inline ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-                🖱️ স্ক্রল করুন
+                🖱️ Scroll Live Preview
               </span>
               <div className={`flex items-center space-x-1 p-0.5 rounded-xl border ${
                 isLight ? 'bg-slate-100 border-slate-200' : 'bg-slate-900 border-slate-800'
@@ -2469,7 +2968,7 @@ export default function AdminStorefrontEditor({
             isLight ? 'bg-indigo-50/60 border-indigo-200/60 text-indigo-900' : 'bg-slate-900/60 border-slate-800 text-slate-400'
           }`}>
             <p className="text-[11px]">
-              💡 <strong>ইন্টারেক্টিভ স্ক্রল ভিউ:</strong> মাউস দিয়ে ডানপাশের ফ্রেমের ভেতরে স্ক্রল করে সম্পূর্ণ স্টোরফ্রন্ট উপর থেকে নিচ পর্যন্ত লাইভ দেখতে পারবেন।
+              💡 <strong>Interactive Live View:</strong> Scroll inside the right-hand preview frame to see your full storefront layout.
             </p>
           </div>
         </div>

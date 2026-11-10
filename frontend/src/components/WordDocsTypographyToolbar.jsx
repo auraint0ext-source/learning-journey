@@ -80,7 +80,7 @@ export function WordDocsTopRibbon({
             <button
               type="button"
               onClick={() => setIsPinned(!isPinned)}
-              title={isPinned ? 'Toolbar is Frozen to top (ক্লিক করলে আনফ্রিজ হবে)' : 'Toolbar is Unfrozen (ক্লিক করলে উপরে ফ্রিজ হবে)'}
+              title={isPinned ? 'Toolbar is Frozen to top (Click to unfreeze)' : 'Toolbar is Unfrozen (Click to freeze to top)'}
               className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center space-x-1 border transition cursor-pointer ${
                 isPinned
                   ? 'bg-indigo-600 text-white border-indigo-500 shadow-xs ring-1 ring-indigo-400/50'
@@ -95,7 +95,7 @@ export function WordDocsTopRibbon({
             <button
               type="button"
               onClick={() => setIsCollapsed(false)}
-              title="Expand Google Docs formatting toolbar (টুলবার খুলুন)"
+              title="Expand Google Docs formatting toolbar"
               className="px-2 py-0.5 rounded font-bold text-[10px] bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-500 border border-indigo-500/30 flex items-center space-x-1 transition cursor-pointer"
             >
               <span>Show Toolbar</span>
@@ -448,7 +448,7 @@ export function WordDocsTopRibbon({
           <button
             type="button"
             onClick={() => setIsPinned(!isPinned)}
-            title={isPinned ? 'Toolbar is Frozen to top (ক্লিক করলে আনফ্রিজ হবে)' : 'Toolbar is Unfrozen (ক্লিক করলে উপরে ফ্রিজ হবে)'}
+            title={isPinned ? 'Toolbar is Frozen to top (Click to unfreeze)' : 'Toolbar is Unfrozen (Click to freeze to top)'}
             className={`px-2 py-0.5 rounded-lg text-[10px] font-bold flex items-center space-x-1 border transition cursor-pointer shrink-0 ${
               isPinned
                 ? 'bg-indigo-600 text-white border-indigo-500 shadow-xs ring-1 ring-indigo-400/50'
@@ -463,7 +463,7 @@ export function WordDocsTopRibbon({
           <button
             type="button"
             onClick={() => setIsCollapsed(true)}
-            title="Hide formatting toolbar (টুলবার লুকান)"
+            title="Hide formatting toolbar"
             className={`p-1 rounded-lg border transition cursor-pointer shrink-0 ${
               isLight 
                 ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700' 
@@ -484,7 +484,7 @@ export default function WordDocsTypographyToolbar({
   value = {},
   onChange,
   isLight = false,
-  sampleText = 'The quick brown fox jumps over the lazy dog (লাইভ ফন্ট প্রিভিউ)'
+  sampleText = 'The quick brown fox jumps over the lazy dog (Live Font Preview)'
 }) {
   const current = {
     fontFamily: value.fontFamily || 'Plus Jakarta Sans',

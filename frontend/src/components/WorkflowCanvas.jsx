@@ -292,17 +292,17 @@ export default function WorkflowCanvas({ currentMarket, storeTheme = 'light' }) 
         setSelectedWorkflow(updated);
         fetchWorkflows();
         setSaveStatus('success');
-        setSaveToastMessage('ওয়ার্কফ্লোটি সফলভাবে ডাটাবেজে সেভ হয়েছে!');
+        setSaveToastMessage('Workflow successfully saved to database!');
         setTimeout(() => setSaveStatus(null), 3500);
       } else {
         const err = await res.json().catch(() => ({}));
         setSaveStatus('error');
-        setSaveToastMessage(err.detail || 'সেভ করতে সমস্যা হয়েছে!');
+        setSaveToastMessage(err.detail || 'Failed to save workflow!');
         setTimeout(() => setSaveStatus(null), 3500);
       }
     } catch (err) {
       setSaveStatus('error');
-      setSaveToastMessage('সার্ভারে যোগাযোগ করা যায়নি: ' + err.message);
+      setSaveToastMessage('Could not connect to server: ' + err.message);
       setTimeout(() => setSaveStatus(null), 3500);
     } finally {
       setIsSaving(false);

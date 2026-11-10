@@ -21,7 +21,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
         onLoginSuccess();
         onClose();
       } else {
-        setError('ভুল ইউজারনেম বা পাসওয়ার্ড! (Use: admin / admin123)');
+        setError('Invalid username or password! (Use: admin / admin123)');
       }
       setIsLoading(false);
     }, 400);

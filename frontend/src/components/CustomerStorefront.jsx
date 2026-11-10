@@ -5,7 +5,8 @@ import {
   Check, Heart, Sparkles, Plus, Minus, CreditCard, ChevronRight, ChevronLeft, CheckCircle2, Lock, Settings,
   ShoppingCart, Landmark, Smartphone, Wallet, Building2, Copy, DollarSign, Trash2, Shield,
   Sun, Moon, SlidersHorizontal, Search, ChevronDown, Layers, Briefcase, Shirt, Coffee, Image, Tag, BadgePercent, Package, Quote,
-  UploadCloud, Palette, FileText, Eye, CheckCircle, ArrowLeft, RefreshCw
+  UploadCloud, Palette, FileText, Eye, CheckCircle, ArrowLeft, RefreshCw,
+  Globe, MessageCircle, MessageSquare, Send, User, Bot, Headphones, Instagram, Facebook, Twitter, Linkedin, Youtube
 } from 'lucide-react';
 
 import { DEFAULT_STOREFRONT_CONFIG } from '../config/storefrontConfig';
@@ -192,6 +193,118 @@ export default function CustomerStorefront({
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState('cart'); // 'cart' | 'checkout' | 'success'
   const [orderPlacedData, setOrderPlacedData] = useState(null);
+
+  // Requirement 2: Language Selector State
+  const [activeLanguage, setActiveLanguage] = useState(() => {
+    return cfg.defaultLanguage || 'en';
+  });
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+
+  const activeLanguageObj = useMemo(() => {
+    const list = cfg.languages || DEFAULT_STOREFRONT_CONFIG.languages || [];
+    return list.find(l => l.code === activeLanguage) || list[0] || { code: 'en', name: 'English (US)', flag: '🇺🇸' };
+  }, [cfg.languages, activeLanguage]);
+
+  // Requirement 1: Storefront Live Chat & Human Moderator State
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isHumanModerator, setIsHumanModerator] = useState(false);
+  const [isChatTyping, setIsChatTyping] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const [chatMessages, setChatMessages] = useState(() => [
+    {
+      id: 1,
+      sender: 'bot',
+      name: cfg.chatBotName || 'PrintFlow AI Assistant',
+      avatar: '🤖',
+      text: cfg.chatWelcomeMessage || 'Hi there! 👋 Welcome to PrintFlow. How can I help you today with your custom prints or domestic shipping?',
+      time: 'Just now'
+    }
+  ]);
+
+  const handleTransferToHuman = () => {
+    if (isHumanModerator) return;
+    setIsChatTyping(true);
+    setChatMessages(prev => [
+      ...prev,
+      {
+        id: Date.now(),
+        sender: 'system',
+        text: 'Connecting you with an active Human Support Moderator... ⏳',
+        time: 'Just now'
+      }
+    ]);
+
+    setTimeout(() => {
+      setIsChatTyping(false);
+      setIsHumanModerator(true);
+      const modName = cfg.chatModeratorName || 'Sarah Jenkins (Senior Support Moderator)';
+      setChatMessages(prev => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          sender: 'human',
+          name: modName,
+          avatar: '👩‍💼',
+          text: `Hello! I am ${modName}. I have joined your chat to assist with custom quotes, specialized POD specs, or any order inquiries. How can I help you?`,
+          time: 'Just now'
+        }
+      ]);
+    }, 1200);
+  };
+
+  const handleSendChatMessage = (e) => {
+    if (e) e.preventDefault();
+    const query = chatInput.trim();
+    if (!query) return;
+
+    const userMsg = {
+      id: Date.now(),
+      sender: 'user',
+      text: query,
+      time: 'Just now'
+    };
+    setChatMessages(prev => [...prev, userMsg]);
+    setChatInput('');
+
+    const lower = query.toLowerCase();
+    if (lower.includes('human') || lower.includes('moderator') || lower.includes('agent') || lower.includes('representative') || lower.includes('person') || lower.includes('operator')) {
+      handleTransferToHuman();
+      return;
+    }
+
+    setIsChatTyping(true);
+    setTimeout(() => {
+      setIsChatTyping(false);
+      let replyText = '';
+      if (isHumanModerator) {
+        replyText = "Thank you for reaching out! I've noted your question and I'm reviewing the domestic hub queue. Feel free to provide any specific quantity or mock-up files.";
+      } else {
+        if (lower.includes('shipping') || lower.includes('courier') || lower.includes('delivery') || lower.includes('time')) {
+          replyText = "We print and dispatch 100% domestically! USA orders ship via USPS/FedEx in 2-3 business days. UK orders ship via Royal Mail. Canada orders ship via Canada Post. Zero import taxes or customs delay!";
+        } else if (lower.includes('discount') || lower.includes('coupon') || lower.includes('deal') || lower.includes('save') || lower.includes('price')) {
+          replyText = `Use promo code "FESTIVE25" at checkout to get 25% off holiday cards, calendars & merch! We also provide tiered volume wholesale discounts up to 25% off for 25+ units.`;
+        } else if (lower.includes('track') || lower.includes('order')) {
+          replyText = "You can track any live order instantly in the Orders tab or enter your Order # here. All packages include direct domestic courier tracking links.";
+        } else if (lower.includes('sample') || lower.includes('paper') || lower.includes('stock')) {
+          replyText = "We offer premium 16pt Soft-Touch Matte, 18pt Foil-Stamped Luxe, Heavyweight Cotton Apparel, and Gallery Canvas. You can also request a free sample kit in the Deals menu!";
+        } else {
+          replyText = "Thanks for your question! We specialize in premium print-on-demand goods across 4 domestic hubs. If you need dedicated assistance, click 'Transfer to Human Moderator' below anytime!";
+        }
+      }
+
+      setChatMessages(prev => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          sender: isHumanModerator ? 'human' : 'bot',
+          name: isHumanModerator ? (cfg.chatModeratorName || 'Sarah Jenkins') : (cfg.chatBotName || 'PrintFlow AI Assistant'),
+          avatar: isHumanModerator ? '👩‍💼' : '🤖',
+          text: replyText,
+          time: 'Just now'
+        }
+      ]);
+    }, 800);
+  };
 
   // Vista Mega Menu Hover & Smooth Delay State
   const megaMenuTimeoutRef = React.useRef(null);
@@ -800,7 +913,7 @@ export default function CustomerStorefront({
   }, [products, activeCategory, searchQuery, sortBy]);
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 relative overflow-x-hidden ${
+    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 relative overflow-x-clip ${
       isLight ? (cfg.enableLuxury3dBackground ? 'bg-transparent text-slate-900' : 'bg-[#f8f9fa] text-slate-900') : 'bg-slate-950 text-slate-100'
     }`}>
       {/* 3D Luxury Boutique Atelier Parallax Glass Background */}
@@ -847,20 +960,40 @@ export default function CustomerStorefront({
               {cfg.announcementText}
             </span>
           </div>
-          <div className={`hidden sm:flex items-center space-x-3 text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-            <span>{cfg.announcementFacilities}</span>
+          <div className="hidden sm:flex items-center space-x-4 text-[10px]">
+            <span className={isLight ? 'text-slate-500' : 'text-slate-400'}>{cfg.announcementFacilities}</span>
+            {/* Popular Social Media Icons (Requirement 4) */}
+            {cfg.showSocialIcons !== false && (
+              <div className="flex items-center space-x-2 pl-3 border-l border-slate-300 dark:border-slate-700">
+                <a href={cfg.socialLinks?.instagram || 'https://instagram.com/printflow'} target="_blank" rel="noopener noreferrer" className="hover:text-pink-500 transition opacity-80 hover:opacity-100" title="Instagram">
+                  <Instagram className="w-3 h-3" />
+                </a>
+                <a href={cfg.socialLinks?.facebook || 'https://facebook.com/printflow'} target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 transition opacity-80 hover:opacity-100" title="Facebook">
+                  <Facebook className="w-3 h-3" />
+                </a>
+                <a href={cfg.socialLinks?.twitter || 'https://x.com/printflow'} target="_blank" rel="noopener noreferrer" className="hover:text-sky-400 transition opacity-80 hover:opacity-100" title="X (Twitter)">
+                  <Twitter className="w-3 h-3" />
+                </a>
+                <a href={cfg.socialLinks?.youtube || 'https://youtube.com/@printflow'} target="_blank" rel="noopener noreferrer" className="hover:text-rose-500 transition opacity-80 hover:opacity-100" title="YouTube">
+                  <Youtube className="w-3 h-3" />
+                </a>
+                <a href={cfg.socialLinks?.pinterest || 'https://pinterest.com/printflow'} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 transition opacity-80 hover:opacity-100" title="LinkedIn">
+                  <Linkedin className="w-3 h-3" />
+                </a>
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* 2. Customer Navigation Header with VistaPrint Global Search */}
+      {/* 2. Customer Navigation Header with VistaPrint Global Search & Frozen Mega Menu Bar (Requirement 7) */}
       <nav 
-        className={`sticky top-0 z-40 w-full transition-colors ${
+        className={`sticky top-0 z-40 w-full transition-shadow duration-200 border-b ${
           isLight 
-            ? 'bg-white' 
-            : 'bg-slate-900/95 backdrop-blur'
+            ? 'bg-white/95 backdrop-blur-md border-slate-200/80 shadow-xs' 
+            : 'bg-slate-900/95 backdrop-blur-md border-slate-800 shadow-md shadow-black/20'
         }`}
-        style={{ backgroundColor: isLight ? '#ffffff' : undefined, borderBottom: 'none', boxShadow: 'none' }}
+        style={{ backgroundColor: isLight ? '#ffffff' : undefined }}
       >
         <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-4">
           {/* Logo & Brand Identity */}
@@ -914,8 +1047,69 @@ export default function CustomerStorefront({
             </div>
           )}
 
-          {/* Right Action Icons: Currency Selector, Theme Toggle, Payment Modal, Cart */}
+          {/* Right Action Icons: Language Selector, Currency Selector, Theme Toggle, Payment Modal, Cart */}
           <div className="flex items-center space-x-2 flex-shrink-0">
+            {/* Language Selector Dropdown (Requirement 2 & 3) */}
+            {cfg.showLanguageSelector !== false && (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                  className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer ${
+                    isLight 
+                      ? 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200' 
+                      : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                  }`}
+                  title="Select Storefront Language"
+                >
+                  <Globe className="w-3.5 h-3.5 text-indigo-500" />
+                  <span className="font-mono text-[11px] uppercase font-bold">
+                    {activeLanguageObj.flag} {activeLanguageObj.code}
+                  </span>
+                  <ChevronDown className={`w-3 h-3 opacity-60 transition-transform ${isLanguageOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isLanguageOpen && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setIsLanguageOpen(false)} 
+                    />
+                    <div className={`absolute right-0 mt-1.5 w-48 rounded-xl shadow-2xl border py-1.5 z-50 text-xs animate-in fade-in zoom-in-95 duration-100 ${
+                      isLight ? 'bg-white border-slate-200 text-slate-800' : 'bg-slate-900 border-slate-800 text-white'
+                    }`}>
+                      <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
+                        Select Language
+                      </div>
+                      <div className="max-h-60 overflow-y-auto py-1">
+                        {(cfg.languages || DEFAULT_STOREFRONT_CONFIG.languages).map(lang => (
+                          <button
+                            key={lang.code}
+                            type="button"
+                            onClick={() => {
+                              setActiveLanguage(lang.code);
+                              setIsLanguageOpen(false);
+                            }}
+                            className={`w-full px-3 py-1.5 text-left flex items-center justify-between transition cursor-pointer ${
+                              activeLanguage === lang.code
+                                ? isLight ? 'bg-indigo-50 text-indigo-600 font-bold' : 'bg-indigo-950/60 text-indigo-300 font-bold'
+                                : isLight ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-slate-800 text-slate-300'
+                            }`}
+                          >
+                            <span className="flex items-center space-x-2">
+                              <span>{lang.flag}</span>
+                              <span>{lang.name}</span>
+                            </span>
+                            {activeLanguage === lang.code && <Check className="w-3.5 h-3.5 text-indigo-500" />}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
             {/* Currency Selector Pill */}
             <div className={`hidden sm:flex items-center px-2.5 py-1.5 rounded-xl text-xs font-semibold border ${
               isLight ? 'bg-slate-50 border-slate-200 text-slate-700' : 'bg-slate-800 border-slate-700 text-slate-300'
@@ -1001,13 +1195,13 @@ export default function CustomerStorefront({
           </div>
         )}
 
-        {/* VistaPrint Full-Width Mega Menu Bar */}
+        {/* VistaPrint Full-Width Mega Menu Bar (Requirement 7: Frozen with Header) */}
         {cfg.showMegaMenu !== false && (
           <div 
-            className={`relative ${
-              isLight ? 'bg-white' : 'bg-slate-950/80'
+            className={`relative border-t transition-colors ${
+              isLight ? 'bg-white border-slate-100' : 'bg-slate-950/90 border-slate-800/80'
             }`}
-            style={{ backgroundColor: isLight ? '#ffffff' : undefined, borderTop: 'none', borderBottom: 'none' }}
+            style={{ backgroundColor: isLight ? '#ffffff' : undefined }}
             onMouseLeave={handleMenuMouseLeave}
           >
             <div 
@@ -3154,28 +3348,82 @@ export default function CustomerStorefront({
             </div>
           </div>
 
-          <div className={`pt-6 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] ${
-            isLight ? 'border-slate-100' : 'border-slate-900'
+          <div className={`pt-6 border-t flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] ${
+            isLight ? 'border-slate-100 text-slate-500' : 'border-slate-900 text-slate-400'
           }`}>
             <p>{cfg.copyrightText}</p>
 
-            {/* Zero visible admin link for normal shoppers. Only authenticated staff in preview mode can return */}
-            <div>
-              {isAdminAuthenticated && (
-                <button
-                  onClick={onEnterAdminStudio}
-                  className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg transition shadow-xs font-semibold text-[11px] border ${
+            {/* Social Media Channels at Footer (Requirement 6 - Replaced Admin Link) */}
+            {cfg.showFooterSocials !== false && (
+              <div className="flex items-center space-x-2.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline">Connect:</span>
+                <a
+                  href={cfg.socialLinks?.instagram || 'https://instagram.com/printflow'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition ${
                     isLight 
-                      ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300' 
-                      : 'bg-indigo-950/60 border-indigo-500/40 text-indigo-300 hover:text-white hover:bg-indigo-900/60'
+                      ? 'bg-slate-50 hover:bg-pink-50 border-slate-200 text-slate-600 hover:text-pink-600' 
+                      : 'bg-slate-900 hover:bg-pink-950/40 border-slate-800 text-slate-400 hover:text-pink-400'
                   }`}
-                  title="Switch back to Operations Control Studio"
+                  title="Follow on Instagram"
                 >
-                  <Settings className="w-3.5 h-3.5" />
-                  <span>Return to Admin Studio</span>
-                </button>
-              )}
-            </div>
+                  <Instagram className="w-3.5 h-3.5" />
+                </a>
+                <a
+                  href={cfg.socialLinks?.facebook || 'https://facebook.com/printflow'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition ${
+                    isLight 
+                      ? 'bg-slate-50 hover:bg-blue-50 border-slate-200 text-slate-600 hover:text-blue-600' 
+                      : 'bg-slate-900 hover:bg-blue-950/40 border-slate-800 text-slate-400 hover:text-blue-400'
+                  }`}
+                  title="Follow on Facebook"
+                >
+                  <Facebook className="w-3.5 h-3.5" />
+                </a>
+                <a
+                  href={cfg.socialLinks?.twitter || 'https://x.com/printflow'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition ${
+                    isLight 
+                      ? 'bg-slate-50 hover:bg-sky-50 border-slate-200 text-slate-600 hover:text-sky-500' 
+                      : 'bg-slate-900 hover:bg-sky-950/40 border-slate-800 text-slate-400 hover:text-sky-400'
+                  }`}
+                  title="Follow on X (Twitter)"
+                >
+                  <Twitter className="w-3.5 h-3.5" />
+                </a>
+                <a
+                  href={cfg.socialLinks?.youtube || 'https://youtube.com/@printflow'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition ${
+                    isLight 
+                      ? 'bg-slate-50 hover:bg-rose-50 border-slate-200 text-slate-600 hover:text-rose-600' 
+                      : 'bg-slate-900 hover:bg-rose-950/40 border-slate-800 text-slate-400 hover:text-rose-400'
+                  }`}
+                  title="Subscribe on YouTube"
+                >
+                  <Youtube className="w-3.5 h-3.5" />
+                </a>
+                <a
+                  href={cfg.socialLinks?.pinterest || 'https://pinterest.com/printflow'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-xl border transition ${
+                    isLight 
+                      ? 'bg-slate-50 hover:bg-indigo-50 border-slate-200 text-slate-600 hover:text-indigo-600' 
+                      : 'bg-slate-900 hover:bg-indigo-950/40 border-slate-800 text-slate-400 hover:text-indigo-400'
+                  }`}
+                  title="Follow on LinkedIn"
+                >
+                  <Linkedin className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </footer>
@@ -3554,6 +3802,214 @@ export default function CustomerStorefront({
               </form>
             )}
           </div>
+        </div>
+      )}
+
+      {/* 11. Customer Live Support Chat Widget & Human Moderator Routing (Requirement 1) */}
+      {cfg.showLiveChat !== false && (
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-auto">
+          {/* Floating Chat Drawer / Window */}
+          {isChatOpen && (
+            <div className={`mb-3 w-96 max-w-[calc(100vw-32px)] h-[520px] max-h-[80vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border animate-in fade-in slide-in-from-bottom-5 duration-200 ${
+              isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/60' : 'bg-slate-900 border-slate-800 text-white shadow-black/80'
+            }`}>
+              {/* Chat Header */}
+              <div className={`p-4 border-b flex items-center justify-between ${
+                isHumanModerator
+                  ? isLight ? 'bg-emerald-50 border-emerald-100' : 'bg-emerald-950/40 border-emerald-900/50'
+                  : isLight ? 'bg-indigo-50/80 border-indigo-100' : 'bg-slate-950 border-slate-800'
+              }`}>
+                <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-lg shadow-sm border ${
+                      isHumanModerator
+                        ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+                        : 'bg-indigo-500/20 text-indigo-400 border-indigo-500/40'
+                    }`}>
+                      {isHumanModerator ? '👩‍💼' : '🤖'}
+                    </div>
+                    <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-white dark:border-slate-900"></span>
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center space-x-1.5">
+                      <h3 className={`font-bold text-xs ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                        {isHumanModerator ? (cfg.chatModeratorName || 'Sarah Jenkins') : (cfg.chatBotName || 'PrintFlow AI Assistant')}
+                      </h3>
+                      {isHumanModerator && (
+                        <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/30">
+                          Human Lead
+                        </span>
+                      )}
+                    </div>
+                    <span className={`text-[10px] font-medium block ${
+                      isHumanModerator 
+                        ? 'text-emerald-600 dark:text-emerald-400' 
+                        : isLight ? 'text-indigo-600' : 'text-indigo-400'
+                    }`}>
+                      {isHumanModerator ? '🟢 Active Human Moderator' : '⚡ Instant AI Assistant'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-1">
+                  {!isHumanModerator && (
+                    <button
+                      type="button"
+                      onClick={handleTransferToHuman}
+                      className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer flex items-center space-x-1 ${
+                        isLight 
+                          ? 'bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-300 shadow-xs' 
+                          : 'bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border-emerald-500/40'
+                      }`}
+                      title="Transfer to Human Moderator"
+                    >
+                      <User className="w-3 h-3 text-emerald-500" />
+                      <span>Talk to Human</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setIsChatOpen(false)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white transition cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Chat Message List */}
+              <div className="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
+                {chatMessages.map(msg => {
+                  if (msg.sender === 'system') {
+                    return (
+                      <div key={msg.id} className="text-center my-2">
+                        <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-semibold border ${
+                          isLight ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-emerald-950/60 text-emerald-300 border-emerald-500/30'
+                        }`}>
+                          {msg.text}
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  const isUser = msg.sender === 'user';
+                  return (
+                    <div key={msg.id} className={`flex items-start space-x-2 ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                      {!isUser && (
+                        <div className="w-7 h-7 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-sm shrink-0 border border-slate-200 dark:border-slate-700">
+                          {msg.avatar || '🤖'}
+                        </div>
+                      )}
+                      <div className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 space-y-1 shadow-xs ${
+                        isUser
+                          ? 'bg-indigo-600 text-white rounded-br-none'
+                          : isLight 
+                            ? 'bg-slate-100 text-slate-800 rounded-bl-none border border-slate-200/80' 
+                            : 'bg-slate-800 text-slate-100 rounded-bl-none border border-slate-700/80'
+                      }`}>
+                        <p className="leading-relaxed text-xs">{msg.text}</p>
+                        <span className={`text-[9px] block text-right font-medium opacity-60 ${isUser ? 'text-indigo-100' : 'text-slate-400'}`}>
+                          {msg.time}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {isChatTyping && (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-7 h-7 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-sm border border-slate-200 dark:border-slate-700">
+                      {isHumanModerator ? '👩‍💼' : '🤖'}
+                    </div>
+                    <div className={`rounded-2xl px-3 py-2 text-xs flex items-center space-x-1.5 ${
+                      isLight ? 'bg-slate-100 text-slate-500' : 'bg-slate-800 text-slate-400'
+                    }`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '0.15s' }}></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '0.3s' }}></span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Quick Prompt Chips (when AI mode) */}
+              {!isHumanModerator && (
+                <div className={`px-3 py-2 border-t flex flex-wrap gap-1.5 ${isLight ? 'bg-slate-50 border-slate-100' : 'bg-slate-950/60 border-slate-800'}`}>
+                  {[
+                    '🚚 Shipping Times',
+                    '📦 Track Order',
+                    '🎨 Custom Print Inks',
+                    '👤 Transfer to Human'
+                  ].map((chip, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        if (chip.includes('Human')) {
+                          handleTransferToHuman();
+                        } else {
+                          setChatInput(chip);
+                        }
+                      }}
+                      className={`text-[10px] px-2.5 py-1 rounded-full font-medium border transition cursor-pointer ${
+                        chip.includes('Human')
+                          ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 border-emerald-500/30 font-bold'
+                          : isLight ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200' : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-700'
+                      }`}
+                    >
+                      {chip}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Chat Input Bar */}
+              <form onSubmit={handleSendChatMessage} className={`p-3 border-t flex items-center space-x-2 ${
+                isLight ? 'bg-white border-slate-200' : 'bg-slate-950 border-slate-800'
+              }`}>
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder={isHumanModerator ? "Message Sarah (Human Moderator)..." : "Ask a question or request human..."}
+                  className={`flex-1 px-3.5 py-2 rounded-xl text-xs border outline-none transition ${
+                    isLight 
+                      ? 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:border-indigo-500' 
+                      : 'bg-slate-900 border-slate-800 text-white focus:border-indigo-500'
+                  }`}
+                />
+                <button
+                  type="submit"
+                  disabled={!chatInput.trim()}
+                  className="p-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white transition shadow-sm cursor-pointer"
+                  title="Send message"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* Floating Trigger Button */}
+          <button
+            type="button"
+            onClick={() => setIsChatOpen(!isChatOpen)}
+            className="group relative flex items-center space-x-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs shadow-xl shadow-indigo-600/30 transition-all hover:scale-105 cursor-pointer ring-4 ring-indigo-500/20"
+            title="Chat with Customer Support & AI Assistant"
+          >
+            <div className="relative">
+              <MessageCircle className="w-5 h-5 transition-transform group-hover:scale-110" />
+              <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400 border border-indigo-700"></span>
+              </span>
+            </div>
+            <span>Support Chat</span>
+          </button>
         </div>
       )}
     </div>

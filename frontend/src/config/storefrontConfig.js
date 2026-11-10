@@ -324,6 +324,36 @@ export const DEFAULT_STOREFRONT_CONFIG = {
   footerTagline: 'Local direct-to-garment & archival printing facilities in USA (Detroit), UK (London) & Canada (Toronto).',
   copyrightText: '© 2026 PrintFlow Global Ltd. All rights reserved.',
 
+  // Languages & Localization (Requirement 2 & 3)
+  showLanguageSelector: true,
+  defaultLanguage: 'en',
+  languages: [
+    { code: 'en', name: 'English (US)', flag: '🇺🇸' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'fr', name: 'Français', flag: '🇫🇷' },
+    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+    { code: 'ja', name: '日本語', flag: '🇯🇵' },
+    { code: 'it', name: 'Italiano', flag: '🇮🇹' }
+  ],
+
+  // Social Media Links (Requirement 4 & 6)
+  showSocialIcons: true,
+  showFooterSocials: true,
+  socialLinks: {
+    instagram: 'https://instagram.com/printflow',
+    facebook: 'https://facebook.com/printflow',
+    twitter: 'https://x.com/printflow',
+    pinterest: 'https://pinterest.com/printflow',
+    tiktok: 'https://tiktok.com/@printflow',
+    youtube: 'https://youtube.com/@printflow'
+  },
+
+  // Live Chat & Support (Requirement 1)
+  showLiveChat: true,
+  chatWelcomeMessage: 'Hi there! 👋 Welcome to PrintFlow. How can we help you today with your custom prints?',
+  chatBotName: 'PrintFlow AI Assistant',
+  chatModeratorName: 'Sarah Jenkins (Senior Support Moderator)',
+
   // 7. Vista-Style Mega Menu & Global Search
   showSearchBar: true,
   searchPlaceholder: 'Search 100+ custom products: Christmas cards, calendars, business cards, banners, hoodies...',
@@ -672,15 +702,15 @@ export const SUPPORTED_FONTS = [
 ];
 
 export const TYPOGRAPHY_TARGET_ITEMS = [
-  { id: 'heroTitle', label: 'Hero Main Title (মূল শিরোনাম)', defaultText: 'Custom Goods Printed Domestically' },
-  { id: 'heroSubtitle', label: 'Hero Subtitle / Description (সাবটাইটেল)', defaultText: 'Fast fulfillment across 4 domestic hubs. Uncompromising POD quality.' },
-  { id: 'heroBadge', label: 'Hero Announcement Badge (টপ ব্যাজ)', defaultText: '★ 100% Guaranteed Domestic Delivery' },
-  { id: 'megaMenuHeadings', label: 'Mega Menu Column Headings (মেনু কলাম হেডিং)', defaultText: 'SPECIAL OFFERS & DEALS' },
-  { id: 'megaMenuItems', label: 'Mega Menu Flyout Links (সাবমেনু আইটেম)', defaultText: 'Custom Christmas Cards with Gold Foil' },
-  { id: 'productTitle', label: 'Product Card Titles (প্রোডাক্টের নাম)', defaultText: 'Premium 16pt Soft-Touch Business Cards' },
-  { id: 'productPrice', label: 'Product Card Price (প্রোডাক্টের দাম)', defaultText: 'From $19.99' },
-  { id: 'productDesc', label: 'Product Card Description (প্রোডাক্ট ডেসক্রিপশন)', defaultText: 'Heavy 350 GSM satin paper with foil-stamping accents.' },
+  { id: 'heroTitle', label: 'Hero Main Title', defaultText: 'Custom Goods Printed Domestically' },
+  { id: 'heroSubtitle', label: 'Hero Subtitle / Description', defaultText: 'Fast fulfillment across 4 domestic hubs. Uncompromising POD quality.' },
+  { id: 'heroBadge', label: 'Hero Announcement Badge', defaultText: '★ 100% Guaranteed Domestic Delivery' },
+  { id: 'megaMenuHeadings', label: 'Mega Menu Column Headings', defaultText: 'SPECIAL OFFERS & DEALS' },
+  { id: 'megaMenuItems', label: 'Mega Menu Flyout Links', defaultText: 'Custom Christmas Cards with Gold Foil' },
+  { id: 'productTitle', label: 'Product Card Titles', defaultText: 'Premium 16pt Soft-Touch Business Cards' },
+  { id: 'productPrice', label: 'Product Card Price', defaultText: 'From $19.99' },
+  { id: 'productDesc', label: 'Product Card Description', defaultText: 'Heavy 350 GSM satin paper with foil-stamping accents.' },
   { id: 'promoHeadline', label: 'Promo Slider Discount Headline (SAVE 25%)', defaultText: 'SAVE 25% ON ALL CUSTOM PRINTS' },
-  { id: 'sectionHeadings', label: 'Section Titles / Category Headers (সেকশন হেডার)', defaultText: 'Browse Popular Print Categories' },
-  { id: 'footerText', label: 'Footer Links & Copyright (ফুটার টেক্সট)', defaultText: '© 2026 PrintFlow Global Inc. All rights reserved.' },
+  { id: 'sectionHeadings', label: 'Section Titles / Category Headers', defaultText: 'Browse Popular Print Categories' },
+  { id: 'footerText', label: 'Footer Links & Copyright', defaultText: '© 2026 PrintFlow Global Inc. All rights reserved.' },
 ];
