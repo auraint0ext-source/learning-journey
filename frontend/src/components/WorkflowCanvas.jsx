@@ -8,7 +8,7 @@ import {
   UserCheck, ExternalLink, Activity
 } from 'lucide-react';
 
-export const DEFAULT_AUTOMATION_WORKFLOWS = [
+const DEFAULT_AUTOMATION_WORKFLOWS = [
   {
     id: 'wf-order-fulfillment',
     name: '1. End-to-End Order Lifecycle & Live Delivery Tracking',
