@@ -345,7 +345,7 @@ export default function AdminStorefrontEditor({
       </div>
 
       {/* Main Two-Column Studio Layout: Settings Form on Left, Live Mockup on Right */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Configuration Forms (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
 
@@ -1972,21 +1972,22 @@ export default function AdminStorefrontEditor({
           )}
         </div>
 
-        {/* Right Column: Live Responsive Preview (5 cols) - Sticky & Smoothly Scrollable */}
-        <div className="lg:col-span-5 sticky top-20 self-start space-y-2.5">
-          <div className="flex items-center justify-between text-xs px-1">
+        {/* Right Column: Live Responsive Preview (5 cols) - Permanently Frozen on Desktop */}
+        <div className="lg:col-span-5 lg:sticky lg:top-[120px] lg:self-start lg:h-[calc(100vh-140px)] flex flex-col space-y-2 z-20">
+          <div className="flex items-center justify-between text-xs px-1 shrink-0">
             <div className="flex items-center space-x-2">
               <span className={`font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>Live Visual Preview</span>
-              <span className="text-[10px] text-emerald-500 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.2 rounded-full font-mono font-bold">
-                ● Live & Scrollable
+              <span className="text-[10px] text-emerald-500 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.2 rounded-full font-mono font-bold flex items-center space-x-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Frozen Preview 📌</span>
               </span>
             </div>
 
             <div className="flex items-center space-x-2">
               <span className={`text-[10px] font-medium hidden sm:inline ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-                🖱️ নিচে স্ক্রল করুন
+                🖱️ স্ক্রল করুন
               </span>
-              <div className={`flex items-center space-x-1 p-1 rounded-xl border ${
+              <div className={`flex items-center space-x-1 p-0.5 rounded-xl border ${
                 isLight ? 'bg-slate-100 border-slate-200' : 'bg-slate-900 border-slate-800'
               }`}>
                 <button
@@ -2010,12 +2011,12 @@ export default function AdminStorefrontEditor({
           </div>
 
           {/* Interactive Scaled Preview Frame with Browser Chrome & Inner Scroll */}
-          <div className={`border rounded-2xl shadow-2xl transition-all duration-300 overflow-hidden flex flex-col ${
+          <div className={`flex-1 min-h-0 border rounded-2xl shadow-2xl transition-all duration-300 overflow-hidden flex flex-col ${
             isLight ? 'bg-white border-slate-300 shadow-slate-200/60 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
-          } ${previewDevice === 'mobile' ? 'max-w-[340px] mx-auto' : 'w-full'}`}>
+          } ${previewDevice === 'mobile' ? 'max-w-[340px] mx-auto w-full' : 'w-full'}`}>
             
             {/* Browser Header Bar */}
-            <div className={`px-3 py-1.5 border-b flex items-center justify-between text-[10px] ${
+            <div className={`px-3 py-1.5 border-b flex items-center justify-between text-[10px] shrink-0 ${
               isLight ? 'bg-slate-100 border-slate-200 text-slate-600' : 'bg-slate-900 border-slate-800 text-slate-400'
             }`}>
               <div className="flex items-center space-x-1.5">
@@ -2034,7 +2035,7 @@ export default function AdminStorefrontEditor({
             {/* Scrollable Viewport - Lets user scroll down through the entire store */}
             <div 
               id="admin-preview-viewport"
-              className="overflow-y-auto max-h-[calc(100vh-250px)] sm:max-h-[660px] scroll-smooth relative"
+              className="flex-1 min-h-0 overflow-y-auto scroll-smooth relative"
               style={{
                 scrollbarWidth: 'thin',
                 scrollbarColor: isLight ? '#cbd5e1 #f1f5f9' : '#475569 #0f172a'

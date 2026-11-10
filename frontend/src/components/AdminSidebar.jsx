@@ -19,6 +19,7 @@ export default function AdminSidebar({
   onToggleStoreTheme
 }) {
   const isLight = storeTheme === 'light';
+  const isEditor = activeTab === 'editor';
 
   const NAV_ITEMS = [
     { 
@@ -84,7 +85,9 @@ export default function AdminSidebar({
   ];
 
   return (
-    <aside className={`transition-all duration-300 ease-in-out shrink-0 flex flex-col justify-between border-r fixed top-16 left-0 bottom-0 h-[calc(100vh-4rem)] z-40 overflow-hidden ${
+    <aside className={`transition-all duration-300 ease-in-out shrink-0 flex flex-col justify-between border-r fixed left-0 bottom-0 z-40 overflow-hidden ${
+      isEditor ? 'top-[108px] h-[calc(100vh-108px)]' : 'top-16 h-[calc(100vh-4rem)]'
+    } ${
       isCollapsed ? 'w-16' : 'w-64'
     } ${
       isLight 

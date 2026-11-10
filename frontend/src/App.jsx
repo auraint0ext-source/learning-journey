@@ -190,8 +190,8 @@ export default function App() {
             isSidebarCollapsed={isSidebarCollapsed}
           />
 
-          {/* Body Container below the Top Header: pt-16 to offset fixed 64px header */}
-          <div className="flex flex-1 pt-16 relative">
+          {/* Body Container below the Top Header: pt-[108px] when editor has top ribbon, otherwise pt-16 */}
+          <div className={`flex flex-1 relative transition-all duration-200 ${activeAdminTab === 'editor' ? 'pt-[108px]' : 'pt-16'}`}>
             {/* Collapsible Left Navigation Sidebar (Organized Vertically from Top to Bottom) */}
             <AdminSidebar
               activeTab={activeAdminTab}
