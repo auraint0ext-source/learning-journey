@@ -348,11 +348,19 @@ export const DEFAULT_STOREFRONT_CONFIG = {
     youtube: 'https://youtube.com/@printflow'
   },
 
-  // Live Chat & Support (Requirement 1)
+  // Live Chat & Support (Requirement 1 & 2)
   showLiveChat: true,
   chatWelcomeMessage: 'Hi there! 👋 Welcome to PrintFlow. How can we help you today with your custom prints?',
   chatBotName: 'PrintFlow AI Assistant',
   chatModeratorName: 'Sarah Jenkins (Senior Support Moderator)',
+
+  // Direct Social Inboxes & Messaging Channels (WhatsApp, Messenger, Telegram, Instagram)
+  showSocialFloatingDock: true,
+  whatsappNumber: '+1 (555) 019-2834',
+  whatsappGreeting: 'Hi PrintFlow, I have a question about my custom print order!',
+  messengerPage: 'printflowpod',
+  telegramUser: 'printflowpod',
+  instagramHandle: 'printflowpod',
 
   // 7. Vista-Style Mega Menu & Global Search
   showSearchBar: true,

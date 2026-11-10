@@ -2439,6 +2439,79 @@ export default function AdminStorefrontEditor({
                   />
                 </div>
               </div>
+
+              {/* Direct Social Media Message Inboxes Dock Settings (Requirement 2) */}
+              <div className={`p-4 rounded-xl border space-y-3.5 ${
+                isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className={`font-bold text-xs block ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                      Floating Social Message Inboxes Dock (WhatsApp, Messenger, Telegram)
+                    </span>
+                    <p className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                      Renders floating instant messaging buttons on storefront so customers can message your brand directly
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={config.showSocialFloatingDock !== false}
+                    onChange={(e) => handleFieldChange('showSocialFloatingDock', e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <label className="block text-[11px] text-slate-400 font-semibold mb-1">Brand WhatsApp Business Number:</label>
+                    <input
+                      type="text"
+                      value={config.whatsappNumber || '+1 (555) 019-2834'}
+                      onChange={(e) => handleFieldChange('whatsappNumber', e.target.value)}
+                      placeholder="+1 (555) 019-2834"
+                      className={`w-full px-2.5 py-1.5 rounded-lg border outline-none text-xs font-mono ${
+                        isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 font-semibold mb-1">WhatsApp Pre-filled Customer Message:</label>
+                    <input
+                      type="text"
+                      value={config.whatsappGreeting || 'Hi PrintFlow, I have a question about my custom print order!'}
+                      onChange={(e) => handleFieldChange('whatsappGreeting', e.target.value)}
+                      placeholder="Hi, I would like to inquire about..."
+                      className={`w-full px-2.5 py-1.5 rounded-lg border outline-none text-xs ${
+                        isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 font-semibold mb-1">Facebook Messenger Page Username / ID:</label>
+                    <input
+                      type="text"
+                      value={config.messengerPage || 'printflowpod'}
+                      onChange={(e) => handleFieldChange('messengerPage', e.target.value)}
+                      placeholder="e.g. printflowpod"
+                      className={`w-full px-2.5 py-1.5 rounded-lg border outline-none text-xs font-mono ${
+                        isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 font-semibold mb-1">Telegram Direct Username:</label>
+                    <input
+                      type="text"
+                      value={config.telegramUser || 'printflowpod'}
+                      onChange={(e) => handleFieldChange('telegramUser', e.target.value)}
+                      placeholder="e.g. printflowpod"
+                      className={`w-full px-2.5 py-1.5 rounded-lg border outline-none text-xs font-mono ${
+                        isLight ? 'bg-white border-slate-300 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
