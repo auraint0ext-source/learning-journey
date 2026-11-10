@@ -35,3 +35,9 @@ Thumbs.db
 backend/*.db
 backend/*.sqlite3
 *.log
+
+# macOS binaries & app bundles (kept in Google Drive)
+*.dmg
+*.app
+macos-admin-app/PrintFlow Admin Studio
+macos-admin-app/dmg_staging/
