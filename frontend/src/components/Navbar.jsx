@@ -1,5 +1,8 @@
 import React from 'react';
-import { Layers, ShoppingBag, Radio, Terminal, Globe2, Sparkles, MessageSquare, ExternalLink, LogOut, Package, CreditCard, KeyRound, Sun, Moon, Palette, LayoutTemplate } from 'lucide-react';
+import { 
+  Sparkles, ExternalLink, LogOut, KeyRound, Sun, Moon, 
+  Globe2, Menu, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen
+} from 'lucide-react';
 
 export default function Navbar({ 
   activeTab, 
@@ -11,7 +14,9 @@ export default function Navbar({
   onOpenShortcutModal,
   shortcutConfig,
   storeTheme = 'light',
-  onToggleStoreTheme
+  onToggleStoreTheme,
+  onToggleSidebar,
+  isSidebarCollapsed = false
 }) {
   const marketList = [
     { code: 'US', label: 'USA ($ USD)', flag: '🇺🇸' },
@@ -19,162 +24,57 @@ export default function Navbar({
     { code: 'CA', label: 'Canada (CA$ CAD)', flag: '🇨🇦' },
   ];
 
+  const TAB_LABELS = {
+    workflows: '⚡ Workflows & Automation',
+    inbox: '💬 Omnichannel Social Inbox',
+    storefront: '📦 Orders & POD Fulfillment',
+    products: '🏷️ Product Catalog & Barcodes',
+    editor: '🎨 Storefront Visual & Layout Editor',
+    ads: '📢 Marketing Hub & Ad Campaigns',
+    payments: '💳 Payment Gateways',
+    logs: '🖥️ System Diagnostic Logs'
+  };
+
   return (
-    <header className={`border-b transition-colors sticky top-0 z-50 backdrop-blur ${
+    <header className={`border-b transition-colors sticky top-0 z-40 backdrop-blur ${
       storeTheme === 'light'
         ? 'border-slate-200 bg-white/95 text-slate-900 shadow-xs'
         : 'border-slate-800 bg-slate-900/95 text-white'
     }`}>
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo & Branding */}
-          <div className="flex items-center space-x-3 shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-600/30">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className={`font-bold text-base sm:text-lg tracking-tight ${storeTheme === 'light' ? 'text-slate-900' : 'text-white'}`}>PrintFlow</span>
-                <span className="text-[10px] uppercase px-1.5 py-0.2 rounded-full bg-indigo-500/20 text-indigo-400 font-bold border border-indigo-500/30">
-                  Studio
-                </span>
-              </div>
-              <p className={`text-[10px] hidden sm:block ${storeTheme === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>Operations, Workflows & Marketing Engine</p>
+          {/* Left: Sidebar Toggle Button & Active Section Title */}
+          <div className="flex items-center space-x-3">
+            <button
+              type="button"
+              onClick={onToggleSidebar}
+              title={isSidebarCollapsed ? 'Expand Navigation Sidebar' : 'Collapse Navigation Sidebar'}
+              className={`p-2 rounded-xl border transition cursor-pointer flex items-center space-x-1.5 ${
+                storeTheme === 'light'
+                  ? 'bg-slate-100 hover:bg-slate-200/80 border-slate-300 text-slate-800'
+                  : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white'
+              }`}
+            >
+              <Menu className="w-4 h-4 text-indigo-500" />
+              <span className="text-[11px] font-bold hidden sm:inline">
+                {isSidebarCollapsed ? 'Menu' : 'Hide'}
+              </span>
+            </button>
+
+            {/* Current Active Section Badge */}
+            <div className="flex items-center space-x-2">
+              <span className={`text-xs font-bold px-3 py-1.5 rounded-xl border tracking-tight shadow-xs ${
+                storeTheme === 'light' 
+                  ? 'bg-indigo-50/80 border-indigo-200 text-indigo-900' 
+                  : 'bg-indigo-950/60 border-indigo-500/30 text-indigo-200'
+              }`}>
+                {TAB_LABELS[activeTab] || 'Admin Studio'}
+              </span>
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <nav className="flex space-x-1 sm:space-x-1.5 overflow-x-auto no-scrollbar py-1">
-            {/* 1. Drag-and-Drop Workflow Builder */}
-            <button
-              onClick={() => setActiveTab('workflows')}
-              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
-                activeTab === 'workflows'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                  : storeTheme === 'light'
-                    ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Workflows</span>
-              <span className="text-[10px] px-1 py-0.2 rounded bg-indigo-400/20 text-indigo-200">DnD</span>
-            </button>
-
-            {/* 2. Social Inbox */}
-            <button
-              onClick={() => setActiveTab('inbox')}
-              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
-                activeTab === 'inbox'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                  : storeTheme === 'light'
-                    ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <MessageSquare className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Inbox</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
-                5
-              </span>
-            </button>
-
-            {/* 3. POD Production & Orders */}
-            <button
-              onClick={() => setActiveTab('storefront')}
-              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
-                activeTab === 'storefront'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                  : storeTheme === 'light'
-                    ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <ShoppingBag className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Orders</span>
-            </button>
-
-            {/* 4. Products & Catalog Manager */}
-            <button
-              onClick={() => setActiveTab('products')}
-              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
-                activeTab === 'products'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                  : storeTheme === 'light'
-                    ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <Package className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Products</span>
-            </button>
-
-            {/* 5. Storefront Layout & Content Editor */}
-            <button
-              onClick={() => setActiveTab('editor')}
-              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
-                activeTab === 'editor'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                  : storeTheme === 'light'
-                    ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <LayoutTemplate className="w-3.5 h-3.5 text-amber-500" />
-              <span className="hidden md:inline">Editor</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">
-                Live
-              </span>
-            </button>
-
-            {/* 6. Ads & Leads */}
-            <button
-              onClick={() => setActiveTab('ads')}
-              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
-                activeTab === 'ads'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                  : storeTheme === 'light'
-                    ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <Radio className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Ads</span>
-            </button>
-
-            {/* 7. Payments & Merchant Accounts */}
-            <button
-              onClick={() => setActiveTab('payments')}
-              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
-                activeTab === 'payments'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                  : storeTheme === 'light'
-                    ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <CreditCard className="w-3.5 h-3.5 text-emerald-500" />
-              <span className="hidden md:inline">Payments</span>
-            </button>
-
-            {/* 8. Execution Logs */}
-            <button
-              onClick={() => setActiveTab('logs')}
-              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
-                activeTab === 'logs'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                  : storeTheme === 'light'
-                    ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <Terminal className="w-3.5 h-3.5" />
-              <span className="hidden lg:inline">Logs</span>
-            </button>
-          </nav>
-
-          {/* Right Controls: Market Switcher, Live Store Link, Logout */}
-          <div className="flex items-center space-x-2 shrink-0">
+          {/* Right Controls: Market Switcher, Hotkey, Theme Switcher, Live Store Link, Logout */}
+          <div className="flex items-center space-x-2">
             {/* Market Switcher */}
             <div className={`hidden sm:flex items-center p-1 rounded-xl border ${
               storeTheme === 'light' ? 'bg-slate-100 border-slate-200' : 'bg-slate-800/80 border-slate-700'
@@ -186,7 +86,7 @@ export default function Navbar({
                   onClick={() => setCurrentMarket(m.code)}
                   className={`px-1.5 py-0.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-1 ${
                     currentMarket === m.code
-                      ? 'bg-indigo-600 text-white shadow'
+                      ? 'bg-indigo-600 text-white shadow-xs'
                       : storeTheme === 'light' ? 'text-slate-600 hover:text-slate-900' : 'text-slate-400 hover:text-slate-200'
                   }`}
                   title={m.label}
@@ -200,7 +100,7 @@ export default function Navbar({
             {/* Stealth Hotkey Config Button */}
             <button
               onClick={onOpenShortcutModal}
-              className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition border ${
+              className={`hidden md:flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition border ${
                 storeTheme === 'light'
                   ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-300'
                   : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border-amber-500/30'
@@ -208,7 +108,7 @@ export default function Navbar({
               title="Customize Stealth Admin Access Shortcut"
             >
               <KeyRound className="w-3.5 h-3.5 text-amber-500" />
-              <span className="hidden sm:inline">Hotkey:</span>
+              <span className="hidden lg:inline">Hotkey:</span>
               <span className={`font-mono text-[10px] font-bold px-1.5 py-0.2 rounded border ${
                 storeTheme === 'light' ? 'bg-amber-100 border-amber-300' : 'bg-amber-950/40 border-amber-500/30'
               }`}>
@@ -223,28 +123,28 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={() => onToggleStoreTheme && onToggleStoreTheme('light')}
-                className={`flex items-center space-x-1 px-2 py-1 text-xs font-semibold rounded-lg transition-all ${
+                className={`flex items-center space-x-1 px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
                   storeTheme === 'light'
                     ? 'bg-amber-400 text-slate-950 font-bold shadow-sm'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
-                title="Switch Customer Storefront to Light Mode"
+                title="Switch Admin and Storefront to Light Mode"
               >
                 <Sun className="w-3.5 h-3.5" />
-                <span className="hidden xl:inline">Light</span>
+                <span className="hidden sm:inline">Light</span>
               </button>
               <button
                 type="button"
                 onClick={() => onToggleStoreTheme && onToggleStoreTheme('dark')}
-                className={`flex items-center space-x-1 px-2 py-1 text-xs font-semibold rounded-lg transition-all ${
+                className={`flex items-center space-x-1 px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
                   storeTheme === 'dark'
                     ? 'bg-indigo-600 text-white font-bold shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
-                title="Switch Customer Storefront to Dark Mode"
+                title="Switch Admin and Storefront to Dark Mode"
               >
                 <Moon className="w-3.5 h-3.5" />
-                <span className="hidden xl:inline">Dark</span>
+                <span className="hidden sm:inline">Dark</span>
               </button>
             </div>
 

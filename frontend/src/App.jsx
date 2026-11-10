@@ -3,6 +3,7 @@ import { API_BASE } from './config';
 import CustomerStorefront from './components/CustomerStorefront';
 import AdminLoginModal from './components/AdminLoginModal';
 import Navbar from './components/Navbar';
+import AdminSidebar from './components/AdminSidebar';
 import WorkflowCanvas from './components/WorkflowCanvas';
 import Storefront from './components/Storefront';
 import MarketingHub from './components/MarketingHub';
@@ -20,6 +21,7 @@ export default function App() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isAdminLoginModalOpen, setIsAdminLoginModalOpen] = useState(false);
   const [isShortcutModalOpen, setIsShortcutModalOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Stealth Shortcut Config (saved in localStorage)
   const [shortcutConfig, setShortcutConfig] = useState(() => {
@@ -171,48 +173,68 @@ export default function App() {
 
       {/* 2. If in Admin Studio: The protected operations control center is rendered */}
       {viewMode === 'admin' && (
-        <>
-          <Navbar
+        <div className={`flex min-h-screen ${storeTheme === 'light' ? 'admin-light-mode bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'}`}>
+          {/* Collapsible Left Navigation Sidebar (Organized Vertically from Top to Bottom) */}
+          <AdminSidebar
             activeTab={activeAdminTab}
             setActiveTab={setActiveAdminTab}
+            isCollapsed={isSidebarCollapsed}
+            setIsCollapsed={setIsSidebarCollapsed}
             currentMarket={currentMarket}
             setCurrentMarket={setCurrentMarket}
             onSwitchToStore={() => setViewMode('store')}
             onLogout={handleLogout}
             onOpenShortcutModal={() => setIsShortcutModalOpen(true)}
-            shortcutConfig={shortcutConfig}
             storeTheme={storeTheme}
             onToggleStoreTheme={handleToggleStoreTheme}
           />
 
-          <main className="flex-1">
-            {activeAdminTab === 'workflows' && <WorkflowCanvas currentMarket={currentMarket} />}
-            {activeAdminTab === 'inbox' && <SocialInbox currentMarket={currentMarket} />}
-            {activeAdminTab === 'storefront' && <Storefront currentMarket={currentMarket} markets={markets} />}
-            {activeAdminTab === 'products' && (
-              <AdminProductManager 
-                currentMarket={currentMarket} 
-                onSwitchToStore={() => setViewMode('store')}
-                storeTheme={storeTheme}
-                onToggleStoreTheme={handleToggleStoreTheme}
-              />
-            )}
-            {activeAdminTab === 'editor' && (
-              <AdminStorefrontEditor
-                storefrontConfig={storefrontConfig}
-                onSaveConfig={handleSaveStorefrontConfig}
-                onSwitchToStore={() => setViewMode('store')}
-                storeTheme={storeTheme}
-                onToggleStoreTheme={handleToggleStoreTheme}
-                onOpenShortcutModal={() => setIsShortcutModalOpen(true)}
-                shortcutConfig={shortcutConfig}
-              />
-            )}
-            {activeAdminTab === 'ads' && <MarketingHub currentMarket={currentMarket} />}
-            {activeAdminTab === 'payments' && <AdminPayments currentMarket={currentMarket} />}
-            {activeAdminTab === 'logs' && <LogsViewer />}
-          </main>
-        </>
+          {/* Right Main Content Column */}
+          <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+            <Navbar
+              activeTab={activeAdminTab}
+              setActiveTab={setActiveAdminTab}
+              currentMarket={currentMarket}
+              setCurrentMarket={setCurrentMarket}
+              onSwitchToStore={() => setViewMode('store')}
+              onLogout={handleLogout}
+              onOpenShortcutModal={() => setIsShortcutModalOpen(true)}
+              shortcutConfig={shortcutConfig}
+              storeTheme={storeTheme}
+              onToggleStoreTheme={handleToggleStoreTheme}
+              onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              isSidebarCollapsed={isSidebarCollapsed}
+            />
+
+            <main className={`flex-1 transition-colors ${storeTheme === 'light' ? 'admin-light-mode' : ''}`}>
+              {activeAdminTab === 'workflows' && <WorkflowCanvas currentMarket={currentMarket} storeTheme={storeTheme} />}
+              {activeAdminTab === 'inbox' && <SocialInbox currentMarket={currentMarket} storeTheme={storeTheme} />}
+              {activeAdminTab === 'storefront' && <Storefront currentMarket={currentMarket} markets={markets} storeTheme={storeTheme} />}
+              {activeAdminTab === 'products' && (
+                <AdminProductManager 
+                  currentMarket={currentMarket} 
+                  onSwitchToStore={() => setViewMode('store')}
+                  storeTheme={storeTheme}
+                  onToggleStoreTheme={handleToggleStoreTheme}
+                />
+              )}
+              {activeAdminTab === 'editor' && (
+                <AdminStorefrontEditor
+                  storefrontConfig={storefrontConfig}
+                  onSaveConfig={handleSaveStorefrontConfig}
+                  onSwitchToStore={() => setViewMode('store')}
+                  storeTheme={storeTheme}
+                  onToggleStoreTheme={handleToggleStoreTheme}
+                  onOpenShortcutModal={() => setIsShortcutModalOpen(true)}
+                  shortcutConfig={shortcutConfig}
+                />
+              )}
+              {activeAdminTab === 'ads' && <MarketingHub currentMarket={currentMarket} storeTheme={storeTheme} />}
+              {activeAdminTab === 'payments' && <AdminPayments currentMarket={currentMarket} storeTheme={storeTheme} />}
+              {activeAdminTab === 'logs' && <LogsViewer storeTheme={storeTheme} />}
+            </main>
+          </div>
+        </div>
       )}
 
       {/* Admin Login Modal (Accessible from stealth shortcut or secret URL) */}

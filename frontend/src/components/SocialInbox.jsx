@@ -14,7 +14,8 @@ const CHANNEL_ICONS = {
   twitter: { label: 'X (Twitter)', color: 'bg-sky-500/20 text-sky-400 border-sky-500/30', border: 'border-sky-500' },
 };
 
-export default function SocialInbox({ currentMarket }) {
+export default function SocialInbox({ currentMarket, storeTheme = 'light' }) {
+  const isLight = storeTheme === 'light';
   const [channels, setChannels] = useState([]);
   const [selectedChannel, setSelectedChannel] = useState('all');
   const [conversations, setConversations] = useState([]);
@@ -107,9 +108,11 @@ export default function SocialInbox({ currentMarket }) {
   });
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-slate-950">
+    <div className={`flex h-[calc(100vh-4rem)] overflow-hidden ${isLight ? 'admin-light-mode bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'}`}>
       {/* 1. Leftmost Channels Sidebar */}
-      <aside className="w-64 border-r border-slate-800 bg-slate-900/90 flex flex-col justify-between z-20">
+      <aside className={`w-64 border-r flex flex-col justify-between z-20 ${
+        isLight ? 'bg-white border-slate-200' : 'border-slate-800 bg-slate-900/90'
+      }`}>
         <div>
           <div className="p-4 border-b border-slate-800">
             <div className="flex items-center space-x-2">

@@ -427,8 +427,10 @@ export default function AdminProductManager({
     );
   });
 
+  const isLight = storeTheme === 'light';
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 ${isLight ? 'admin-light-mode text-slate-900' : 'text-slate-100'}`}>
       {/* Toast Notification */}
       {toast && (
         <div className={`fixed bottom-6 right-6 z-50 flex items-center space-x-2 px-4 py-3 rounded-xl shadow-2xl border text-xs font-semibold ${
@@ -442,7 +444,9 @@ export default function AdminProductManager({
       )}
 
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+      <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl shadow-xl border ${
+        isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-200/50' : 'bg-slate-900 border-slate-800 text-white'
+      }`}>
         <div>
           <div className="flex items-center space-x-3 mb-1">
             <div className="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
@@ -450,12 +454,14 @@ export default function AdminProductManager({
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h1 className="text-xl font-bold text-white tracking-tight">Product Catalog & POD Inventory</h1>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-500/30 font-bold">
+                <h1 className={`text-xl font-bold tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>Product Catalog & POD Inventory</h1>
+                <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-bold ${
+                  isLight ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-indigo-950 text-indigo-300 border-indigo-500/30'
+                }`}>
                   Barcode Enabled
                 </span>
               </div>
-              <p className="text-xs text-slate-400">Manage products, pricing tiers, GS1/UPC barcodes, and domestic fulfillment hubs</p>
+              <p className={`text-xs ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Manage products, pricing tiers, GS1/UPC barcodes, and domestic fulfillment hubs</p>
             </div>
           </div>
         </div>

@@ -58,54 +58,132 @@
 }
 
 /* ==========================================================================
-   Admin Studio & Storefront Editor Full Light Mode Support
+   Admin Studio & All Tabs (Products, Orders, Inbox, Workflows) Full Light Mode Support
    ========================================================================== */
 .admin-light-mode {
-  color: #0f172a;
+  color: #0f172a !important;
+  background-color: #f8fafc !important;
 }
-.admin-light-mode .bg-slate-900 {
+
+/* Universally target slate-900 and slate-950 backgrounds including opacity classes (/80, /70, /50) */
+.admin-light-mode [class*="bg-slate-900"],
+.admin-light-mode [class*="bg-slate-950"] {
   background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
   color: #0f172a !important;
 }
-.admin-light-mode .bg-slate-950 {
+
+/* Target slate-800 backgrounds (cards, inner containers, table headers) */
+.admin-light-mode [class*="bg-slate-800"]:not(button.bg-indigo-600) {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+}
+
+/* Secondary subtle backgrounds for rows and hover states */
+.admin-light-mode [class*="bg-slate-950/40"],
+.admin-light-mode [class*="bg-slate-950/60"],
+.admin-light-mode [class*="bg-slate-950/70"],
+.admin-light-mode [class*="bg-slate-900/40"],
+.admin-light-mode [class*="bg-slate-900/50"],
+.admin-light-mode [class*="bg-slate-900/60"],
+.admin-light-mode [class*="bg-slate-900/80"] {
   background-color: #f8fafc !important;
   border-color: #e2e8f0 !important;
   color: #0f172a !important;
 }
-.admin-light-mode .border-slate-800,
-.admin-light-mode .border-slate-700 {
+
+/* Universal border colors */
+.admin-light-mode [class*="border-slate-800"],
+.admin-light-mode [class*="border-slate-700"],
+.admin-light-mode [class*="divide-slate-800"] > * + * {
   border-color: #e2e8f0 !important;
 }
-.admin-light-mode .text-white {
+
+/* High-contrast dark typography on light backgrounds */
+.admin-light-mode .text-white,
+.admin-light-mode [class*="text-slate-100"],
+.admin-light-mode [class*="text-slate-200"] {
   color: #0f172a !important;
 }
-.admin-light-mode .text-slate-400 {
-  color: #64748b !important;
-}
-.admin-light-mode .text-slate-300 {
+
+.admin-light-mode [class*="text-slate-300"] {
   color: #334155 !important;
 }
-.admin-light-mode input:not([type="checkbox"]):not([type="range"]),
+
+.admin-light-mode [class*="text-slate-400"] {
+  color: #64748b !important;
+}
+
+.admin-light-mode [class*="text-slate-500"] {
+  color: #64748b !important;
+}
+
+/* Tables in Products, Orders & Workflows */
+.admin-light-mode table thead,
+.admin-light-mode table thead tr,
+.admin-light-mode table thead th {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: #e2e8f0 !important;
+}
+
+.admin-light-mode table tbody tr {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.admin-light-mode table tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Form inputs, textareas, selects */
+.admin-light-mode input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]),
 .admin-light-mode select,
 .admin-light-mode textarea {
   background-color: #ffffff !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
+
 .admin-light-mode input:focus,
 .admin-light-mode select:focus,
 .admin-light-mode textarea:focus {
   border-color: #6366f1 !important;
   outline: none !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
 }
-.admin-light-mode button.bg-slate-800 {
+
+/* Interactive Buttons */
+.admin-light-mode button[class*="bg-slate-800"],
+.admin-light-mode button[class*="bg-slate-900"],
+.admin-light-mode button[class*="bg-slate-950"] {
   background-color: #f1f5f9 !important;
   border-color: #cbd5e1 !important;
   color: #334155 !important;
 }
-.admin-light-mode button.bg-slate-800:hover {
+
+.admin-light-mode button[class*="bg-slate-800"]:hover,
+.admin-light-mode button[class*="bg-slate-900"]:hover,
+.admin-light-mode button[class*="bg-slate-950"]:hover {
   background-color: #e2e8f0 !important;
   color: #0f172a !important;
+}
+
+/* Keep primary buttons vibrant */
+.admin-light-mode button.bg-indigo-600,
+.admin-light-mode button[class*="bg-indigo-600"],
+.admin-light-mode .bg-indigo-600 {
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+/* Modals and dialog overlays */
+.admin-light-mode .fixed.inset-0.bg-black\/80,
+.admin-light-mode .fixed.inset-0.bg-black\/60,
+.admin-light-mode .fixed.inset-0.bg-black\/70 {
+  background-color: rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(4px);
 }
 

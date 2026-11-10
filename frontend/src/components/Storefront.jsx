@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE } from '../config';
 import { ShoppingBag, Truck, CheckCircle2, ShieldCheck, Tag, ExternalLink, Zap, Layers } from 'lucide-react';
 
-export default function Storefront({ currentMarket, markets }) {
+export default function Storefront({ currentMarket, markets, storeTheme = 'light' }) {
+  const isLight = storeTheme === 'light';
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -100,21 +101,25 @@ export default function Storefront({ currentMarket, markets }) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 ${isLight ? 'admin-light-mode text-slate-900' : 'text-slate-100'}`}>
       {/* Market Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+      <div className={`border rounded-2xl p-6 shadow-xl ${
+        isLight 
+          ? 'bg-white border-slate-200 text-slate-900 shadow-slate-200/50' 
+          : 'bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border-slate-800 text-white'
+      }`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2">
               <span className="text-2xl">
                 {currentMarket === 'US' ? '🇺🇸' : currentMarket === 'UK' ? '🇬🇧' : '🇨🇦'}
               </span>
-              <h1 className="text-xl font-bold text-white">
-                Print-on-Demand Storefront — {marketInfo.country_name || currentMarket}
+              <h1 className={`text-xl font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                Print-on-Demand Orders & Operations — {marketInfo.country_name || currentMarket}
               </h1>
             </div>
-            <p className="text-xs text-slate-400 mt-1">
-              Active Regional Routing: <span className="text-indigo-400 font-medium">{marketInfo.fulfillment_hub}</span>
+            <p className={`text-xs mt-1 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+              Active Regional Routing: <span className="text-indigo-500 font-bold">{marketInfo.fulfillment_hub}</span>
             </p>
           </div>
 
