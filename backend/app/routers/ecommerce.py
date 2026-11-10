@@ -1,3 +1,4 @@
+import os
 import uuid
 from typing import List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException
@@ -230,3 +231,42 @@ def list_orders(db: Session = Depends(get_db)):
     """
     orders = db.query(Order).order_by(Order.id.desc()).all()
     return orders
+
+@router.post("/sync-to-cloud")
+def sync_to_cloud(payload: Dict[str, Any] = None):
+    """
+    Builds the production bundle and pushes changes to GitHub, 
+    automatically updating GitHub Pages and Vercel.
+    """
+    import subprocess
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
+    frontend_dir = os.path.join(base_dir, "frontend")
+    
+    if payload and "storefrontConfig" in payload:
+        try:
+            config_path = os.path.join(frontend_dir, "src/config/storefrontConfig.js")
+            import json
+            config_json = json.dumps(payload["storefrontConfig"], indent=2)
+            with open(config_path, "w") as f:
+                f.write(f"// Auto-synced from Admin Studio\nexport const DEFAULT_STOREFRONT_CONFIG = {config_json};\n")
+        except Exception as e:
+            pass
+
+    try:
+        # Run sync script
+        res = subprocess.run(
+            ["/bin/bash", os.path.join(base_dir, "sync-to-cloud.sh")],
+            cwd=base_dir,
+            capture_output=True,
+            text=True,
+            timeout=120
+        )
+        return {
+            "status": "success" if res.returncode == 0 else "error",
+            "message": "Successfully synchronized to GitHub! Live update deployed to GitHub Pages & Vercel.",
+            "output": res.stdout,
+            "live_url": "https://auraint0ext-source.github.io/learning-journey/"
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+

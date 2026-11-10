@@ -121,6 +121,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDe
             .init("BackNav"),
             .init("ForwardNav"),
             .init("RefreshNav"),
+            .init("SyncDeployNav"),
             .flexibleSpace,
             .init("ModeControl"),
             .init("EnvControl"),
@@ -133,6 +134,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDe
             .init("BackNav"),
             .init("ForwardNav"),
             .init("RefreshNav"),
+            .init("SyncDeployNav"),
             .flexibleSpace,
             .init("ModeControl"),
             .init("EnvControl"),
@@ -166,6 +168,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDe
             item.image = NSImage(systemSymbolName: "arrow.clockwise", accessibilityDescription: "Reload")
             item.target = self
             item.action = #selector(reloadAction)
+            return item
+
+        case "SyncDeployNav":
+            item.label = "Deploy Live"
+            item.toolTip = "Builds & pushes latest edits directly to GitHub Pages and Vercel"
+            item.image = NSImage(systemSymbolName: "arrow.up.circle.fill", accessibilityDescription: "Deploy")
+            item.target = self
+            item.action = #selector(syncDeployAction)
             return item
 
         case "ModeControl":
@@ -212,6 +222,34 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDe
 
     @objc func reloadAction() {
         webView.reload()
+    }
+
+    @objc func syncDeployAction() {
+        updateStatus("Building & Deploying to Cloud Live (GitHub & Vercel)...", isConnected: false)
+        DispatchQueue.global(qos: .userInitiated).async {
+            let task = Process()
+            task.launchPath = "/bin/bash"
+            task.arguments = ["/Users/mdarif/.gemini/antigravity/scratch/pod-ecommerce-platform/sync-to-cloud.sh"]
+            task.launch()
+            task.waitUntilExit()
+
+            DispatchQueue.main.async {
+                if task.terminationStatus == 0 {
+                    self.updateStatus("✓ Cloud Live Deployed & Live!", isConnected: true)
+                    let alert = NSAlert()
+                    alert.messageText = "Deployment Successful!"
+                    alert.informativeText = "Your changes have been pushed to GitHub and deployed live to GitHub Pages & Vercel."
+                    alert.alertStyle = .informational
+                    alert.addButton(withTitle: "OK")
+                    alert.runModal()
+                    if !self.isUsingLocal {
+                        self.webView.reload()
+                    }
+                } else {
+                    self.updateStatus("Deployment encountered an error.", isConnected: false)
+                }
+            }
+        }
     }
 
     @objc func viewModeChanged(_ sender: NSSegmentedControl) {
@@ -264,6 +302,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDe
         let forceReload = NSMenuItem(title: "Force Reload", action: #selector(forceReloadAction), keyEquivalent: "r")
         forceReload.keyEquivalentModifierMask = [.command, .shift]
         viewMenu.addItem(forceReload)
+        viewMenu.addItem(NSMenuItem.separator())
+        let deployItem = NSMenuItem(title: "Deploy & Push to Cloud Live", action: #selector(syncDeployAction), keyEquivalent: "S")
+        deployItem.keyEquivalentModifierMask = [.command, .shift]
+        viewMenu.addItem(deployItem)
         viewMenu.addItem(NSMenuItem.separator())
         viewMenu.addItem(withTitle: "Switch to Admin Studio", action: #selector(switchToAdminAction), keyEquivalent: "1")
         viewMenu.addItem(withTitle: "Switch to Storefront View", action: #selector(switchToStoreAction), keyEquivalent: "2")

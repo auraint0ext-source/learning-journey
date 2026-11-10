@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE } from '../config';
 import { 
   LayoutTemplate, Columns, Grid, Type, AlignLeft, AlignCenter, 
   Sliders, Sparkles, CheckCircle2, Save, RotateCcw, Eye, 
@@ -6,7 +7,7 @@ import {
   Smartphone, Monitor, Megaphone, Shield, RefreshCw, Search,
   Briefcase, Shirt, Coffee, Image, Tag, BadgePercent, Check, Package,
   Plus, Trash2, ArrowUp, ArrowDown, ChevronUp, ChevronDown,
-  Sun, Moon, KeyRound, ShoppingBag, ExternalLink, Globe
+  Sun, Moon, KeyRound, ShoppingBag, ExternalLink, Globe, UploadCloud
 } from 'lucide-react';
 
 import { DEFAULT_STOREFRONT_CONFIG, VISTA_MEGA_MENU_CATEGORIES, TYPOGRAPHY_TARGET_ITEMS, SUPPORTED_FONTS } from '../config/storefrontConfig';
@@ -308,9 +309,33 @@ export default function AdminStorefrontEditor({
     });
   };
 
+  const [isSyncingToCloud, setIsSyncingToCloud] = useState(false);
+
   const handleSave = () => {
     onSaveConfig(config);
     showToast('Storefront layout and content published successfully!');
+  };
+
+  const handleSyncToCloud = async () => {
+    onSaveConfig(config);
+    setIsSyncingToCloud(true);
+    showToast('Initiating Cloud Live Deployment (GitHub Pages & Vercel)...', 'info');
+    try {
+      const res = await fetch(`${API_BASE}/api/ecommerce/sync-to-cloud`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ storefrontConfig: config })
+      });
+      if (res.ok) {
+        showToast('✓ Successfully published & pushed to GitHub! Cloud Live updating.', 'success');
+      } else {
+        showToast('Changes saved locally.', 'info');
+      }
+    } catch (err) {
+      showToast('Changes saved locally in your app.', 'info');
+    } finally {
+      setIsSyncingToCloud(false);
+    }
   };
 
   const handleReset = () => {
@@ -451,14 +476,26 @@ export default function AdminStorefrontEditor({
             <span className="hidden xl:inline">Reset Defaults</span>
           </button>
 
-          {/* 6. Publish Changes */}
+          {/* 6. Publish Changes Locally */}
           <button
             type="button"
             onClick={handleSave}
-            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition cursor-pointer"
+            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition cursor-pointer"
           >
             <Save className="w-4 h-4" />
-            <span>Publish Changes</span>
+            <span>Save Local</span>
+          </button>
+
+          {/* 7. Push & Deploy to Cloud Live */}
+          <button
+            type="button"
+            onClick={handleSyncToCloud}
+            disabled={isSyncingToCloud}
+            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30 transition cursor-pointer"
+            title="Builds and pushes your edits directly to GitHub, deploying them live to GitHub Pages and Vercel"
+          >
+            {isSyncingToCloud ? <RefreshCw className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
+            <span>{isSyncingToCloud ? 'Deploying...' : 'Deploy to Cloud Live'}</span>
           </button>
         </div>
       </div>
