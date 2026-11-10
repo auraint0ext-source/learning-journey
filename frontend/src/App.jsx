@@ -11,6 +11,8 @@ import SocialInbox from './components/SocialInbox';
 import LogsViewer from './components/LogsViewer';
 import AdminProductManager from './components/AdminProductManager';
 import AdminPayments from './components/AdminPayments';
+import AdminUserPanel from './components/AdminUserPanel';
+import AdminCustomers, { DEFAULT_REGISTERED_CUSTOMERS } from './components/AdminCustomers';
 import AdminShortcutModal from './components/AdminShortcutModal';
 import AdminStorefrontEditor from './components/AdminStorefrontEditor';
 import { DEFAULT_STOREFRONT_CONFIG } from './config/storefrontConfig';
@@ -36,10 +38,32 @@ export default function App() {
     };
   });
 
-  // Admin tabs: 'workflows' | 'inbox' | 'storefront' | 'ads' | 'logs'
+  // Admin tabs: 'workflows' | 'inbox' | 'storefront' | 'ads' | 'logs' | 'users' | 'customers'
   const [activeAdminTab, setActiveAdminTab] = useState('workflows');
   const [currentMarket, setCurrentMarket] = useState('US');
   const [markets, setMarkets] = useState({});
+
+  // Current Admin Staff Role Priority (admin: 1, moderator: 2, service_provider: 3, customer_care: 4)
+  const [currentUserRole, setCurrentUserRole] = useState(() => {
+    return localStorage.getItem('printflow_admin_role') || 'admin';
+  });
+
+  // Registered VIP Customers Store (synced with localStorage)
+  const [registeredCustomers, setRegisteredCustomers] = useState(() => {
+    const saved = localStorage.getItem('printflow_registered_customers');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return DEFAULT_REGISTERED_CUSTOMERS;
+  });
+
+  const handleRegisterVipCustomer = (newCustomer) => {
+    setRegisteredCustomers(prev => {
+      const updated = [newCustomer, ...(prev || [])];
+      localStorage.setItem('printflow_registered_customers', JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   // Storefront Color Theme ('light' | 'dark')
   const [storeTheme, setStoreTheme] = useState(() => {
@@ -168,6 +192,8 @@ export default function App() {
           storeTheme={storeTheme}
           onToggleStoreTheme={handleToggleStoreTheme}
           storefrontConfig={storefrontConfig}
+          registeredCustomers={registeredCustomers}
+          onRegisterVipCustomer={handleRegisterVipCustomer}
         />
       )}
 
@@ -205,6 +231,7 @@ export default function App() {
               onOpenShortcutModal={() => setIsShortcutModalOpen(true)}
               storeTheme={storeTheme}
               onToggleStoreTheme={handleToggleStoreTheme}
+              currentUserRole={currentUserRole}
             />
 
             {/* Right Main Content Column: smoothly transitions margin when sidebar expands/collapses */}
@@ -237,6 +264,27 @@ export default function App() {
                 )}
                 {activeAdminTab === 'ads' && <MarketingHub currentMarket={currentMarket} storeTheme={storeTheme} />}
                 {activeAdminTab === 'payments' && <AdminPayments currentMarket={currentMarket} storeTheme={storeTheme} />}
+                {activeAdminTab === 'users' && (
+                  <AdminUserPanel 
+                    currentUserRole={currentUserRole}
+                    onRoleChange={(newRole) => {
+                      setCurrentUserRole(newRole);
+                      localStorage.setItem('printflow_admin_role', newRole);
+                    }}
+                    storeTheme={storeTheme}
+                  />
+                )}
+                {activeAdminTab === 'customers' && (
+                  <AdminCustomers 
+                    currentMarket={currentMarket}
+                    storeTheme={storeTheme}
+                    registeredCustomers={registeredCustomers}
+                    onUpdateRegisteredCustomers={(newList) => {
+                      setRegisteredCustomers(newList);
+                      localStorage.setItem('printflow_registered_customers', JSON.stringify(newList));
+                    }}
+                  />
+                )}
                 {activeAdminTab === 'logs' && <LogsViewer storeTheme={storeTheme} />}
               </main>
             </div>

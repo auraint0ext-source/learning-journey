@@ -6,7 +6,8 @@ import {
   ShoppingCart, Landmark, Smartphone, Wallet, Building2, Copy, DollarSign, Trash2, Shield,
   Sun, Moon, SlidersHorizontal, Search, ChevronDown, Layers, Briefcase, Shirt, Coffee, Image, Tag, BadgePercent, Package, Quote,
   UploadCloud, Palette, FileText, Eye, CheckCircle, ArrowLeft, RefreshCw,
-  Globe, MessageCircle, MessageSquare, Send, User, Bot, Headphones, Instagram, Facebook, Twitter, Linkedin, Youtube
+  Globe, MessageCircle, MessageSquare, Send, User, Bot, Headphones, Instagram, Facebook, Twitter, Linkedin, Youtube,
+  UserPlus, Award
 } from 'lucide-react';
 
 import { DEFAULT_STOREFRONT_CONFIG } from '../config/storefrontConfig';
@@ -60,7 +61,9 @@ export default function CustomerStorefront({
   onEnterAdminStudio,
   storeTheme = 'light',
   onToggleStoreTheme,
-  storefrontConfig
+  storefrontConfig,
+  registeredCustomers,
+  onRegisterVipCustomer
 }) {
   const cfg = storefrontConfig || DEFAULT_STOREFRONT_CONFIG;
   const isLight = storeTheme === 'light';
@@ -528,6 +531,52 @@ export default function CustomerStorefront({
   const showPaymentToast = (msg, type = 'success') => {
     setPaymentToast({ msg, type });
     setTimeout(() => setPaymentToast(null), 3500);
+  };
+
+  // VIP Customer Registration & Privileges State
+  const [isVipRegisterModalOpen, setIsVipRegisterModalOpen] = useState(false);
+  const [vipRegisterSuccess, setVipRegisterSuccess] = useState(null);
+  const [vipFormData, setVipFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: ''
+  });
+
+  const handleRegisterVipSubmit = (e) => {
+    e.preventDefault();
+    if (!vipFormData.name.trim() || !vipFormData.email.trim()) return;
+
+    const newCustomer = {
+      id: `CUST-${Math.floor(1000 + Math.random() * 9000)}`,
+      name: vipFormData.name.trim(),
+      email: vipFormData.email.trim(),
+      phone: vipFormData.phone.trim() || '+1 (555) 012-3456',
+      company: vipFormData.company.trim() || 'VIP Retail Member',
+      country: currentMarket || 'US',
+      countryFlag: currentMarket === 'UK' ? '🇬🇧' : currentMarket === 'CA' ? '🇨🇦' : '🇺🇸',
+      vipTier: 'gold',
+      privilegeActive: true,
+      privileges: [
+        '15% Lifetime VIP Storefront Discount',
+        'Free Priority Express Shipping',
+        'Fast-Track POD Print Queue'
+      ],
+      vipCode: 'VIP15-MEMBER',
+      totalOrders: 0,
+      totalSpent: 0.00,
+      registeredDate: new Date().toISOString().split('T')[0],
+      status: 'ACTIVE'
+    };
+
+    if (onRegisterVipCustomer) {
+      onRegisterVipCustomer(newCustomer);
+    }
+
+    setDiscountPercent(15);
+    setPromoCodeInput('VIP15-MEMBER');
+    setVipRegisterSuccess(newCustomer);
+    showPaymentToast(`Welcome ${newCustomer.name}! VIP Privileges & 15% Discount activated!`, 'success');
   };
 
   const marketInfo = markets[currentMarket] || {
@@ -3805,6 +3854,191 @@ export default function CustomerStorefront({
         </div>
       )}
 
+      {/* 10.5 VIP Customer Registration Modal */}
+      {isVipRegisterModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in">
+          <div className={`w-full max-w-md rounded-3xl border p-6 space-y-4 shadow-2xl relative ${
+            isLight ? 'bg-white border-slate-200 text-slate-800' : 'bg-slate-900 border-slate-800 text-slate-100'
+          }`}>
+            <button
+              onClick={() => setIsVipRegisterModalOpen(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {!vipRegisterSuccess ? (
+              <>
+                <div className="flex items-center space-x-2.5">
+                  <div className="p-2.5 bg-gradient-to-tr from-amber-500 to-indigo-600 text-white rounded-2xl shadow-md shadow-indigo-600/30">
+                    <UserPlus className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold">Register as VIP Customer</h3>
+                    <p className={`text-xs ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                      Unlock instant lifetime privileges on all custom print orders.
+                    </p>
+                  </div>
+                </div>
+
+                {/* VIP Perks Badge list */}
+                <div className={`p-3.5 rounded-2xl border space-y-2 ${
+                  isLight ? 'bg-indigo-50/60 border-indigo-100' : 'bg-indigo-950/30 border-indigo-900/50'
+                }`}>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-500">
+                    Your Guaranteed VIP Privileges:
+                  </span>
+                  <div className="space-y-1.5 text-xs">
+                    <div className="flex items-center space-x-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      <span className="font-semibold">15% Lifetime Discount (Code: VIP15-MEMBER)</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      <span className="font-semibold">Free Priority Worldwide Express Shipping</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      <span className="font-semibold">Fast-Track POD Production Queue</span>
+                    </div>
+                  </div>
+                </div>
+
+                <form onSubmit={handleRegisterVipSubmit} className="space-y-3 pt-1">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Rachel Adams"
+                      value={vipFormData.name}
+                      onChange={(e) => setVipFormData(prev => ({ ...prev, name: e.target.value }))}
+                      className={`w-full px-3.5 py-2.5 rounded-xl text-xs border outline-none ${
+                        isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-slate-100'
+                      }`}
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="rachel@adamsstudio.com"
+                      value={vipFormData.email}
+                      onChange={(e) => setVipFormData(prev => ({ ...prev, email: e.target.value }))}
+                      className={`w-full px-3.5 py-2.5 rounded-xl text-xs border outline-none ${
+                        isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-slate-100'
+                      }`}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="+1 (555) 019-2834"
+                        value={vipFormData.phone}
+                        onChange={(e) => setVipFormData(prev => ({ ...prev, phone: e.target.value }))}
+                        className={`w-full px-3 py-2 rounded-xl text-xs border outline-none ${
+                          isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-slate-100'
+                        }`}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        Company / Brand
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Optional"
+                        value={vipFormData.company}
+                        onChange={(e) => setVipFormData(prev => ({ ...prev, company: e.target.value }))}
+                        className={`w-full px-3 py-2 rounded-xl text-xs border outline-none ${
+                          isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-slate-100'
+                        }`}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-end space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsVipRegisterModalOpen(false)}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold border ${
+                        isLight ? 'border-slate-300 text-slate-700 hover:bg-slate-100' : 'border-slate-800 text-slate-300 hover:bg-slate-800'
+                      }`}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-600/30 flex items-center space-x-1.5 transition cursor-pointer"
+                    >
+                      <Award className="w-4 h-4" />
+                      <span>Register & Claim 15% Off</span>
+                    </button>
+                  </div>
+                </form>
+              </>
+            ) : (
+              <div className="text-center py-4 space-y-4">
+                <div className="w-14 h-14 bg-emerald-500/20 text-emerald-500 border border-emerald-500/30 rounded-full mx-auto flex items-center justify-center text-2xl">
+                  ✓
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">Welcome to the VIP Club!</h3>
+                  <p className={`text-xs mt-1 ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                    Hello <span className="font-bold text-indigo-500">{vipRegisterSuccess.name}</span>, your customer profile and privileges are now active.
+                  </p>
+                </div>
+
+                <div className={`p-4 rounded-2xl border space-y-2 ${
+                  isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950 border-slate-800'
+                }`}>
+                  <span className="text-[10px] uppercase font-bold text-slate-400">Your Exclusive VIP Coupon Code:</span>
+                  <div className="flex items-center justify-center space-x-2">
+                    <span className="font-mono text-base font-black px-3 py-1 rounded-xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/30">
+                      {vipRegisterSuccess.vipCode}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard?.writeText(vipRegisterSuccess.vipCode);
+                        showPaymentToast('Copied VIP promo code!');
+                      }}
+                      className="p-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 transition cursor-pointer text-xs"
+                      title="Copy VIP Code"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-emerald-500 font-semibold">
+                    ✓ 15% discount has been automatically applied to your active cart!
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsVipRegisterModalOpen(false)}
+                  className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md transition cursor-pointer"
+                >
+                  Start Shopping with VIP Privileges
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* 11. Customer Live Support Chat Widget & Human Moderator Routing (Requirement 1) */}
       {cfg.showLiveChat !== false && (
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-auto">
@@ -4088,6 +4322,19 @@ export default function CustomerStorefront({
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                 </svg>
               </a>
+
+              {/* VIP Customer Register Icon */}
+              <button
+                type="button"
+                onClick={() => {
+                  setVipRegisterSuccess(null);
+                  setIsVipRegisterModalOpen(true);
+                }}
+                className="w-9 h-9 rounded-full bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-white flex items-center justify-center shadow-md shadow-indigo-500/30 transition-all hover:scale-110 cursor-pointer"
+                title="Register Customer / VIP Privileges (15% Off Lifetime)"
+              >
+                <UserPlus className="w-4 h-4" />
+              </button>
             </div>
 
             {/* Live Chat Trigger Button */}

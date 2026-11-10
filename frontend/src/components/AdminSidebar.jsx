@@ -2,7 +2,8 @@ import React from 'react';
 import { 
   Layers, ShoppingBag, Radio, Terminal, Sparkles, MessageSquare, 
   Package, CreditCard, KeyRound, Sun, Moon, LayoutTemplate,
-  ChevronLeft, ChevronRight, ExternalLink, LogOut, Globe2, Menu, X
+  ChevronLeft, ChevronRight, ExternalLink, LogOut, Globe2, Menu, X,
+  Shield, UserCheck
 } from 'lucide-react';
 
 export default function AdminSidebar({
@@ -16,7 +17,8 @@ export default function AdminSidebar({
   onLogout,
   onOpenShortcutModal,
   storeTheme = 'light',
-  onToggleStoreTheme
+  onToggleStoreTheme,
+  currentUserRole = 'admin'
 }) {
   const isLight = storeTheme === 'light';
   const isEditor = activeTab === 'editor';
@@ -69,6 +71,22 @@ export default function AdminSidebar({
       label: 'Payment Gateways', 
       shortLabel: 'Payments',
       icon: CreditCard 
+    },
+    { 
+      id: 'users', 
+      label: 'Admin User Panel', 
+      shortLabel: 'Users & RBAC',
+      icon: Shield,
+      badge: 'RBAC',
+      badgeColor: 'indigo'
+    },
+    { 
+      id: 'customers', 
+      label: 'Registered Customers', 
+      shortLabel: 'Customers',
+      icon: UserCheck,
+      badge: 'VIP',
+      badgeColor: 'amber'
     },
     { 
       id: 'logs', 
@@ -165,9 +183,11 @@ export default function AdminSidebar({
                       ? 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/30'
                       : item.badgeColor === 'amber'
                         ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30'
-                        : isLight 
-                          ? 'bg-slate-200 text-slate-700' 
-                          : 'bg-slate-800 text-slate-300'
+                        : item.badgeColor === 'indigo'
+                          ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+                          : isLight 
+                            ? 'bg-slate-200 text-slate-700' 
+                            : 'bg-slate-800 text-slate-300'
                 }`}>
                   {item.badge}
                 </span>
