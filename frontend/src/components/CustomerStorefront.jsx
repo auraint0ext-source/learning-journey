@@ -1998,11 +1998,11 @@ export default function CustomerStorefront({
                       : 'bg-slate-900 border-slate-800 text-slate-200 hover:border-slate-700 focus:border-indigo-500'
                   }`}
                 >
-                  <option value="featured">✨ Featured (ডিফল্ট)</option>
-                  <option value="price_asc">💵 Price: Low to High (কম থেকে বেশি দাম)</option>
-                  <option value="price_desc">💎 Price: High to Low (বেশি থেকে কম দাম)</option>
-                  <option value="popular">🔥 Most Popular (জনপ্রিয়)</option>
-                  <option value="newest">⚡ New Arrivals (নতুন কালেকশন)</option>
+                  <option value="featured">✨ Featured (Default)</option>
+                  <option value="price_asc">💵 Price: Low to High</option>
+                  <option value="price_desc">💎 Price: High to Low</option>
+                  <option value="popular">🔥 Most Popular</option>
+                  <option value="newest">⚡ New Arrivals</option>
                 </select>
                 <SlidersHorizontal className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" />
               </div>
