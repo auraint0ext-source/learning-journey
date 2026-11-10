@@ -12,7 +12,8 @@ export function WordDocsTopRibbon({
   onSelectTarget,
   typographyConfig = {},
   onTypographyChange,
-  isLight = false
+  isLight = false,
+  isSidebarCollapsed = false
 }) {
   const [isPinned, setIsPinned] = useState(true); // Default: Frozen / pinned to top
   const [isCollapsed, setIsCollapsed] = useState(false); // Google Docs collapse / expand arrow
@@ -55,9 +56,9 @@ export function WordDocsTopRibbon({
   if (isCollapsed) {
     return (
       <>
-        <div className={isPinned ? 'fixed top-16 inset-x-0 z-40 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-1.5' : 'relative w-full'}>
-          <div className={`p-1.5 px-3 rounded-2xl border flex items-center justify-between text-xs transition-all shadow-xl backdrop-blur-md ${
-            isLight ? 'bg-white/95 border-slate-300 text-slate-800 shadow-slate-200/80' : 'bg-slate-900/95 border-slate-700 text-slate-100 shadow-black/80'
+        <div className={isPinned ? `fixed top-16 right-0 z-30 transition-all duration-300 ${isSidebarCollapsed ? 'left-16' : 'left-64'}` : 'relative w-full'}>
+          <div className={`w-full px-4 sm:px-6 lg:px-8 py-2 border-b flex items-center justify-between text-xs transition-all shadow-xs backdrop-blur-md ${
+            isLight ? 'bg-white/95 border-slate-200 text-slate-800 shadow-slate-200/50' : 'bg-slate-900/95 border-slate-800 text-slate-100 shadow-black/40'
           }`}>
             <div className="flex items-center space-x-2">
               <MousePointerClick className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
@@ -112,11 +113,11 @@ export function WordDocsTopRibbon({
 
   return (
     <>
-      <div className={isPinned ? 'fixed top-16 inset-x-0 z-40 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-1.5' : 'relative w-full'}>
-        <div className={`p-2 rounded-2xl border transition-all shadow-xl backdrop-blur-md ${
+      <div className={isPinned ? `fixed top-16 right-0 z-30 transition-all duration-300 ${isSidebarCollapsed ? 'left-16' : 'left-64'}` : 'relative w-full'}>
+        <div className={`w-full px-4 sm:px-6 lg:px-8 py-2.5 border-b transition-all shadow-xs backdrop-blur-md ${
           isLight 
-            ? 'bg-white/95 border-slate-300/90 shadow-slate-200/80' 
-            : 'bg-slate-900/95 border-slate-700/90 shadow-black/80'
+            ? 'bg-white/95 border-slate-200 text-slate-800 shadow-slate-200/50' 
+            : 'bg-slate-900/95 border-slate-800 text-slate-100 shadow-black/40'
         }`}>
           <div className="flex flex-wrap items-center gap-1.5 text-xs">
         {/* Item Selection Dropdown (Google Docs Active Style) */}

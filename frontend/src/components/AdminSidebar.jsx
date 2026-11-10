@@ -84,57 +84,49 @@ export default function AdminSidebar({
   ];
 
   return (
-    <aside className={`transition-all duration-300 ease-in-out shrink-0 flex flex-col justify-between border-r sticky top-0 h-screen z-40 ${
+    <aside className={`transition-all duration-300 ease-in-out shrink-0 flex flex-col justify-between border-r fixed top-16 left-0 bottom-0 h-[calc(100vh-4rem)] z-40 overflow-hidden ${
       isCollapsed ? 'w-16' : 'w-64'
     } ${
       isLight 
         ? 'bg-white border-slate-200 text-slate-800 shadow-sm' 
         : 'bg-slate-900 border-slate-800 text-slate-100 shadow-xl'
     }`}>
-      {/* Top Header / Brand Logo & Toggle Button */}
-      <div className={`p-4 flex items-center justify-between border-b ${
-        isLight ? 'border-slate-200' : 'border-slate-800'
+      {/* Top Header / Section Label & Collapse Toggle */}
+      <div className={`p-3.5 flex items-center justify-between border-b ${
+        isLight ? 'border-slate-200 bg-slate-50/50' : 'border-slate-800 bg-slate-950/40'
       }`}>
-        {!isCollapsed && (
-          <div className="flex items-center space-x-2.5 overflow-hidden">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shrink-0 shadow-md shadow-indigo-600/30">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <div className="truncate">
-              <div className="flex items-center space-x-1.5">
-                <span className="font-bold text-sm tracking-tight font-sans">PrintFlow</span>
-                <span className="text-[9px] uppercase px-1.5 py-0.2 rounded-full bg-indigo-500/20 text-indigo-400 font-bold border border-indigo-500/30">
-                  Studio
-                </span>
-              </div>
-              <p className={`text-[9px] truncate ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-                Operations & Marketing
-              </p>
-            </div>
-          </div>
+        {!isCollapsed ? (
+          <>
+            <span className={`text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+              Navigation Menu
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsCollapsed(true)}
+              title="Collapse Sidebar (সাইডবার গুটিয়ে নিন)"
+              className={`p-1.5 rounded-lg border transition cursor-pointer ${
+                isLight 
+                  ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700' 
+                  : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-400 hover:text-white'
+              }`}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setIsCollapsed(false)}
+            title="Expand Sidebar (সাইডবার খুলুন)"
+            className={`mx-auto p-1.5 rounded-lg border transition cursor-pointer ${
+              isLight 
+                ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700' 
+                : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-400 hover:text-white'
+            }`}
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
         )}
-
-        {isCollapsed && (
-          <div className="mx-auto w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shrink-0 shadow-md shadow-indigo-600/30">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
-        )}
-
-        {/* Collapse / Expand Toggle Button */}
-        <button
-          type="button"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          title={isCollapsed ? 'Expand Sidebar (সাইডবার খুলুন)' : 'Collapse Sidebar (সাইডবার গুটিয়ে নিন)'}
-          className={`p-1.5 rounded-lg border transition cursor-pointer ${
-            isCollapsed ? 'hidden' : 'flex'
-          } ${
-            isLight 
-              ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700' 
-              : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-400 hover:text-white'
-          }`}
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
       </div>
 
       {/* Main Navigation Item List (Arranged Vertically from Top to Bottom) */}

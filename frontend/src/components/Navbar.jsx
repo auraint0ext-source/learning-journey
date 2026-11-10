@@ -36,19 +36,38 @@ export default function Navbar({
   };
 
   return (
-    <header className={`border-b transition-colors sticky top-0 z-40 backdrop-blur ${
+    <header className={`fixed top-0 inset-x-0 w-full h-16 z-50 border-b transition-colors backdrop-blur-md shadow-xs ${
       storeTheme === 'light'
-        ? 'border-slate-200 bg-white/95 text-slate-900 shadow-xs'
-        : 'border-slate-800 bg-slate-900/95 text-white'
+        ? 'border-slate-200 bg-white/95 text-slate-900 shadow-slate-200/50'
+        : 'border-slate-800 bg-slate-900/95 text-white shadow-black/40'
     }`}>
-      <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Left: Sidebar Toggle Button & Active Section Title */}
+      <div className="w-full h-full px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-full">
+          {/* Left: Brand Logo, Sidebar Toggle Button & Active Section Title */}
           <div className="flex items-center space-x-3">
+            {/* Brand Logo & Studio Badge */}
+            <div className="flex items-center space-x-2.5">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shrink-0 shadow-md shadow-indigo-600/30">
+                <Sparkles className="w-4 h-4 text-white" />
+              </div>
+              <div className="hidden sm:block">
+                <div className="flex items-center space-x-1.5">
+                  <span className="font-bold text-sm tracking-tight font-sans">PrintFlow</span>
+                  <span className="text-[9px] uppercase px-1.5 py-0.2 rounded-full bg-indigo-500/20 text-indigo-400 font-bold border border-indigo-500/30">
+                    Studio
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Subtle Divider */}
+            <div className={`hidden sm:block w-[1px] h-6 ${storeTheme === 'light' ? 'bg-slate-200' : 'bg-slate-800'}`} />
+
+            {/* Collapsible Sidebar Toggle Button */}
             <button
               type="button"
               onClick={onToggleSidebar}
-              title={isSidebarCollapsed ? 'Expand Navigation Sidebar' : 'Collapse Navigation Sidebar'}
+              title={isSidebarCollapsed ? 'Expand Navigation Sidebar (সাইডবার খুলুন)' : 'Collapse Navigation Sidebar (সাইডবার গুটিয়ে নিন)'}
               className={`p-2 rounded-xl border transition cursor-pointer flex items-center space-x-1.5 ${
                 storeTheme === 'light'
                   ? 'bg-slate-100 hover:bg-slate-200/80 border-slate-300 text-slate-800'
@@ -56,7 +75,7 @@ export default function Navbar({
               }`}
             >
               <Menu className="w-4 h-4 text-indigo-500" />
-              <span className="text-[11px] font-bold hidden sm:inline">
+              <span className="text-[11px] font-bold hidden md:inline">
                 {isSidebarCollapsed ? 'Menu' : 'Hide'}
               </span>
             </button>

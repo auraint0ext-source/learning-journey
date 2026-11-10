@@ -173,66 +173,73 @@ export default function App() {
 
       {/* 2. If in Admin Studio: The protected operations control center is rendered */}
       {viewMode === 'admin' && (
-        <div className={`flex min-h-screen ${storeTheme === 'light' ? 'admin-light-mode bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'}`}>
-          {/* Collapsible Left Navigation Sidebar (Organized Vertically from Top to Bottom) */}
-          <AdminSidebar
+        <div className={`min-h-screen ${storeTheme === 'light' ? 'admin-light-mode bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'} flex flex-col`}>
+          {/* Top Full-Width Frozen Header: Spans entire screen width from edge to edge */}
+          <Navbar
             activeTab={activeAdminTab}
             setActiveTab={setActiveAdminTab}
-            isCollapsed={isSidebarCollapsed}
-            setIsCollapsed={setIsSidebarCollapsed}
             currentMarket={currentMarket}
             setCurrentMarket={setCurrentMarket}
             onSwitchToStore={() => setViewMode('store')}
             onLogout={handleLogout}
             onOpenShortcutModal={() => setIsShortcutModalOpen(true)}
+            shortcutConfig={shortcutConfig}
             storeTheme={storeTheme}
             onToggleStoreTheme={handleToggleStoreTheme}
+            onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            isSidebarCollapsed={isSidebarCollapsed}
           />
 
-          {/* Right Main Content Column */}
-          <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
-            <Navbar
+          {/* Body Container below the Top Header: pt-16 to offset fixed 64px header */}
+          <div className="flex flex-1 pt-16 relative">
+            {/* Collapsible Left Navigation Sidebar (Organized Vertically from Top to Bottom) */}
+            <AdminSidebar
               activeTab={activeAdminTab}
               setActiveTab={setActiveAdminTab}
+              isCollapsed={isSidebarCollapsed}
+              setIsCollapsed={setIsSidebarCollapsed}
               currentMarket={currentMarket}
               setCurrentMarket={setCurrentMarket}
               onSwitchToStore={() => setViewMode('store')}
               onLogout={handleLogout}
               onOpenShortcutModal={() => setIsShortcutModalOpen(true)}
-              shortcutConfig={shortcutConfig}
               storeTheme={storeTheme}
               onToggleStoreTheme={handleToggleStoreTheme}
-              onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              isSidebarCollapsed={isSidebarCollapsed}
             />
 
-            <main className={`flex-1 transition-colors ${storeTheme === 'light' ? 'admin-light-mode' : ''}`}>
-              {activeAdminTab === 'workflows' && <WorkflowCanvas currentMarket={currentMarket} storeTheme={storeTheme} />}
-              {activeAdminTab === 'inbox' && <SocialInbox currentMarket={currentMarket} storeTheme={storeTheme} />}
-              {activeAdminTab === 'storefront' && <Storefront currentMarket={currentMarket} markets={markets} storeTheme={storeTheme} />}
-              {activeAdminTab === 'products' && (
-                <AdminProductManager 
-                  currentMarket={currentMarket} 
-                  onSwitchToStore={() => setViewMode('store')}
-                  storeTheme={storeTheme}
-                  onToggleStoreTheme={handleToggleStoreTheme}
-                />
-              )}
-              {activeAdminTab === 'editor' && (
-                <AdminStorefrontEditor
-                  storefrontConfig={storefrontConfig}
-                  onSaveConfig={handleSaveStorefrontConfig}
-                  onSwitchToStore={() => setViewMode('store')}
-                  storeTheme={storeTheme}
-                  onToggleStoreTheme={handleToggleStoreTheme}
-                  onOpenShortcutModal={() => setIsShortcutModalOpen(true)}
-                  shortcutConfig={shortcutConfig}
-                />
-              )}
-              {activeAdminTab === 'ads' && <MarketingHub currentMarket={currentMarket} storeTheme={storeTheme} />}
-              {activeAdminTab === 'payments' && <AdminPayments currentMarket={currentMarket} storeTheme={storeTheme} />}
-              {activeAdminTab === 'logs' && <LogsViewer storeTheme={storeTheme} />}
-            </main>
+            {/* Right Main Content Column: smoothly transitions margin when sidebar expands/collapses */}
+            <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
+              isSidebarCollapsed ? 'ml-16' : 'ml-64'
+            }`}>
+              <main className={`flex-1 transition-colors ${storeTheme === 'light' ? 'admin-light-mode' : ''}`}>
+                {activeAdminTab === 'workflows' && <WorkflowCanvas currentMarket={currentMarket} storeTheme={storeTheme} />}
+                {activeAdminTab === 'inbox' && <SocialInbox currentMarket={currentMarket} storeTheme={storeTheme} />}
+                {activeAdminTab === 'storefront' && <Storefront currentMarket={currentMarket} markets={markets} storeTheme={storeTheme} />}
+                {activeAdminTab === 'products' && (
+                  <AdminProductManager 
+                    currentMarket={currentMarket} 
+                    onSwitchToStore={() => setViewMode('store')}
+                    storeTheme={storeTheme}
+                    onToggleStoreTheme={handleToggleStoreTheme}
+                  />
+                )}
+                {activeAdminTab === 'editor' && (
+                  <AdminStorefrontEditor
+                    storefrontConfig={storefrontConfig}
+                    onSaveConfig={handleSaveStorefrontConfig}
+                    onSwitchToStore={() => setViewMode('store')}
+                    storeTheme={storeTheme}
+                    onToggleStoreTheme={handleToggleStoreTheme}
+                    onOpenShortcutModal={() => setIsShortcutModalOpen(true)}
+                    shortcutConfig={shortcutConfig}
+                    isSidebarCollapsed={isSidebarCollapsed}
+                  />
+                )}
+                {activeAdminTab === 'ads' && <MarketingHub currentMarket={currentMarket} storeTheme={storeTheme} />}
+                {activeAdminTab === 'payments' && <AdminPayments currentMarket={currentMarket} storeTheme={storeTheme} />}
+                {activeAdminTab === 'logs' && <LogsViewer storeTheme={storeTheme} />}
+              </main>
+            </div>
           </div>
         </div>
       )}

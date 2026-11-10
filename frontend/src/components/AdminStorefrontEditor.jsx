@@ -19,7 +19,8 @@ export default function AdminStorefrontEditor({
   storeTheme = 'light',
   onToggleStoreTheme,
   onOpenShortcutModal,
-  shortcutConfig
+  shortcutConfig,
+  isSidebarCollapsed = false
 }) {
   const isLight = storeTheme === 'light';
 
@@ -150,7 +151,7 @@ export default function AdminStorefrontEditor({
   };
 
   return (
-    <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 ${isLight ? 'admin-light-mode' : ''}`}>
+    <div className={`w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 ${isLight ? 'admin-light-mode' : ''}`}>
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-2 px-4 py-3 rounded-xl shadow-2xl bg-emerald-950/90 text-emerald-200 border border-emerald-500/40 text-xs font-semibold animate-bounce">
@@ -339,6 +340,7 @@ export default function AdminStorefrontEditor({
           typographyConfig={config?.typography || DEFAULT_STOREFRONT_CONFIG.typography}
           onTypographyChange={handleTypographyChange}
           isLight={isLight}
+          isSidebarCollapsed={isSidebarCollapsed}
         />
       </div>
 
