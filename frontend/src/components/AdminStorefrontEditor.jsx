@@ -29,6 +29,22 @@ export default function AdminStorefrontEditor({
     return storefrontConfig || DEFAULT_STOREFRONT_CONFIG;
   });
 
+  const updateConfig = (updater) => {
+    setConfig(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      if (onSaveConfig) {
+        onSaveConfig(next);
+      }
+      return next;
+    });
+  };
+
+  React.useEffect(() => {
+    if (storefrontConfig) {
+      setConfig(storefrontConfig);
+    }
+  }, [storefrontConfig]);
+
   const [activeSection, setActiveSection] = useState('hero'); // 'hero' | 'background' | 'megamenu' | etc.
   const [selectedTypographyTarget, setSelectedTypographyTarget] = useState('heroTitle');
   const [toastMessage, setToastMessage] = useState(null);
@@ -56,7 +72,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleFieldChange = (field, value) => {
-    setConfig(prev => ({ ...prev, [field]: value }));
+    updateConfig(prev => ({ ...prev, [field]: value }));
   };
 
   const handleAddLanguage = () => {
@@ -77,7 +93,7 @@ export default function AdminStorefrontEditor({
         flag: newLangFlag.trim() || '🌐'
       }
     ];
-    setConfig(prev => ({ ...prev, languages: updated }));
+    updateConfig(prev => ({ ...prev, languages: updated }));
     setNewLangCode('');
     setNewLangName('');
     setNewLangFlag('🌐');
@@ -91,7 +107,7 @@ export default function AdminStorefrontEditor({
       return;
     }
     const updated = currentList.filter(l => l.code !== codeToRemove);
-    setConfig(prev => ({
+    updateConfig(prev => ({
       ...prev,
       languages: updated,
       defaultLanguage: prev.defaultLanguage === codeToRemove ? updated[0].code : prev.defaultLanguage
@@ -100,7 +116,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleSocialLinkChange = (network, url) => {
-    setConfig(prev => ({
+    updateConfig(prev => ({
       ...prev,
       socialLinks: {
         ...(prev.socialLinks || DEFAULT_STOREFRONT_CONFIG.socialLinks || {}),
@@ -110,7 +126,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleTypographyChange = (itemKey, updatedTypo) => {
-    setConfig(prev => ({
+    updateConfig(prev => ({
       ...prev,
       typography: {
         ...(prev.typography || DEFAULT_STOREFRONT_CONFIG.typography),
@@ -120,7 +136,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleReviewChange = (index, field, value) => {
-    setConfig(prev => {
+    updateConfig(prev => {
       const updated = [...prev.reviews];
       updated[index] = { ...updated[index], [field]: value };
       return { ...prev, reviews: updated };
@@ -128,7 +144,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleTrustPropChange = (index, field, value) => {
-    setConfig(prev => {
+    updateConfig(prev => {
       const updated = [...prev.trustProps];
       updated[index] = { ...updated[index], [field]: value };
       return { ...prev, trustProps: updated };
@@ -136,7 +152,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleCategoryCardChange = (index, field, value) => {
-    setConfig(prev => {
+    updateConfig(prev => {
       const cards = [...(prev.categoryShowcaseCards || DEFAULT_STOREFRONT_CONFIG.categoryShowcaseCards)];
       cards[index] = { ...cards[index], [field]: value };
       return { ...prev, categoryShowcaseCards: cards };
@@ -144,7 +160,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleMegaMenuCategoryChange = (index, field, value) => {
-    setConfig(prev => {
+    updateConfig(prev => {
       const cats = [...(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories)];
       cats[index] = { ...cats[index], [field]: value };
       return { ...prev, megaMenuCategories: cats };
@@ -152,7 +168,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleAddMenuItem = () => {
-    setConfig(prev => {
+    updateConfig(prev => {
       const cats = [...(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories)];
       const newItem = {
         id: `menu-${Date.now()}`,
@@ -177,7 +193,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleEditSubmenuItem = (menuIndex, colIndex, itemIndex, newValue) => {
-    setConfig(prev => {
+    updateConfig(prev => {
       const cats = JSON.parse(JSON.stringify(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories));
       const cat = cats[menuIndex];
       if (!cat.columns || cat.columns.length === 0) {
@@ -196,7 +212,7 @@ export default function AdminStorefrontEditor({
     const text = (newSubItemText[key] || '').trim();
     if (!text) return;
 
-    setConfig(prev => {
+    updateConfig(prev => {
       const cats = JSON.parse(JSON.stringify(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories));
       const cat = cats[menuIndex];
       if (!cat.columns || cat.columns.length === 0) {
@@ -215,7 +231,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleDeleteSubmenuItem = (menuIndex, colIndex, itemIndex) => {
-    setConfig(prev => {
+    updateConfig(prev => {
       const cats = JSON.parse(JSON.stringify(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories));
       const cat = cats[menuIndex];
       if (cat.columns && cat.columns[colIndex] && cat.columns[colIndex].items) {
@@ -228,7 +244,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleEditColumnHeading = (menuIndex, colIndex, newHeading) => {
-    setConfig(prev => {
+    updateConfig(prev => {
       const cats = JSON.parse(JSON.stringify(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories));
       const cat = cats[menuIndex];
       if (!cat.columns || cat.columns.length === 0) {
@@ -242,7 +258,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleAddMenuColumn = (menuIndex) => {
-    setConfig(prev => {
+    updateConfig(prev => {
       const cats = JSON.parse(JSON.stringify(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories));
       const cat = cats[menuIndex];
       if (!cat.columns || cat.columns.length === 0) {
@@ -259,7 +275,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleDeleteMenuColumn = (menuIndex, colIndex) => {
-    setConfig(prev => {
+    updateConfig(prev => {
       const cats = JSON.parse(JSON.stringify(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories));
       const cat = cats[menuIndex];
       if (cat.columns && cat.columns.length > 1) {
@@ -272,7 +288,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleDeleteMenuItem = (index) => {
-    setConfig(prev => {
+    updateConfig(prev => {
       const cats = [...(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories)];
       cats.splice(index, 1);
       return { ...prev, megaMenuCategories: cats };
@@ -281,7 +297,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleMoveMenuItem = (index, direction) => {
-    setConfig(prev => {
+    updateConfig(prev => {
       const cats = [...(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories)];
       const targetIndex = index + direction;
       if (targetIndex < 0 || targetIndex >= cats.length) return prev;
@@ -293,7 +309,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handleResetMenuToDefaults = () => {
-    setConfig(prev => ({
+    updateConfig(prev => ({
       ...prev,
       megaMenuVersion: 2,
       megaMenuCategories: DEFAULT_STOREFRONT_CONFIG.megaMenuCategories
@@ -302,7 +318,7 @@ export default function AdminStorefrontEditor({
   };
 
   const handlePromoSlideChange = (index, field, value) => {
-    setConfig(prev => {
+    updateConfig(prev => {
       const slides = [...(prev.promoSlides || DEFAULT_STOREFRONT_CONFIG.promoSlides)];
       slides[index] = { ...slides[index], [field]: value };
       return { ...prev, promoSlides: slides };
@@ -340,7 +356,7 @@ export default function AdminStorefrontEditor({
 
   const handleReset = () => {
     if (window.confirm('Reset all storefront layout settings and texts to default?')) {
-      setConfig(DEFAULT_STOREFRONT_CONFIG);
+      updateConfig(DEFAULT_STOREFRONT_CONFIG);
       onSaveConfig(DEFAULT_STOREFRONT_CONFIG);
       showToast('Storefront settings reset to default values.');
     }
@@ -432,7 +448,12 @@ export default function AdminStorefrontEditor({
           {/* 3. View Live Store Button */}
           <button
             type="button"
-            onClick={onSwitchToStore}
+            onClick={() => {
+              if (onSaveConfig) {
+                onSaveConfig(config);
+              }
+              onSwitchToStore();
+            }}
             className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm border ${
               isLight
                 ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-300'
@@ -1390,7 +1411,7 @@ export default function AdminStorefrontEditor({
                                               value={(cat.subcategories || cols.flatMap(c => c.items)).join(', ')}
                                               onChange={(e) => {
                                                 const list = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-                                                setConfig(prev => {
+                                                updateConfig(prev => {
                                                   const cats = JSON.parse(JSON.stringify(prev.megaMenuCategories || DEFAULT_STOREFRONT_CONFIG.megaMenuCategories));
                                                   const current = cats[idx];
                                                   current.subcategories = list;
@@ -1966,45 +1987,80 @@ export default function AdminStorefrontEditor({
 
           {/* Section 3: Announcement Ribbon */}
           {activeSection === 'announcement' && (
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                <div className="flex items-center space-x-2">
-                  <Megaphone className="w-4 h-4 text-emerald-400" />
-                  <h2 className="text-sm font-bold text-white uppercase tracking-wider">Top Announcement Bar</h2>
+            <div className={`rounded-2xl p-6 space-y-5 shadow-xl border ${
+              isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-200/50' : 'bg-slate-900 border-slate-800 text-white'
+            }`}>
+              <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b ${
+                isLight ? 'border-slate-100' : 'border-slate-800'
+              }`}>
+                <div className="flex items-center space-x-2.5">
+                  <div className={`p-2 rounded-xl ${isLight ? 'bg-indigo-50 text-indigo-600' : 'bg-indigo-950/60 text-indigo-400'}`}>
+                    <Megaphone className="w-4 h-4 text-emerald-400" />
+                  </div>
+                  <div>
+                    <h2 className={`text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-800' : 'text-white'}`}>
+                      Top Announcement Ribbon
+                    </h2>
+                    <p className={`text-[11px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                      Display critical shipping updates, domestic production hubs, or seasonal promo alerts
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-[10px] text-slate-400">Show Ribbon:</span>
+
+                <div className="flex items-center space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => handleFieldChange('showAnnouncement', !Boolean(config.showAnnouncement))}
+                    className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-sm border ${
+                      config.showAnnouncement
+                        ? (isLight ? 'bg-emerald-50 text-emerald-800 border-emerald-300' : 'bg-emerald-950/60 text-emerald-300 border-emerald-500/40')
+                        : (isLight ? 'bg-slate-100 text-slate-500 border-slate-300' : 'bg-slate-800 text-slate-400 border-slate-700')
+                    }`}
+                  >
+                    <span className={`w-2 h-2 rounded-full ${config.showAnnouncement ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                    <span>{config.showAnnouncement ? 'Visible (ON)' : 'Hidden (OFF)'}</span>
+                  </button>
                   <input
                     type="checkbox"
-                    checked={config.showAnnouncement}
+                    checked={Boolean(config.showAnnouncement)}
                     onChange={(e) => handleFieldChange('showAnnouncement', e.target.checked)}
                     className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
                   />
                 </div>
               </div>
 
-              <div className="space-y-3 text-xs">
+              <div className="space-y-4 text-xs">
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">
+                  <label className={`block font-semibold mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
                     Announcement Headline Text:
                   </label>
                   <input
                     type="text"
-                    value={config.announcementText}
+                    value={config.announcementText || ''}
                     onChange={(e) => handleFieldChange('announcementText', e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white font-medium focus:outline-none focus:border-indigo-500"
+                    placeholder="e.g. Printed Domestically in USA, UK & Canada • Zero Customs Duties • Fast 2-Day Local Production"
+                    className={`w-full rounded-xl px-3.5 py-2.5 font-medium border transition focus:outline-none focus:ring-2 focus:ring-indigo-500/20 ${
+                      isLight 
+                        ? 'bg-slate-50 border-slate-200 text-slate-900 focus:border-indigo-500 focus:bg-white' 
+                        : 'bg-slate-950 border-slate-800 text-white focus:border-indigo-500'
+                    }`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">
-                    Regional Facility Pills:
+                  <label className={`block font-semibold mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                    Regional Production Facility Pills:
                   </label>
                   <input
                     type="text"
-                    value={config.announcementFacilities}
+                    value={config.announcementFacilities || ''}
                     onChange={(e) => handleFieldChange('announcementFacilities', e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                    placeholder="e.g. 🇺🇸 Detroit Facility • 🇬🇧 London Facility • 🇨🇦 Toronto Facility"
+                    className={`w-full rounded-xl px-3.5 py-2.5 font-mono text-xs border transition focus:outline-none focus:ring-2 focus:ring-indigo-500/20 ${
+                      isLight 
+                        ? 'bg-slate-50 border-slate-200 text-slate-900 focus:border-indigo-500 focus:bg-white' 
+                        : 'bg-slate-950 border-slate-800 text-white focus:border-indigo-500'
+                    }`}
                   />
                 </div>
               </div>
@@ -2255,7 +2311,7 @@ export default function AdminStorefrontEditor({
                               handleRemoveLanguage(preset.code);
                             } else {
                               const updated = [...(config.languages || DEFAULT_STOREFRONT_CONFIG.languages), preset];
-                              setConfig(prev => ({ ...prev, languages: updated }));
+                              updateConfig(prev => ({ ...prev, languages: updated }));
                               showToast(`Added ${preset.name}`);
                             }
                           }}

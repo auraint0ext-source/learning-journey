@@ -1,11 +1,9 @@
 {
-  "version": 2,
   "buildCommand": "cd frontend && npm install && npm run build && rm -rf ../dist && cp -r dist ../",
   "outputDirectory": "dist",
-  "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!assets/|favicon.ico|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]

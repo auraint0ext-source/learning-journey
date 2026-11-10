@@ -1,5 +1,6 @@
 // Centralized Default Storefront Configuration for PrintFlow Studio
 // VistaPrint-inspired Mega Menu Hierarchy & Customization Architecture
+import customStorefrontConfig from './customStorefrontConfig.json';
 
 export const VISTA_MEGA_MENU_CATEGORIES = [
   {
@@ -252,7 +253,7 @@ export const VISTA_MEGA_MENU_CATEGORIES = [
   }
 ];
 
-export const DEFAULT_STOREFRONT_CONFIG = {
+const BASE_DEFAULT_STOREFRONT_CONFIG = {
   // 1. Top Announcement Bar
   showAnnouncement: true,
   announcementText: 'Printed Domestically in USA, UK & Canada • Zero Customs Duties • Fast 2-Day Local Production',
@@ -696,6 +697,11 @@ export const DEFAULT_STOREFRONT_CONFIG = {
       transform: 'none'
     }
   }
+};
+
+export const DEFAULT_STOREFRONT_CONFIG = {
+  ...BASE_DEFAULT_STOREFRONT_CONFIG,
+  ...(customStorefrontConfig || {})
 };
 
 export const SUPPORTED_FONTS = [

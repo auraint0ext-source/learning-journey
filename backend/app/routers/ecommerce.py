@@ -244,11 +244,10 @@ def sync_to_cloud(payload: Dict[str, Any] = None):
     
     if payload and "storefrontConfig" in payload:
         try:
-            config_path = os.path.join(frontend_dir, "src/config/storefrontConfig.js")
+            config_path = os.path.join(frontend_dir, "src/config/customStorefrontConfig.json")
             import json
-            config_json = json.dumps(payload["storefrontConfig"], indent=2)
             with open(config_path, "w") as f:
-                f.write(f"// Auto-synced from Admin Studio\nexport const DEFAULT_STOREFRONT_CONFIG = {config_json};\n")
+                json.dump(payload["storefrontConfig"], f, indent=2)
         except Exception as e:
             pass
 
@@ -259,10 +258,16 @@ def sync_to_cloud(payload: Dict[str, Any] = None):
             cwd=base_dir,
             capture_output=True,
             text=True,
-            timeout=120
+            timeout=180
         )
+        if res.returncode != 0:
+            return {
+                "status": "error",
+                "message": f"Sync script failed with code {res.returncode}",
+                "output": res.stderr or res.stdout
+            }
         return {
-            "status": "success" if res.returncode == 0 else "error",
+            "status": "success",
             "message": "Successfully synchronized to GitHub! Live update deployed to GitHub Pages & Vercel.",
             "output": res.stdout,
             "live_url": "https://auraint0ext-source.github.io/learning-journey/"
