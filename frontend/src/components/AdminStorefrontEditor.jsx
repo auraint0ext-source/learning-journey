@@ -9,7 +9,8 @@ import {
   Sun, Moon, KeyRound, ShoppingBag, ExternalLink
 } from 'lucide-react';
 
-import { DEFAULT_STOREFRONT_CONFIG, VISTA_MEGA_MENU_CATEGORIES } from '../config/storefrontConfig';
+import { DEFAULT_STOREFRONT_CONFIG, VISTA_MEGA_MENU_CATEGORIES, TYPOGRAPHY_TARGET_ITEMS, SUPPORTED_FONTS } from '../config/storefrontConfig';
+import WordDocsTypographyToolbar, { getTypographyInlineStyle } from './WordDocsTypographyToolbar';
 
 export default function AdminStorefrontEditor({
   storefrontConfig,
@@ -26,7 +27,8 @@ export default function AdminStorefrontEditor({
     return storefrontConfig || DEFAULT_STOREFRONT_CONFIG;
   });
 
-  const [activeSection, setActiveSection] = useState('hero'); // 'hero' | 'layout' | 'announcement' | 'badges' | 'reviews' | 'footer'
+  const [activeSection, setActiveSection] = useState('typography'); // default to typography studio
+  const [selectedTypographyTarget, setSelectedTypographyTarget] = useState('heroTitle');
   const [toastMessage, setToastMessage] = useState(null);
   const [previewDevice, setPreviewDevice] = useState('desktop'); // 'desktop' | 'mobile'
 
@@ -37,6 +39,16 @@ export default function AdminStorefrontEditor({
 
   const handleFieldChange = (field, value) => {
     setConfig(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleTypographyChange = (itemKey, updatedTypo) => {
+    setConfig(prev => ({
+      ...prev,
+      typography: {
+        ...(prev.typography || DEFAULT_STOREFRONT_CONFIG.typography),
+        [itemKey]: updatedTypo
+      }
+    }));
   };
 
   const handleReviewChange = (index, field, value) => {
@@ -284,6 +296,7 @@ export default function AdminStorefrontEditor({
         isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-slate-900 border-slate-800'
       }`}>
         {[
+          { id: 'typography', label: '📝 Docs Typography Studio (ওয়ার্ড/ডক ফন্ট এডিটর)', icon: Type },
           { id: 'hero', label: 'Hero & Titles (শিরোনাম)', icon: Type },
           { id: 'background', label: '✨ 3D Luxury Background (থ্রিডি ব্যাকগ্রাউন্ড)', icon: Sparkles },
           { id: 'megamenu', label: 'Mega Menu & Search (মেনু ও সার্চ)', icon: Layers },
@@ -320,6 +333,119 @@ export default function AdminStorefrontEditor({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Configuration Forms (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
+
+          {/* Section 0: Docs Typography Studio (ওয়ার্ড/ডক ফন্ট এডিটর) */}
+          {activeSection === 'typography' && (
+            <div className={`border rounded-2xl p-6 space-y-5 shadow-xl ${
+              isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
+            }`}>
+              <div className={`flex items-center justify-between pb-3 border-b ${
+                isLight ? 'border-slate-200' : 'border-slate-800'
+              }`}>
+                <div className="flex items-center space-x-2">
+                  <Type className="w-5 h-5 text-indigo-500" />
+                  <div>
+                    <h2 className={`text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                      Universal Typography & Font Studio
+                    </h2>
+                    <p className={`text-xs ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                      Microsoft Word ও Google Docs-এর মতো প্রতিটি আইটেমের ফন্ট, সাইজ, বোল্ড, ইটালিক, আন্ডারলাইন ও স্পেসিং নিয়ন্ত্রণ করুন।
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-xs">
+                  ✨ MS Word / Google Docs Style
+                </span>
+              </div>
+
+              {/* Step 1: Select which Item to Format */}
+              <div className="space-y-2">
+                <label className={`block text-xs font-bold ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>
+                  ১. যে আইটেমের ফন্ট পরিবর্তন করতে চান তা নির্বাচন করুন (Select Item to Style):
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                  {TYPOGRAPHY_TARGET_ITEMS.map(item => {
+                    const isSelected = selectedTypographyTarget === item.id;
+                    const itemTypo = config?.typography?.[item.id] || DEFAULT_STOREFRONT_CONFIG.typography[item.id];
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setSelectedTypographyTarget(item.id)}
+                        className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                          isSelected
+                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-md ring-2 ring-indigo-400/50'
+                            : isLight
+                              ? 'bg-slate-100 hover:bg-slate-200/80 border-slate-300 text-slate-800'
+                              : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
+                        }`}
+                      >
+                        <div className="font-bold text-[11px] truncate">{item.label}</div>
+                        <div className={`text-[9px] font-mono mt-1 ${isSelected ? 'text-indigo-200' : 'text-slate-400'}`}>
+                          {itemTypo?.fontFamily || 'Default'} • {itemTypo?.fontSize || 16}px {itemTypo?.bold ? '• B' : ''}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Step 2: The Microsoft Word / Google Docs Toolbar */}
+              <div className="space-y-2 pt-2">
+                <WordDocsTypographyToolbar
+                  label={`Styling: ${TYPOGRAPHY_TARGET_ITEMS.find(i => i.id === selectedTypographyTarget)?.label || selectedTypographyTarget}`}
+                  value={config?.typography?.[selectedTypographyTarget] || DEFAULT_STOREFRONT_CONFIG.typography[selectedTypographyTarget]}
+                  onChange={(updatedTypo) => handleTypographyChange(selectedTypographyTarget, updatedTypo)}
+                  isLight={isLight}
+                  sampleText={TYPOGRAPHY_TARGET_ITEMS.find(i => i.id === selectedTypographyTarget)?.defaultText || 'The quick brown fox jumps over the lazy dog'}
+                />
+              </div>
+
+              {/* Quick Font Presets for Fast 1-Click Makeover */}
+              <div className={`p-4 rounded-xl border space-y-2.5 ${
+                isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/60 border-slate-800'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <span className={`text-xs font-bold ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
+                    ⚡ ১-ক্লিকে ফন্ট প্রিসেট (Quick Typography Presets)
+                  </span>
+                  <span className="text-[10px] text-slate-400">পুরো সাইটের হেডিং ও টেক্সট একসাথে পরিবর্তন</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { name: 'Luxury Display', font: 'Outfit', desc: 'প্রিমিয়াম ব্র্যান্ডিং ও বোল্ড টাইটেল' },
+                    { name: 'Editorial Serif', font: 'Playfair Display', desc: 'মার্জিত ও এলিগ্যান্ট আর্ট স্টাইল' },
+                    { name: 'Modern Sans', font: 'Inter', desc: 'সহজে পাঠযোগ্য ও নিখুঁত ইউআই' },
+                    { name: 'Bold Geometric', font: 'Montserrat', desc: 'পাওয়ারফুল ও আকর্ষণীয় হেডলাইন' },
+                  ].map(preset => (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      onClick={() => {
+                        setConfig(prev => {
+                          const currentTypo = prev.typography || DEFAULT_STOREFRONT_CONFIG.typography;
+                          const updated = {};
+                          Object.keys(currentTypo).forEach(k => {
+                            updated[k] = { ...currentTypo[k], fontFamily: preset.font };
+                          });
+                          return { ...prev, typography: updated };
+                        });
+                        showToast(`Theme updated with ${preset.name} (${preset.font}) font across all items!`);
+                      }}
+                      className={`p-2.5 rounded-lg border text-left transition hover:scale-[1.02] ${
+                        isLight ? 'bg-white border-slate-300 hover:border-indigo-400' : 'bg-slate-900 border-slate-700 hover:border-indigo-500'
+                      }`}
+                    >
+                      <div className="text-xs font-bold" style={{ fontFamily: preset.font }}>{preset.name}</div>
+                      <div className="text-[9px] text-indigo-400 font-mono mt-0.5">{preset.font}</div>
+                      <div className="text-[8px] text-slate-400 mt-1">{preset.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Section 1: Hero & Titles (শিরোনাম) */}
           {activeSection === 'hero' && (
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
@@ -572,6 +698,28 @@ export default function AdminStorefrontEditor({
                     className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-700 cursor-pointer"
                   />
                 </div>
+
+                {/* Inline Microsoft Word / Google Docs Typography Controls for Hero */}
+                <div className="pt-4 border-t border-slate-800 space-y-3">
+                  <h3 className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center space-x-1.5">
+                    <Type className="w-3.5 h-3.5" />
+                    <span>Hero Typography & Docs Styling (শিরোনামের ফন্ট ফরম্যাটিং)</span>
+                  </h3>
+                  <WordDocsTypographyToolbar
+                    label="Hero Main Title — Word / Docs Formatting (মূল শিরোনামের ফন্ট)"
+                    value={config?.typography?.heroTitle}
+                    onChange={(val) => handleTypographyChange('heroTitle', val)}
+                    isLight={isLight}
+                    sampleText={`${config.heroTitlePrefix || 'Custom Goods Printed'} ${config.heroTitleAccent || 'Domestically'}`}
+                  />
+                  <WordDocsTypographyToolbar
+                    label="Hero Subtitle — Word / Docs Formatting (সাবটাইটেলের ফন্ট)"
+                    value={config?.typography?.heroSubtitle}
+                    onChange={(val) => handleTypographyChange('heroSubtitle', val)}
+                    isLight={isLight}
+                    sampleText={config.heroSubtitle || 'Fast fulfillment across 4 domestic hubs. Uncompromising POD quality.'}
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -587,6 +735,28 @@ export default function AdminStorefrontEditor({
                 <span className="text-[10px] text-indigo-300 bg-indigo-950/60 border border-indigo-500/30 px-2 py-0.5 rounded font-mono">
                   Navigation Architecture
                 </span>
+              </div>
+
+              {/* Inline Microsoft Word / Google Docs Typography Controls for Mega Menu */}
+              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
+                <h3 className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center space-x-1.5">
+                  <Type className="w-3.5 h-3.5" />
+                  <span>Mega Menu Typography & Docs Formatting (মেনু টেক্সট স্টাইল)</span>
+                </h3>
+                <WordDocsTypographyToolbar
+                  label="Column Headings (মেনু কলাম হেডিং)"
+                  value={config?.typography?.megaMenuHeadings}
+                  onChange={(val) => handleTypographyChange('megaMenuHeadings', val)}
+                  isLight={isLight}
+                  sampleText="SPECIAL OFFERS & DEALS"
+                />
+                <WordDocsTypographyToolbar
+                  label="Flyout Links (সাবমেনু আইটেম লিংক)"
+                  value={config?.typography?.megaMenuItems}
+                  onChange={(val) => handleTypographyChange('megaMenuItems', val)}
+                  isLight={isLight}
+                  sampleText="Custom Christmas Cards with Gold Foil"
+                />
               </div>
 
               {/* Global Search Bar Controls */}
@@ -1171,6 +1341,35 @@ export default function AdminStorefrontEditor({
                 <span className="text-[10px] text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded font-mono">
                   Conversion Boosters
                 </span>
+              </div>
+
+              {/* Inline Microsoft Word / Google Docs Typography Controls for Products & Categories */}
+              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
+                <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-1.5">
+                  <Type className="w-3.5 h-3.5" />
+                  <span>Product Card Typography & Docs Formatting (প্রোডাক্ট কার্ড টেক্সট স্টাইল)</span>
+                </h3>
+                <WordDocsTypographyToolbar
+                  label="Product Title (প্রোডাক্টের নাম/টাইটেল)"
+                  value={config?.typography?.productTitle}
+                  onChange={(val) => handleTypographyChange('productTitle', val)}
+                  isLight={isLight}
+                  sampleText="Premium 16pt Soft-Touch Business Cards"
+                />
+                <WordDocsTypographyToolbar
+                  label="Product Price Tag (প্রোডাক্টের দাম)"
+                  value={config?.typography?.productPrice}
+                  onChange={(val) => handleTypographyChange('productPrice', val)}
+                  isLight={isLight}
+                  sampleText="From $19.99"
+                />
+                <WordDocsTypographyToolbar
+                  label="Product Description (প্রোডাক্টের ডেসক্রিপশন)"
+                  value={config?.typography?.productDesc}
+                  onChange={(val) => handleTypographyChange('productDesc', val)}
+                  isLight={isLight}
+                  sampleText="Heavy 350 GSM satin paper with foil-stamping accents and rich print."
+                />
               </div>
 
               {/* Category Showcase Grid Toggle */}
@@ -2061,7 +2260,9 @@ export default function AdminStorefrontEditor({
                     ● {config.liveHubBadgeLabel || 'Live Production Hub:'} Detroit / London
                   </span>
                 )}
-                <h3 className={`font-extrabold leading-tight ${
+                <h3 
+                  style={getTypographyInlineStyle(config?.typography?.heroTitle)}
+                  className={`font-extrabold leading-tight ${
                   config.heroTitleSize === 'sm' ? 'text-xs sm:text-sm' :
                   config.heroTitleSize === 'lg' ? 'text-base sm:text-lg' :
                   config.heroTitleSize === 'xl' ? 'text-lg sm:text-xl' :
@@ -2072,7 +2273,9 @@ export default function AdminStorefrontEditor({
                     {config.heroTitleAccent}
                   </span>
                 </h3>
-                <p className={`opacity-75 line-clamp-2 max-w-sm ${config.heroAlignment === 'left' ? '' : 'mx-auto'} ${
+                <p 
+                  style={getTypographyInlineStyle(config?.typography?.heroSubtitle)}
+                  className={`opacity-75 line-clamp-2 max-w-sm ${config.heroAlignment === 'left' ? '' : 'mx-auto'} ${
                   config.heroSubtitleSize === 'xs' ? 'text-[9px]' :
                   config.heroSubtitleSize === 'base' ? 'text-[11px]' :
                   config.heroSubtitleSize === 'lg' ? 'text-xs' :
@@ -2185,15 +2388,28 @@ export default function AdminStorefrontEditor({
                             {mock.cat}
                           </span>
                         </div>
-                        <div className="font-bold text-[10px] line-clamp-1">{mock.name}</div>
-                        <div className={`text-[8px] line-clamp-2 mt-0.5 leading-tight ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                        <div 
+                          style={getTypographyInlineStyle(config?.typography?.productTitle)}
+                          className="font-bold text-[10px] line-clamp-1"
+                        >
+                          {mock.name}
+                        </div>
+                        <div 
+                          style={getTypographyInlineStyle(config?.typography?.productDesc)}
+                          className={`text-[8px] line-clamp-2 mt-0.5 leading-tight ${isLight ? 'text-slate-600' : 'text-slate-400'}`}
+                        >
                           {mock.desc}
                         </div>
                       </div>
 
                       <div className="mt-2 pt-1.5 border-t border-slate-200/50 dark:border-slate-800/80">
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[10px] font-mono font-bold text-emerald-600">{mock.price}</span>
+                          <span 
+                            style={getTypographyInlineStyle(config?.typography?.productPrice)}
+                            className="text-[10px] font-mono font-bold text-emerald-600"
+                          >
+                            {mock.price}
+                          </span>
                           <span className="text-[7px] text-slate-400">+ship</span>
                         </div>
                         <button

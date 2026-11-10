@@ -1,0 +1,432 @@
+import React from 'react';
+import { 
+  Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight,
+  Type, ChevronDown, Palette, Sliders, Sparkles, Check, RotateCcw
+} from 'lucide-react';
+import { SUPPORTED_FONTS } from '../config/storefrontConfig';
+
+export default function WordDocsTypographyToolbar({
+  label,
+  value = {},
+  onChange,
+  isLight = false,
+  sampleText = 'The quick brown fox jumps over the lazy dog (লাইভ ফন্ট প্রিভিউ)'
+}) {
+  const current = {
+    fontFamily: value?.fontFamily || 'Plus Jakarta Sans',
+    fontSize: Number(value?.fontSize) || 16,
+    fontWeight: value?.fontWeight || (value?.bold ? '700' : '400'),
+    bold: value?.bold !== undefined ? value.bold : (value?.fontWeight === '700' || value?.fontWeight === '800'),
+    italic: !!value?.italic,
+    underline: !!value?.underline,
+    strike: !!value?.strike,
+    letterSpacing: value?.letterSpacing !== undefined ? Number(value.letterSpacing) : 0,
+    lineHeight: value?.lineHeight !== undefined ? Number(value.lineHeight) : 1.3,
+    color: value?.color || (isLight ? '#0f172a' : '#ffffff'),
+    align: value?.align || 'left',
+    transform: value?.transform || 'none'
+  };
+
+  const update = (patch) => {
+    if (onChange) {
+      onChange({ ...current, ...patch });
+    }
+  };
+
+  // Color Swatches
+  const PRESET_COLORS = [
+    { label: 'White', hex: '#ffffff' },
+    { label: 'Dark Slate', hex: '#0f172a' },
+    { label: 'Muted Slate', hex: '#94a3b8' },
+    { label: 'Indigo', hex: '#6366f1' },
+    { label: 'Violet', hex: '#a855f7' },
+    { label: 'Emerald', hex: '#10b981' },
+    { label: 'Amber', hex: '#f59e0b' },
+    { label: 'Rose Red', hex: '#f43f5e' },
+    { label: 'Sky Blue', hex: '#38bdf8' }
+  ];
+
+  return (
+    <div className={`rounded-2xl border transition-all ${
+      isLight 
+        ? 'bg-slate-50 border-slate-200 shadow-sm' 
+        : 'bg-slate-950/80 border-slate-800 shadow-lg'
+    } p-3.5 space-y-3`}>
+      {/* Header with Title and Reset */}
+      {label && (
+        <div className="flex items-center justify-between border-b pb-2 text-xs font-semibold ${
+          isLight ? 'border-slate-200 text-slate-700' : 'border-slate-800 text-slate-300'
+        }">
+          <div className="flex items-center space-x-1.5">
+            <Type className="w-3.5 h-3.5 text-indigo-500" />
+            <span className="font-bold">{label}</span>
+          </div>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 font-bold">
+            MS Word / Google Docs Style
+          </span>
+        </div>
+      )}
+
+      {/* Main Google Docs / Word Formatting Toolbar Row */}
+      <div className={`flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl border ${
+        isLight ? 'bg-white border-slate-200 shadow-xs' : 'bg-slate-900 border-slate-800'
+      }`}>
+        {/* 1. Font Family Dropdown */}
+        <div className="relative min-w-[170px] flex-1 max-w-[240px]">
+          <select
+            value={current.fontFamily}
+            onChange={(e) => update({ fontFamily: e.target.value })}
+            className={`w-full appearance-none px-2.5 py-1.5 text-xs font-semibold rounded-lg border pr-7 focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
+              isLight 
+                ? 'bg-slate-100 border-slate-300 text-slate-800' 
+                : 'bg-slate-950 border-slate-700 text-slate-100'
+            }`}
+            style={{ fontFamily: current.fontFamily }}
+          >
+            {SUPPORTED_FONTS.map(f => (
+              <option key={f.id} value={f.id} style={{ fontFamily: f.id }}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="w-3.5 h-3.5 absolute right-2 top-2.5 pointer-events-none text-slate-400" />
+        </div>
+
+        <div className={`w-[1px] h-5 ${isLight ? 'bg-slate-200' : 'bg-slate-800'}`} />
+
+        {/* 2. Font Size Stepper [-] [ 16px ] [+] */}
+        <div className="flex items-center space-x-0.5">
+          <button
+            type="button"
+            title="Decrease font size"
+            onClick={() => update({ fontSize: Math.max(9, current.fontSize - 1) })}
+            className={`w-6 h-7 flex items-center justify-center rounded-l-md font-bold text-xs border transition ${
+              isLight 
+                ? 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200' 
+                : 'bg-slate-950 border-slate-700 text-slate-300 hover:bg-slate-800'
+            }`}
+          >
+            -
+          </button>
+          <div className={`flex items-center px-1.5 h-7 text-xs font-mono font-bold border-t border-b ${
+            isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-700 text-white'
+          }`}>
+            <input
+              type="number"
+              value={current.fontSize}
+              onChange={(e) => update({ fontSize: Number(e.target.value) || 12 })}
+              className="w-8 text-center bg-transparent focus:outline-none font-bold"
+              min="8"
+              max="96"
+            />
+            <span className="text-[10px] text-slate-400">px</span>
+          </div>
+          <button
+            type="button"
+            title="Increase font size"
+            onClick={() => update({ fontSize: Math.min(96, current.fontSize + 1) })}
+            className={`w-6 h-7 flex items-center justify-center rounded-r-md font-bold text-xs border transition ${
+              isLight 
+                ? 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200' 
+                : 'bg-slate-950 border-slate-700 text-slate-300 hover:bg-slate-800'
+            }`}
+          >
+            +
+          </button>
+        </div>
+
+        <div className={`w-[1px] h-5 ${isLight ? 'bg-slate-200' : 'bg-slate-800'}`} />
+
+        {/* 3. Bold [B], Italic [I], Underline [U], Strike [S] */}
+        <div className="flex items-center space-x-0.5">
+          <button
+            type="button"
+            title="Bold (গাঢ়)"
+            onClick={() => update({ bold: !current.bold, fontWeight: !current.bold ? '700' : '400' })}
+            className={`w-7 h-7 flex items-center justify-center rounded-md font-extrabold text-xs transition border ${
+              current.bold
+                ? 'bg-indigo-600 text-white border-indigo-500 shadow-xs'
+                : isLight 
+                  ? 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200' 
+                  : 'bg-slate-950 border-slate-700 text-slate-300 hover:bg-slate-800'
+            }`}
+          >
+            <Bold className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            title="Italic (বাঁকা)"
+            onClick={() => update({ italic: !current.italic })}
+            className={`w-7 h-7 flex items-center justify-center rounded-md text-xs italic transition border ${
+              current.italic
+                ? 'bg-indigo-600 text-white border-indigo-500 shadow-xs'
+                : isLight 
+                  ? 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200' 
+                  : 'bg-slate-950 border-slate-700 text-slate-300 hover:bg-slate-800'
+            }`}
+          >
+            <Italic className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            title="Underline (নিচে দাগ)"
+            onClick={() => update({ underline: !current.underline })}
+            className={`w-7 h-7 flex items-center justify-center rounded-md text-xs underline transition border ${
+              current.underline
+                ? 'bg-indigo-600 text-white border-indigo-500 shadow-xs'
+                : isLight 
+                  ? 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200' 
+                  : 'bg-slate-950 border-slate-700 text-slate-300 hover:bg-slate-800'
+            }`}
+          >
+            <Underline className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            title="Strikethrough"
+            onClick={() => update({ strike: !current.strike })}
+            className={`w-7 h-7 flex items-center justify-center rounded-md text-xs line-through transition border ${
+              current.strike
+                ? 'bg-indigo-600 text-white border-indigo-500 shadow-xs'
+                : isLight 
+                  ? 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200' 
+                  : 'bg-slate-950 border-slate-700 text-slate-300 hover:bg-slate-800'
+            }`}
+          >
+            <Strikethrough className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className={`w-[1px] h-5 ${isLight ? 'bg-slate-200' : 'bg-slate-800'}`} />
+
+        {/* 4. Alignment (Left, Center, Right) */}
+        <div className="flex items-center space-x-0.5">
+          <button
+            type="button"
+            title="Align Left"
+            onClick={() => update({ align: 'left' })}
+            className={`w-7 h-7 flex items-center justify-center rounded-md text-xs transition border ${
+              current.align === 'left'
+                ? 'bg-indigo-600 text-white border-indigo-500 shadow-xs'
+                : isLight 
+                  ? 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200' 
+                  : 'bg-slate-950 border-slate-700 text-slate-300 hover:bg-slate-800'
+            }`}
+          >
+            <AlignLeft className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            title="Align Center"
+            onClick={() => update({ align: 'center' })}
+            className={`w-7 h-7 flex items-center justify-center rounded-md text-xs transition border ${
+              current.align === 'center'
+                ? 'bg-indigo-600 text-white border-indigo-500 shadow-xs'
+                : isLight 
+                  ? 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200' 
+                  : 'bg-slate-950 border-slate-700 text-slate-300 hover:bg-slate-800'
+            }`}
+          >
+            <AlignCenter className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            title="Align Right"
+            onClick={() => update({ align: 'right' })}
+            className={`w-7 h-7 flex items-center justify-center rounded-md text-xs transition border ${
+              current.align === 'right'
+                ? 'bg-indigo-600 text-white border-indigo-500 shadow-xs'
+                : isLight 
+                  ? 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200' 
+                  : 'bg-slate-950 border-slate-700 text-slate-300 hover:bg-slate-800'
+            }`}
+          >
+            <AlignRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className={`w-[1px] h-5 ${isLight ? 'bg-slate-200' : 'bg-slate-800'}`} />
+
+        {/* 5. Text Transform (Aa, AA, aa) */}
+        <div className="relative">
+          <select
+            value={current.transform}
+            onChange={(e) => update({ transform: e.target.value })}
+            title="Text Transform"
+            className={`appearance-none px-2 py-1 text-xs font-bold rounded-md border pr-5 focus:outline-none ${
+              isLight 
+                ? 'bg-slate-100 border-slate-300 text-slate-800' 
+                : 'bg-slate-950 border-slate-700 text-slate-100'
+            }`}
+          >
+            <option value="none">Aa (Normal)</option>
+            <option value="uppercase">AA (UPPERCASE)</option>
+            <option value="lowercase">aa (lowercase)</option>
+            <option value="capitalize">Ab (Capitalize)</option>
+          </select>
+          <ChevronDown className="w-3 h-3 absolute right-1.5 top-2 pointer-events-none text-slate-400" />
+        </div>
+
+        <div className={`w-[1px] h-5 ${isLight ? 'bg-slate-200' : 'bg-slate-800'}`} />
+
+        {/* 6. Color Picker Swatch & Native Color Picker */}
+        <div className="flex items-center space-x-1.5">
+          <div 
+            className="w-6 h-6 rounded-md border border-slate-600 shadow-xs cursor-pointer flex items-center justify-center relative overflow-hidden"
+            title={`Current Color: ${current.color}`}
+          >
+            <div className="w-full h-full" style={{ backgroundColor: current.color }} />
+            <input
+              type="color"
+              value={current.color}
+              onChange={(e) => update({ color: e.target.value })}
+              className="opacity-0 absolute inset-0 cursor-pointer w-full h-full"
+            />
+          </div>
+          <span className="font-mono text-[10px] text-slate-400 uppercase font-bold">
+            {current.color}
+          </span>
+        </div>
+      </div>
+
+      {/* Row 2: Secondary Controls: Letter Spacing, Line Height, Color Presets */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1 text-xs">
+        {/* Letter Spacing (Tracking) */}
+        <div className="flex items-center justify-between space-x-2">
+          <label className={`font-semibold text-[11px] whitespace-nowrap ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+            Letter Spacing:
+          </label>
+          <div className="flex items-center space-x-1">
+            {[
+              { id: -1, label: 'Tight (-1)' },
+              { id: 0, label: '0' },
+              { id: 1, label: '+1' },
+              { id: 2, label: '+2' },
+              { id: 4, label: '+4' }
+            ].map(sp => (
+              <button
+                key={sp.id}
+                type="button"
+                onClick={() => update({ letterSpacing: sp.id })}
+                className={`px-1.5 py-0.5 rounded text-[10px] font-bold border transition ${
+                  current.letterSpacing === sp.id
+                    ? 'bg-indigo-600 text-white border-indigo-500'
+                    : isLight 
+                      ? 'bg-slate-200/70 border-slate-300 text-slate-700' 
+                      : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                }`}
+              >
+                {sp.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Line Height (Leading) */}
+        <div className="flex items-center justify-between space-x-2">
+          <label className={`font-semibold text-[11px] whitespace-nowrap ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+            Line Height:
+          </label>
+          <div className="flex items-center space-x-1">
+            {[
+              { val: 1.1, label: '1.1' },
+              { val: 1.3, label: '1.3' },
+              { val: 1.5, label: '1.5' },
+              { val: 1.8, label: '1.8' }
+            ].map(lh => (
+              <button
+                key={lh.val}
+                type="button"
+                onClick={() => update({ lineHeight: lh.val })}
+                className={`px-1.5 py-0.5 rounded text-[10px] font-bold border transition ${
+                  current.lineHeight === lh.val
+                    ? 'bg-indigo-600 text-white border-indigo-500'
+                    : isLight 
+                      ? 'bg-slate-200/70 border-slate-300 text-slate-700' 
+                      : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                }`}
+              >
+                {lh.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Preset Color Swatches */}
+        <div className="flex items-center space-x-1 justify-end">
+          {PRESET_COLORS.map(c => (
+            <button
+              key={c.hex}
+              type="button"
+              title={c.label}
+              onClick={() => update({ color: c.hex })}
+              className={`w-4 h-4 rounded-full border transition transform hover:scale-125 ${
+                current.color.toLowerCase() === c.hex.toLowerCase()
+                  ? 'ring-2 ring-indigo-500 ring-offset-1 border-white'
+                  : 'border-slate-500/50'
+              }`}
+              style={{ backgroundColor: c.hex }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Row 3: Live Interactive Preview Strip */}
+      <div className={`p-3 rounded-xl border transition-all ${
+        isLight ? 'bg-white border-slate-200 shadow-inner' : 'bg-slate-900/90 border-slate-800 shadow-inner'
+      }`}>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+            Live Typography Preview (তাৎক্ষণিক লাইভ আউটপুট)
+          </span>
+          <span className="text-[10px] font-mono text-indigo-400">
+            {current.fontFamily} • {current.fontSize}px • {current.bold ? 'Bold' : 'Regular'} • {current.color}
+          </span>
+        </div>
+        <div 
+          style={{
+            fontFamily: current.fontFamily,
+            fontSize: `${current.fontSize}px`,
+            fontWeight: current.bold ? '800' : '400',
+            fontStyle: current.italic ? 'italic' : 'normal',
+            textDecoration: current.underline 
+              ? (current.strike ? 'underline line-through' : 'underline')
+              : (current.strike ? 'line-through' : 'none'),
+            letterSpacing: `${current.letterSpacing}px`,
+            lineHeight: current.lineHeight,
+            color: current.color,
+            textAlign: current.align,
+            textTransform: current.transform
+          }}
+          className="transition-all py-1 break-words overflow-hidden"
+        >
+          {sampleText}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Utility function to convert typography config object to React inline style
+export function getTypographyInlineStyle(typoConfig, fallbackColor = null) {
+  if (!typoConfig) return {};
+  return {
+    fontFamily: typoConfig.fontFamily ? `${typoConfig.fontFamily}, sans-serif` : undefined,
+    fontSize: typoConfig.fontSize ? `${typoConfig.fontSize}px` : undefined,
+    fontWeight: typoConfig.bold ? '800' : (typoConfig.fontWeight || '400'),
+    fontStyle: typoConfig.italic ? 'italic' : 'normal',
+    textDecoration: typoConfig.underline 
+      ? (typoConfig.strike ? 'underline line-through' : 'underline')
+      : (typoConfig.strike ? 'line-through' : 'none'),
+    letterSpacing: typoConfig.letterSpacing !== undefined ? `${typoConfig.letterSpacing}px` : undefined,
+    lineHeight: typoConfig.lineHeight !== undefined ? typoConfig.lineHeight : undefined,
+    color: typoConfig.color || fallbackColor || undefined,
+    textAlign: typoConfig.align || undefined,
+    textTransform: typoConfig.transform || undefined
+  };
+}

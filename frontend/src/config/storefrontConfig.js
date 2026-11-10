@@ -510,5 +510,177 @@ export const DEFAULT_STOREFRONT_CONFIG = {
   luxuryBgVenue: 'atelier', // 'atelier' | 'flagship' | 'workshop'
   luxuryBgBlur: 'medium',   // 'subtle' | 'medium' | 'deep'
   luxuryBgDepth: 'dynamic', // 'dynamic' | 'fixed'
-  luxuryBgGlassOpacity: 25  // 0% (crystal clear transparent) to 100% (solid white tint)
+  luxuryBgGlassOpacity: 25, // 0% (crystal clear transparent) to 100% (solid white tint)
+
+  // 12. Universal Google Docs / MS Word Typography Studio Configuration
+  typography: {
+    heroTitle: {
+      fontFamily: 'Outfit',
+      fontSize: 44,
+      fontWeight: '800',
+      bold: true,
+      italic: false,
+      underline: false,
+      letterSpacing: 0,
+      lineHeight: 1.2,
+      color: '#ffffff',
+      align: 'center',
+      transform: 'none'
+    },
+    heroSubtitle: {
+      fontFamily: 'Plus Jakarta Sans',
+      fontSize: 15,
+      fontWeight: '500',
+      bold: false,
+      italic: false,
+      underline: false,
+      letterSpacing: 0,
+      lineHeight: 1.5,
+      color: '#94a3b8',
+      align: 'center',
+      transform: 'none'
+    },
+    heroBadge: {
+      fontFamily: 'Plus Jakarta Sans',
+      fontSize: 11,
+      fontWeight: '700',
+      bold: true,
+      italic: false,
+      underline: false,
+      letterSpacing: 1,
+      lineHeight: 1.2,
+      color: '#818cf8',
+      align: 'center',
+      transform: 'uppercase'
+    },
+    megaMenuHeadings: {
+      fontFamily: 'Plus Jakarta Sans',
+      fontSize: 12,
+      fontWeight: '700',
+      bold: true,
+      italic: false,
+      underline: false,
+      letterSpacing: 0.5,
+      lineHeight: 1.3,
+      color: '#6366f1',
+      align: 'left',
+      transform: 'uppercase'
+    },
+    megaMenuItems: {
+      fontFamily: 'Plus Jakarta Sans',
+      fontSize: 13,
+      fontWeight: '500',
+      bold: false,
+      italic: false,
+      underline: false,
+      letterSpacing: 0,
+      lineHeight: 1.4,
+      color: '#cbd5e1',
+      align: 'left',
+      transform: 'none'
+    },
+    productTitle: {
+      fontFamily: 'Plus Jakarta Sans',
+      fontSize: 16,
+      fontWeight: '700',
+      bold: true,
+      italic: false,
+      underline: false,
+      letterSpacing: 0,
+      lineHeight: 1.3,
+      color: '#f8fafc',
+      align: 'left',
+      transform: 'none'
+    },
+    productPrice: {
+      fontFamily: 'Outfit',
+      fontSize: 16,
+      fontWeight: '800',
+      bold: true,
+      italic: false,
+      underline: false,
+      letterSpacing: 0,
+      lineHeight: 1.2,
+      color: '#818cf8',
+      align: 'left',
+      transform: 'none'
+    },
+    productDesc: {
+      fontFamily: 'Plus Jakarta Sans',
+      fontSize: 11,
+      fontWeight: '400',
+      bold: false,
+      italic: false,
+      underline: false,
+      letterSpacing: 0,
+      lineHeight: 1.4,
+      color: '#94a3b8',
+      align: 'left',
+      transform: 'none'
+    },
+    promoHeadline: {
+      fontFamily: 'Outfit',
+      fontSize: 32,
+      fontWeight: '900',
+      bold: true,
+      italic: false,
+      underline: false,
+      letterSpacing: 1,
+      lineHeight: 1.1,
+      color: '#ffffff',
+      align: 'center',
+      transform: 'uppercase'
+    },
+    sectionHeadings: {
+      fontFamily: 'Outfit',
+      fontSize: 24,
+      fontWeight: '800',
+      bold: true,
+      italic: false,
+      underline: false,
+      letterSpacing: 0,
+      lineHeight: 1.2,
+      color: '#f8fafc',
+      align: 'left',
+      transform: 'none'
+    },
+    footerText: {
+      fontFamily: 'Plus Jakarta Sans',
+      fontSize: 12,
+      fontWeight: '400',
+      bold: false,
+      italic: false,
+      underline: false,
+      letterSpacing: 0,
+      lineHeight: 1.5,
+      color: '#94a3b8',
+      align: 'left',
+      transform: 'none'
+    }
+  }
 };
+
+export const SUPPORTED_FONTS = [
+  { id: 'Plus Jakarta Sans', label: 'Plus Jakarta Sans (Default Clean)' },
+  { id: 'Outfit', label: 'Outfit (Luxury Display & Headings)' },
+  { id: 'Inter', label: 'Inter (Modern UI Sans)' },
+  { id: 'Montserrat', label: 'Montserrat (Bold Geometric)' },
+  { id: 'Playfair Display', label: 'Playfair Display (Editorial Serif)' },
+  { id: 'Poppins', label: 'Poppins (Friendly Geometric)' },
+  { id: 'Cinzel', label: 'Cinzel (Classical Luxury Roman)' },
+  { id: 'Roboto', label: 'Roboto (Standard Sans)' },
+];
+
+export const TYPOGRAPHY_TARGET_ITEMS = [
+  { id: 'heroTitle', label: 'Hero Main Title (মূল শিরোনাম)', defaultText: 'Custom Goods Printed Domestically' },
+  { id: 'heroSubtitle', label: 'Hero Subtitle / Description (সাবটাইটেল)', defaultText: 'Fast fulfillment across 4 domestic hubs. Uncompromising POD quality.' },
+  { id: 'heroBadge', label: 'Hero Announcement Badge (টপ ব্যাজ)', defaultText: '★ 100% Guaranteed Domestic Delivery' },
+  { id: 'megaMenuHeadings', label: 'Mega Menu Column Headings (মেনু কলাম হেডিং)', defaultText: 'SPECIAL OFFERS & DEALS' },
+  { id: 'megaMenuItems', label: 'Mega Menu Flyout Links (সাবমেনু আইটেম)', defaultText: 'Custom Christmas Cards with Gold Foil' },
+  { id: 'productTitle', label: 'Product Card Titles (প্রোডাক্টের নাম)', defaultText: 'Premium 16pt Soft-Touch Business Cards' },
+  { id: 'productPrice', label: 'Product Card Price (প্রোডাক্টের দাম)', defaultText: 'From $19.99' },
+  { id: 'productDesc', label: 'Product Card Description (প্রোডাক্ট ডেসক্রিপশন)', defaultText: 'Heavy 350 GSM satin paper with foil-stamping accents.' },
+  { id: 'promoHeadline', label: 'Promo Slider Discount Headline (SAVE 25%)', defaultText: 'SAVE 25% ON ALL CUSTOM PRINTS' },
+  { id: 'sectionHeadings', label: 'Section Titles / Category Headers (সেকশন হেডার)', defaultText: 'Browse Popular Print Categories' },
+  { id: 'footerText', label: 'Footer Links & Copyright (ফুটার টেক্সট)', defaultText: '© 2026 PrintFlow Global Inc. All rights reserved.' },
+];

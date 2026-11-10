@@ -10,6 +10,7 @@ import {
 
 import { DEFAULT_STOREFRONT_CONFIG } from '../config/storefrontConfig';
 import { DEFAULT_CATALOG_PRODUCTS } from '../config/catalogProducts';
+import { getTypographyInlineStyle } from './WordDocsTypographyToolbar';
 
 const SAMPLE_VISTA_TEMPLATES = [
   {
@@ -1099,7 +1100,10 @@ export default function CustomerStorefront({
                       {/* Subcategory Columns */}
                       {cols.map((col, cIdx) => (
                         <div key={cIdx} className="space-y-2.5">
-                          <h4 className={`${dropdownHeadingFontSizeClass} font-extrabold uppercase tracking-wider text-indigo-500 pb-1.5 border-b border-slate-200 dark:border-slate-800`}>
+                          <h4 
+                            style={getTypographyInlineStyle(cfg?.typography?.megaMenuHeadings)}
+                            className={`${dropdownHeadingFontSizeClass} font-extrabold uppercase tracking-wider text-indigo-500 pb-1.5 border-b border-slate-200 dark:border-slate-800`}
+                          >
                             {col.heading}
                           </h4>
                           <ul className={dropdownItemSpacingClass}>
@@ -1107,6 +1111,7 @@ export default function CustomerStorefront({
                               <li key={iIdx}>
                                 <button
                                   onClick={() => handleSubmenuItemClick(currentMenu.categoryKey, item, col.heading)}
+                                  style={getTypographyInlineStyle(cfg?.typography?.megaMenuItems)}
                                   className={`${dropdownItemFontSizeClass} text-left w-full ${dropdownItemPaddingClass} rounded-lg transition flex items-center justify-between group ${
                                     isLight 
                                       ? 'text-slate-700 hover:text-indigo-600 hover:bg-slate-100' 
@@ -1299,7 +1304,10 @@ export default function CustomerStorefront({
                       </div>
 
                       {/* Giant "SAVE 25%" Headline */}
-                      <h2 className="text-3xl sm:text-4xl xl:text-5xl font-black tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-600">
+                      <h2 
+                        style={getTypographyInlineStyle(cfg?.typography?.promoHeadline)}
+                        className="text-3xl sm:text-4xl xl:text-5xl font-black tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-600"
+                      >
                         {cfg.promoDiscountHeadline || 'SAVE 25%'}
                       </h2>
 
@@ -1469,7 +1477,9 @@ export default function CustomerStorefront({
             </div>
           )}
 
-          <h1 className={`${heroTitleSizeClass} font-black tracking-tight leading-tight max-w-3xl ${
+          <h1 
+            style={getTypographyInlineStyle(cfg?.typography?.heroTitle)}
+            className={`${heroTitleSizeClass} font-black tracking-tight leading-tight max-w-3xl ${
             cfg.heroAlignment === 'left' ? '' : 'mx-auto'
           } ${isLight ? 'text-slate-900' : 'text-white'}`}>
             {cfg.heroTitlePrefix}{' '}
@@ -1478,7 +1488,9 @@ export default function CustomerStorefront({
             </span>
           </h1>
 
-          <p className={`${heroSubtitleSizeClass} ${heroSubtitleSpacingClass} max-w-2xl leading-relaxed ${
+          <p 
+            style={getTypographyInlineStyle(cfg?.typography?.heroSubtitle)}
+            className={`${heroSubtitleSizeClass} ${heroSubtitleSpacingClass} max-w-2xl leading-relaxed ${
             cfg.heroAlignment === 'left' ? '' : 'mx-auto'
           } ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
             {cfg.heroSubtitle}
@@ -1880,10 +1892,16 @@ export default function CustomerStorefront({
                       <span className={`text-[10px] ml-1 font-semibold ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>(48)</span>
                     </div>
 
-                    <h3 className={`font-bold text-sm line-clamp-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                    <h3 
+                      style={getTypographyInlineStyle(cfg?.typography?.productTitle)}
+                      className={`font-bold text-sm line-clamp-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors ${isLight ? 'text-slate-900' : 'text-white'}`}
+                    >
                       {p.title}
                     </h3>
-                    <p className={`text-xs line-clamp-2 leading-relaxed font-normal ${isLight ? 'text-slate-600' : 'text-slate-300'}`}>
+                    <p 
+                      style={getTypographyInlineStyle(cfg?.typography?.productDesc)}
+                      className={`text-xs line-clamp-2 leading-relaxed font-normal ${isLight ? 'text-slate-600' : 'text-slate-300'}`}
+                    >
                       {p.description}
                     </p>
                   </div>
@@ -1895,7 +1913,10 @@ export default function CustomerStorefront({
                       <span className={`text-[10px] uppercase font-semibold ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                         Price ({marketInfo.currency})
                       </span>
-                      <div className={`text-xl font-black font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                      <div 
+                        style={getTypographyInlineStyle(cfg?.typography?.productPrice)}
+                        className={`text-xl font-black font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}
+                      >
                         {marketInfo.currency_symbol}{price}
                       </div>
                     </div>
