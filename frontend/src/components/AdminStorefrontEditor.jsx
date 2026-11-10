@@ -319,7 +319,9 @@ export default function AdminStorefrontEditor({
               }}
               className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 isActive
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30 font-bold'
+                  ? isLight
+                    ? 'bg-slate-800 text-white font-bold shadow-sm'
+                    : 'bg-slate-800 border border-slate-600 text-white font-bold shadow-sm'
                   : isLight
                     ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800'
@@ -420,10 +422,14 @@ export default function AdminStorefrontEditor({
                         key={s.id}
                         type="button"
                         onClick={() => handleFieldChange('heroSubtitleSize', s.id)}
-                        className={`py-2 px-1 rounded-xl border text-center transition ${
+                        className={`py-2 px-1 rounded-xl border text-center transition cursor-pointer ${
                           (config.heroSubtitleSize || 'sm') === s.id
-                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                            ? isLight 
+                              ? 'bg-slate-800 border-slate-800 text-white shadow-xs font-bold ring-1 ring-slate-800' 
+                              : 'bg-slate-800 border-slate-600 text-white shadow-xs font-bold ring-1 ring-slate-500/50'
+                            : isLight
+                              ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'
                         }`}
                       >
                         <div className="font-bold text-xs">{s.label}</div>
@@ -436,8 +442,8 @@ export default function AdminStorefrontEditor({
                 {/* Subtitle Spacing / Margin Control */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="text-slate-300 font-semibold">Subtitle Spacing / Gap (সাবটাইটেলের ফাঁকা জায়গা):</label>
-                    <span className="text-[10px] text-amber-400 font-mono font-bold">
+                    <label className={`font-semibold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Subtitle Spacing / Gap (সাবটাইটেলের ফাঁকা জায়গা):</label>
+                    <span className="text-[10px] text-amber-500 font-mono font-bold">
                       {config.heroSubtitleSpacing === 'tight' ? 'Tight Gap (mt-1)' : config.heroSubtitleSpacing === 'relaxed' ? 'Relaxed Gap (mt-4)' : config.heroSubtitleSpacing === 'loose' ? 'Loose Gap (mt-6)' : 'Normal Gap (mt-2.5)'}
                     </span>
                   </div>
@@ -452,10 +458,14 @@ export default function AdminStorefrontEditor({
                         key={sp.id}
                         type="button"
                         onClick={() => handleFieldChange('heroSubtitleSpacing', sp.id)}
-                        className={`py-1.5 px-1 rounded-xl border text-center transition ${
+                        className={`py-1.5 px-1 rounded-xl border text-center transition cursor-pointer ${
                           (config.heroSubtitleSpacing || 'normal') === sp.id
-                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                            ? isLight 
+                              ? 'bg-slate-800 border-slate-800 text-white shadow-xs font-bold ring-1 ring-slate-800' 
+                              : 'bg-slate-800 border-slate-600 text-white shadow-xs font-bold ring-1 ring-slate-500/50'
+                            : isLight
+                              ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'
                         }`}
                       >
                         <div className="font-bold text-xs">{sp.label}</div>
@@ -468,8 +478,8 @@ export default function AdminStorefrontEditor({
                 {/* Title Font Size Control */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="text-slate-300 font-semibold">Title Text Size (টাইটেলের টেক্সট সাইজ):</label>
-                    <span className="text-[10px] text-indigo-400 font-mono font-bold">
+                    <label className={`font-semibold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Title Text Size (টাইটেলের টেক্সট সাইজ):</label>
+                    <span className={`text-[10px] font-mono font-bold ${isLight ? 'text-slate-700' : 'text-indigo-400'}`}>
                       {config.heroTitleSize === 'sm' ? '28pt (Compact)' : config.heroTitleSize === 'lg' ? '48pt (Large)' : config.heroTitleSize === 'xl' ? '60pt (Extra Large)' : '36pt (Medium - Default)'}
                     </span>
                   </div>
@@ -484,10 +494,14 @@ export default function AdminStorefrontEditor({
                         key={s.id}
                         type="button"
                         onClick={() => handleFieldChange('heroTitleSize', s.id)}
-                        className={`py-2 px-1 rounded-xl border text-center transition ${
+                        className={`py-2 px-1 rounded-xl border text-center transition cursor-pointer ${
                           (config.heroTitleSize || 'md') === s.id
-                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                            ? isLight 
+                              ? 'bg-slate-800 border-slate-800 text-white shadow-xs font-bold ring-1 ring-slate-800' 
+                              : 'bg-slate-800 border-slate-600 text-white shadow-xs font-bold ring-1 ring-slate-500/50'
+                            : isLight
+                              ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'
                         }`}
                       >
                         <div className="font-bold text-xs">{s.label}</div>
@@ -500,8 +514,8 @@ export default function AdminStorefrontEditor({
                 {/* Hero Top Spacing / Gap Control */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="text-slate-300 font-semibold">Title Top Gap / Spacing (টাইটেলের উপরের স্পেস):</label>
-                    <span className="text-[10px] text-amber-400 font-mono font-bold">
+                    <label className={`font-semibold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Title Top Gap / Spacing (টাইটেলের উপরের স্পেস):</label>
+                    <span className="text-[10px] text-amber-500 font-mono font-bold">
                       {config.heroTopGap === 'none' ? 'Minimal Gap' : config.heroTopGap === 'normal' ? 'Normal Gap' : config.heroTopGap === 'lg' ? 'Large Gap' : 'Compact Gap (Default)'}
                     </span>
                   </div>
@@ -516,10 +530,14 @@ export default function AdminStorefrontEditor({
                         key={g.id}
                         type="button"
                         onClick={() => handleFieldChange('heroTopGap', g.id)}
-                        className={`py-1.5 px-1 rounded-xl border text-center transition ${
+                        className={`py-1.5 px-1 rounded-xl border text-center transition cursor-pointer ${
                           (config.heroTopGap || 'sm') === g.id
-                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                            ? isLight 
+                              ? 'bg-slate-800 border-slate-800 text-white shadow-xs font-bold ring-1 ring-slate-800' 
+                              : 'bg-slate-800 border-slate-600 text-white shadow-xs font-bold ring-1 ring-slate-500/50'
+                            : isLight
+                              ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'
                         }`}
                       >
                         <div className="font-bold text-xs">{g.label}</div>
@@ -531,15 +549,19 @@ export default function AdminStorefrontEditor({
 
                 <div className="grid grid-cols-2 gap-3 pt-2">
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Text Alignment (অ্যালাইনমেন্ট):</label>
+                    <label className={`block font-semibold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Text Alignment (অ্যালাইনমেন্ট):</label>
                     <div className="grid grid-cols-2 gap-1.5">
                       <button
                         type="button"
                         onClick={() => handleFieldChange('heroAlignment', 'left')}
-                        className={`py-1.5 rounded-lg border text-xs font-semibold flex items-center justify-center space-x-1 ${
+                        className={`py-1.5 rounded-lg border text-xs font-semibold flex items-center justify-center space-x-1 cursor-pointer ${
                           config.heroAlignment === 'left'
-                            ? 'bg-indigo-600 border-indigo-500 text-white'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                            ? isLight 
+                              ? 'bg-slate-800 border-slate-800 text-white shadow-xs font-bold' 
+                              : 'bg-slate-800 border-slate-600 text-white shadow-xs font-bold'
+                            : isLight
+                              ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
                         }`}
                       >
                         <AlignLeft className="w-3.5 h-3.5" />
@@ -548,10 +570,14 @@ export default function AdminStorefrontEditor({
                       <button
                         type="button"
                         onClick={() => handleFieldChange('heroAlignment', 'center')}
-                        className={`py-1.5 rounded-lg border text-xs font-semibold flex items-center justify-center space-x-1 ${
+                        className={`py-1.5 rounded-lg border text-xs font-semibold flex items-center justify-center space-x-1 cursor-pointer ${
                           config.heroAlignment === 'center'
-                            ? 'bg-indigo-600 border-indigo-500 text-white'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                            ? isLight 
+                              ? 'bg-slate-800 border-slate-800 text-white shadow-xs font-bold' 
+                              : 'bg-slate-800 border-slate-600 text-white shadow-xs font-bold'
+                            : isLight
+                              ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
                         }`}
                       >
                         <AlignCenter className="w-3.5 h-3.5" />
@@ -1465,10 +1491,14 @@ export default function AdminStorefrontEditor({
                         key={cols}
                         type="button"
                         onClick={() => handleFieldChange('gridColumns', cols)}
-                        className={`p-3 rounded-xl border text-center transition ${
+                        className={`p-3 rounded-xl border text-center transition cursor-pointer ${
                           config.gridColumns === cols
-                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-md shadow-indigo-600/30'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                            ? isLight 
+                              ? 'bg-slate-800 border-slate-800 text-white shadow-xs font-bold ring-1 ring-slate-800' 
+                              : 'bg-slate-800 border-slate-600 text-white shadow-xs font-bold ring-1 ring-slate-500/50'
+                            : isLight
+                              ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
                         }`}
                       >
                         <div className="font-bold text-sm">{cols} Columns</div>
@@ -1480,7 +1510,7 @@ export default function AdminStorefrontEditor({
 
                 {/* Grid Spacing / Gap Selector */}
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1.5">
+                  <label className={`block font-semibold mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
                     Grid Gap / Item Spacing (আইটেমগুলোর মধ্যকার ফাঁকা জায়গা):
                   </label>
                   <div className="grid grid-cols-3 gap-2">
@@ -1493,10 +1523,14 @@ export default function AdminStorefrontEditor({
                         key={gap.id}
                         type="button"
                         onClick={() => handleFieldChange('gridGap', gap.id)}
-                        className={`p-2.5 rounded-xl border text-center transition ${
+                        className={`p-2.5 rounded-xl border text-center transition cursor-pointer ${
                           config.gridGap === gap.id
-                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                            ? isLight 
+                              ? 'bg-slate-800 border-slate-800 text-white shadow-xs font-bold ring-1 ring-slate-800' 
+                              : 'bg-slate-800 border-slate-600 text-white shadow-xs font-bold ring-1 ring-slate-500/50'
+                            : isLight
+                              ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
                         }`}
                       >
                         <div className="font-semibold text-xs">{gap.label}</div>
@@ -1508,7 +1542,7 @@ export default function AdminStorefrontEditor({
 
                 {/* Catalog Section Vertical Spacing */}
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1.5">
+                  <label className={`block font-semibold mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
                     Product Section Vertical Spacing (প্রোডাক্ট সেকশন প্যাডিং / স্পেস):
                   </label>
                   <div className="grid grid-cols-3 gap-2">
@@ -1521,10 +1555,14 @@ export default function AdminStorefrontEditor({
                         key={pad.id}
                         type="button"
                         onClick={() => handleFieldChange('catalogPadding', pad.id)}
-                        className={`p-2.5 rounded-xl border text-center transition ${
+                        className={`p-2.5 rounded-xl border text-center transition cursor-pointer ${
                           (config.catalogPadding || 'normal') === pad.id
-                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                            ? isLight 
+                              ? 'bg-slate-800 border-slate-800 text-white shadow-xs font-bold ring-1 ring-slate-800' 
+                              : 'bg-slate-800 border-slate-600 text-white shadow-xs font-bold ring-1 ring-slate-500/50'
+                            : isLight
+                              ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
                         }`}
                       >
                         <div className="font-semibold text-xs">{pad.label}</div>
@@ -1536,7 +1574,7 @@ export default function AdminStorefrontEditor({
 
                 {/* Card Corner Radius */}
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1.5">
+                  <label className={`block font-semibold mb-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
                     Product Card Corner Curvature (কোণার রাউন্ডনেস):
                   </label>
                   <div className="grid grid-cols-4 gap-2">
@@ -1550,10 +1588,14 @@ export default function AdminStorefrontEditor({
                         key={r.id}
                         type="button"
                         onClick={() => handleFieldChange('cardRadius', r.id)}
-                        className={`py-2 rounded-xl border text-center transition text-xs font-semibold ${
+                        className={`py-2 rounded-xl border text-center transition text-xs font-semibold cursor-pointer ${
                           config.cardRadius === r.id
-                            ? 'bg-amber-400 text-slate-950 font-bold border-amber-400 shadow'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                            ? isLight
+                              ? 'bg-slate-800 border-slate-800 text-white shadow-xs font-bold ring-1 ring-slate-800'
+                              : 'bg-slate-800 border-slate-600 text-white shadow-xs font-bold ring-1 ring-slate-500/50'
+                            : isLight
+                              ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
                         }`}
                       >
                         {r.label}
@@ -1993,7 +2035,11 @@ export default function AdminStorefrontEditor({
                 <button
                   type="button"
                   onClick={() => setPreviewDevice('desktop')}
-                  className={`p-1.5 rounded-lg transition ${previewDevice === 'desktop' ? 'bg-indigo-600 text-white' : isLight ? 'text-slate-600 hover:text-slate-900' : 'text-slate-400 hover:text-white'}`}
+                  className={`p-1.5 rounded-lg transition cursor-pointer ${
+                    previewDevice === 'desktop'
+                      ? isLight ? 'bg-slate-800 text-white font-bold' : 'bg-slate-800 text-white font-bold ring-1 ring-slate-600'
+                      : isLight ? 'text-slate-600 hover:text-slate-900' : 'text-slate-400 hover:text-white'
+                  }`}
                   title="Desktop View"
                 >
                   <Monitor className="w-3.5 h-3.5" />
@@ -2001,7 +2047,11 @@ export default function AdminStorefrontEditor({
                 <button
                   type="button"
                   onClick={() => setPreviewDevice('mobile')}
-                  className={`p-1.5 rounded-lg transition ${previewDevice === 'mobile' ? 'bg-indigo-600 text-white' : isLight ? 'text-slate-600 hover:text-slate-900' : 'text-slate-400 hover:text-white'}`}
+                  className={`p-1.5 rounded-lg transition cursor-pointer ${
+                    previewDevice === 'mobile'
+                      ? isLight ? 'bg-slate-800 text-white font-bold' : 'bg-slate-800 text-white font-bold ring-1 ring-slate-600'
+                      : isLight ? 'text-slate-600 hover:text-slate-900' : 'text-slate-400 hover:text-white'
+                  }`}
                   title="Mobile View"
                 >
                   <Smartphone className="w-3.5 h-3.5" />

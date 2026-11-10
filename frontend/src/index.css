@@ -14,6 +14,10 @@
   background-image: 
     radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
 }
+.admin-light-mode .canvas-grid {
+  background-image: 
+    radial-gradient(circle, rgba(15, 23, 42, 0.12) 1px, transparent 1px);
+}
 
 /* Custom Scrollbar - Clean & Transparent */
 ::-webkit-scrollbar {

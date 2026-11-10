@@ -10,37 +10,115 @@ const NODE_PALETTE = [
   {
     category: 'Triggers',
     items: [
-      { type: 'trigger', label: '⚡ Order Placed (US, UK, CA)', icon: Zap, color: 'border-amber-500/40 bg-amber-500/10 text-amber-300', config: { trigger_event: 'order_placed' } },
-      { type: 'trigger', label: '🎯 New Social Lead (Meta/TikTok)', icon: Sparkles, color: 'border-pink-500/40 bg-pink-500/10 text-pink-300', config: { trigger_event: 'lead_generated' } },
-      { type: 'trigger', label: '🛒 Cart Abandoned (Retarget)', icon: RefreshCw, color: 'border-orange-500/40 bg-orange-500/10 text-orange-300', config: { trigger_event: 'cart_abandoned' } },
+      { 
+        type: 'trigger', 
+        label: '⚡ Order Placed (US, UK, CA)', 
+        icon: Zap, 
+        lightColor: 'border-amber-400 bg-amber-50 text-amber-950 font-bold hover:bg-amber-100 shadow-xs', 
+        darkColor: 'border-amber-500/40 bg-amber-500/10 text-amber-300', 
+        config: { trigger_event: 'order_placed' } 
+      },
+      { 
+        type: 'trigger', 
+        label: '🎯 New Social Lead (Meta/TikTok)', 
+        icon: Sparkles, 
+        lightColor: 'border-pink-300 bg-pink-50 text-pink-950 font-bold hover:bg-pink-100 shadow-xs', 
+        darkColor: 'border-pink-500/40 bg-pink-500/10 text-pink-300', 
+        config: { trigger_event: 'lead_generated' } 
+      },
+      { 
+        type: 'trigger', 
+        label: '🛒 Cart Abandoned (Retarget)', 
+        icon: RefreshCw, 
+        lightColor: 'border-orange-300 bg-orange-50 text-orange-950 font-bold hover:bg-orange-100 shadow-xs', 
+        darkColor: 'border-orange-500/40 bg-orange-500/10 text-orange-300', 
+        config: { trigger_event: 'cart_abandoned' } 
+      },
     ]
   },
   {
     category: 'Regional Routing & POD',
     items: [
-      { type: 'action', label: '🏭 Route to Regional POD Hub', icon: Box, color: 'border-indigo-500/40 bg-indigo-500/10 text-indigo-300', config: { action_type: 'pod_fulfill' } },
-      { type: 'condition', label: '🔍 Filter by Target Market (US/UK/CA)', icon: Sliders, color: 'border-cyan-500/40 bg-cyan-500/10 text-cyan-300', config: { field: 'target_country', operator: 'equals', value: 'US' } },
+      { 
+        type: 'action', 
+        label: '🏭 Route to Regional POD Hub', 
+        icon: Box, 
+        lightColor: 'border-indigo-300 bg-indigo-50 text-indigo-950 font-bold hover:bg-indigo-100 shadow-xs', 
+        darkColor: 'border-indigo-500/40 bg-indigo-500/10 text-indigo-300', 
+        config: { action_type: 'pod_fulfill' } 
+      },
+      { 
+        type: 'condition', 
+        label: '🔍 Filter Target Market (US/UK/CA)', 
+        icon: Sliders, 
+        lightColor: 'border-cyan-300 bg-cyan-50 text-cyan-950 font-bold hover:bg-cyan-100 shadow-xs', 
+        darkColor: 'border-cyan-500/40 bg-cyan-500/10 text-cyan-300', 
+        config: { field: 'target_country', operator: 'equals', value: 'US' } 
+      },
     ]
   },
   {
     category: 'Social Ads & Conversions',
     items: [
-      { type: 'action', label: '📊 Meta CAPI (Purchase / Lead)', icon: Share2, color: 'border-blue-500/40 bg-blue-500/10 text-blue-300', config: { action_type: 'meta_capi', event_name: 'Purchase' } },
-      { type: 'action', label: '🎵 TikTok Events API (Pixel Server)', icon: Share2, color: 'border-purple-500/40 bg-purple-500/10 text-purple-300', config: { action_type: 'tiktok_events', event_name: 'Purchase' } },
-      { type: 'action', label: '📈 Google Ads Enhanced Conversion', icon: Share2, color: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300', config: { action_type: 'google_enhanced', event_name: 'Purchase' } },
+      { 
+        type: 'action', 
+        label: '📊 Meta CAPI (Purchase / Lead)', 
+        icon: Share2, 
+        lightColor: 'border-blue-300 bg-blue-50 text-blue-950 font-bold hover:bg-blue-100 shadow-xs', 
+        darkColor: 'border-blue-500/40 bg-blue-500/10 text-blue-300', 
+        config: { action_type: 'meta_capi', event_name: 'Purchase' } 
+      },
+      { 
+        type: 'action', 
+        label: '🎵 TikTok Events API (Pixel Server)', 
+        icon: Share2, 
+        lightColor: 'border-purple-300 bg-purple-50 text-purple-950 font-bold hover:bg-purple-100 shadow-xs', 
+        darkColor: 'border-purple-500/40 bg-purple-500/10 text-purple-300', 
+        config: { action_type: 'tiktok_events', event_name: 'Purchase' } 
+      },
+      { 
+        type: 'action', 
+        label: '📈 Google Ads Enhanced Conversion', 
+        icon: Share2, 
+        lightColor: 'border-emerald-300 bg-emerald-50 text-emerald-950 font-bold hover:bg-emerald-100 shadow-xs', 
+        darkColor: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300', 
+        config: { action_type: 'google_enhanced', event_name: 'Purchase' } 
+      },
     ]
   },
   {
     category: 'CRM & Notifications',
     items: [
-      { type: 'action', label: '✉️ Send Transactional / Voucher Email', icon: Mail, color: 'border-sky-500/40 bg-sky-500/10 text-sky-300', config: { action_type: 'send_email', subject: 'Your POD Order Confirmation' } },
-      { type: 'action', label: '🔄 Sync Lead to Klaviyo & HubSpot', icon: Database, color: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300', config: { action_type: 'crm_sync' } },
-      { type: 'action', label: '🔔 Slack Operations Team Alert', icon: Bell, color: 'border-yellow-500/40 bg-yellow-500/10 text-yellow-300', config: { action_type: 'slack_alert' } },
+      { 
+        type: 'action', 
+        label: '✉️ Send Transactional / Voucher Email', 
+        icon: Mail, 
+        lightColor: 'border-sky-300 bg-sky-50 text-sky-950 font-bold hover:bg-sky-100 shadow-xs', 
+        darkColor: 'border-sky-500/40 bg-sky-500/10 text-sky-300', 
+        config: { action_type: 'send_email', subject: 'Your POD Order Confirmation' } 
+      },
+      { 
+        type: 'action', 
+        label: '🔄 Sync Lead to Klaviyo & HubSpot', 
+        icon: Database, 
+        lightColor: 'border-teal-300 bg-teal-50 text-teal-950 font-bold hover:bg-teal-100 shadow-xs', 
+        darkColor: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300', 
+        config: { action_type: 'crm_sync' } 
+      },
+      { 
+        type: 'action', 
+        label: '🔔 Slack Operations Alert', 
+        icon: Bell, 
+        lightColor: 'border-amber-300 bg-amber-50 text-amber-950 font-bold hover:bg-amber-100 shadow-xs', 
+        darkColor: 'border-yellow-500/40 bg-yellow-500/10 text-yellow-300', 
+        config: { action_type: 'slack_alert' } 
+      },
     ]
   }
 ];
 
-export default function WorkflowCanvas({ currentMarket }) {
+export default function WorkflowCanvas({ currentMarket, storeTheme = 'light' }) {
+  const isLight = storeTheme === 'light';
   const [workflows, setWorkflows] = useState([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState(null);
   const [nodes, setNodes] = useState([]);
@@ -306,14 +384,18 @@ export default function WorkflowCanvas({ currentMarket }) {
   };
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-slate-950">
-      {/* Left Sidebar: Palette & Workflows */}
-      <aside className="w-80 border-r border-slate-800 bg-slate-900/60 flex flex-col z-20">
+    <div className={`flex h-[calc(100vh-4rem)] overflow-hidden transition-colors ${isLight ? 'bg-slate-100 text-slate-900 admin-light-mode' : 'bg-slate-950 text-white'}`}>
+      {/* Left Sidebar: Palette & Workflows (Optimized w-64 width) */}
+      <aside className={`w-64 border-r flex flex-col z-20 shrink-0 transition-colors ${
+        isLight ? 'bg-white border-slate-200 text-slate-800 shadow-sm' : 'bg-slate-900/60 border-slate-800 text-white'
+      }`}>
         {/* Workflow Selector Bar */}
-        <div className="p-4 border-b border-slate-800">
+        <div className={`p-3.5 border-b ${isLight ? 'border-slate-200 bg-slate-50/50' : 'border-slate-800'}`}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Workflow</span>
-            <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+            <span className={`text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+              Active Workflow
+            </span>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-bold">
               Live
             </span>
           </div>
@@ -323,28 +405,34 @@ export default function WorkflowCanvas({ currentMarket }) {
               const wf = workflows.find((w) => w.id === parseInt(e.target.value));
               if (wf) loadWorkflow(wf);
             }}
-            className="w-full bg-slate-800 border border-slate-700 text-sm rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+            className={`w-full text-xs font-semibold rounded-lg px-2.5 py-1.5 border focus:outline-none ${
+              isLight 
+                ? 'bg-white border-slate-300 text-slate-900 shadow-xs focus:border-slate-600' 
+                : 'bg-slate-800 border-slate-700 text-white focus:border-indigo-500'
+            }`}
           >
             {workflows.map((w) => (
-              <option key={w.id} value={w.id}>
+              <option key={w.id} value={w.id} className="text-slate-900 bg-white dark:text-white dark:bg-slate-900">
                 {w.name}
               </option>
             ))}
           </select>
-          <p className="text-xs text-slate-400 mt-2 line-clamp-2">{selectedWorkflow?.description}</p>
+          <p className={`text-[11px] mt-1.5 line-clamp-2 ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+            {selectedWorkflow?.description}
+          </p>
         </div>
 
         {/* Node Palette List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-5">
-          <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
-            <Layers className="w-3.5 h-3.5 text-indigo-400" />
+        <div className="flex-1 overflow-y-auto p-3 space-y-4 no-scrollbar">
+          <div className={`flex items-center space-x-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>
+            <Layers className="w-3.5 h-3.5 text-indigo-500" />
             <span>Drag Nodes onto Canvas</span>
           </div>
 
           {NODE_PALETTE.map((cat, idx) => (
-            <div key={idx} className="space-y-2">
-              <h4 className="text-xs font-semibold text-slate-400 px-1">{cat.category}</h4>
-              <div className="space-y-1.5">
+            <div key={idx} className="space-y-1.5">
+              <h4 className={`text-[11px] font-bold px-1 ${isLight ? 'text-slate-800' : 'text-slate-400'}`}>{cat.category}</h4>
+              <div className="space-y-1">
                 {cat.items.map((item, i) => {
                   const Icon = item.icon;
                   return (
@@ -352,9 +440,11 @@ export default function WorkflowCanvas({ currentMarket }) {
                       key={i}
                       draggable
                       onDragStart={(e) => handleDragStartFromPalette(e, item)}
-                      className={`p-2.5 rounded-lg border text-xs font-medium cursor-grab active:cursor-grabbing transition-all hover:scale-[1.02] flex items-center space-x-2.5 ${item.color}`}
+                      className={`p-2 rounded-lg border text-xs font-semibold cursor-grab active:cursor-grabbing transition-all hover:scale-[1.02] flex items-center space-x-2 ${
+                        isLight ? item.lightColor : item.darkColor
+                      }`}
                     >
-                      <Icon className="w-4 h-4 shrink-0" />
+                      <Icon className="w-3.5 h-3.5 shrink-0" />
                       <span className="truncate">{item.label}</span>
                     </div>
                   );
@@ -365,21 +455,27 @@ export default function WorkflowCanvas({ currentMarket }) {
         </div>
 
         {/* Workflow Stats */}
-        <div className="p-4 border-t border-slate-800 bg-slate-900/90 text-xs text-slate-400 flex justify-between">
-          <span>Nodes: <strong className="text-white">{nodes.length}</strong></span>
-          <span>Connections: <strong className="text-white">{edges.length}</strong></span>
-          <span>Market: <strong className="text-indigo-400">{currentMarket}</strong></span>
+        <div className={`p-3 border-t text-xs flex justify-between ${
+          isLight ? 'bg-slate-50 border-slate-200 text-slate-700' : 'bg-slate-900/90 border-slate-800 text-slate-400'
+        }`}>
+          <span>Nodes: <strong className={isLight ? 'text-slate-950' : 'text-white'}>{nodes.length}</strong></span>
+          <span>Connections: <strong className={isLight ? 'text-slate-950' : 'text-white'}>{edges.length}</strong></span>
+          <span>Market: <strong className="text-indigo-500 font-bold">{currentMarket}</strong></span>
         </div>
       </aside>
 
       {/* Main Canvas Area */}
-      <main className="flex-1 flex flex-col relative overflow-hidden bg-slate-950">
+      <main className={`flex-1 flex flex-col relative overflow-hidden transition-colors ${isLight ? 'bg-slate-100/60' : 'bg-slate-950'}`}>
         {/* Top Control Bar */}
-        <div className="h-14 border-b border-slate-800 bg-slate-900/80 px-6 flex items-center justify-between z-10">
+        <div className={`h-14 border-b px-6 flex items-center justify-between z-10 backdrop-blur-md ${
+          isLight ? 'bg-white/95 border-slate-200 text-slate-900 shadow-xs' : 'bg-slate-900/80 border-slate-800 text-white'
+        }`}>
           <div className="flex items-center space-x-3">
-            <span className="text-sm font-semibold text-white">{selectedWorkflow?.name || 'Workflow Builder'}</span>
+            <span className={`text-sm font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              {selectedWorkflow?.name || 'Workflow Builder'}
+            </span>
             {isConnectMode && (
-              <span className="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-full animate-pulse">
+              <span className="text-xs bg-amber-500/20 text-amber-500 border border-amber-500/30 px-2.5 py-1 rounded-full animate-pulse font-semibold">
                 Click any node to connect as target
               </span>
             )}
@@ -394,13 +490,15 @@ export default function WorkflowCanvas({ currentMarket }) {
                   ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30 ring-2 ring-emerald-400'
                   : saveStatus === 'error'
                   ? 'bg-rose-600 text-white'
-                  : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                  : isLight 
+                    ? 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-800' 
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
               }`}
             >
               {saveStatus === 'success' ? (
                 <CheckCircle2 className="w-3.5 h-3.5 text-white" />
               ) : (
-                <Save className="w-3.5 h-3.5 text-slate-400" />
+                <Save className="w-3.5 h-3.5 text-slate-300" />
               )}
               <span>
                 {isSaving
@@ -416,7 +514,11 @@ export default function WorkflowCanvas({ currentMarket }) {
             <button
               onClick={handleRunSimulation}
               disabled={isSimulating}
-              className="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition"
+              className={`flex items-center space-x-1.5 px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-sm cursor-pointer ${
+                isLight 
+                  ? 'bg-slate-900 hover:bg-slate-800 text-white' 
+                  : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30'
+              }`}
             >
               <Play className="w-3.5 h-3.5 fill-current" />
               <span>{isSimulating ? 'Executing...' : 'Test Run / Simulate'}</span>
@@ -482,22 +584,26 @@ export default function WorkflowCanvas({ currentMarket }) {
                 style={{
                   transform: `translate(${node.position?.x || 50}px, ${node.position?.y || 50}px)`,
                 }}
-                className={`absolute w-60 rounded-xl p-3.5 border transition-shadow cursor-move z-10 ${
+                className={`absolute w-60 rounded-xl p-3 border transition-shadow cursor-move z-10 ${
                   isConnectingSource
-                    ? 'border-amber-400 bg-amber-500/20 shadow-lg shadow-amber-500/30 ring-2 ring-amber-400'
+                    ? 'border-amber-400 bg-amber-500/20 shadow-lg ring-2 ring-amber-400'
                     : isSelected
-                    ? 'border-indigo-500 bg-slate-900/95 shadow-xl shadow-indigo-500/20 ring-2 ring-indigo-500'
-                    : 'border-slate-800 bg-slate-900/90 shadow-lg hover:border-slate-700'
+                    ? isLight 
+                      ? 'border-slate-900 bg-white shadow-xl ring-2 ring-slate-800' 
+                      : 'border-indigo-500 bg-slate-900/95 shadow-xl ring-2 ring-indigo-500'
+                    : isLight 
+                      ? 'border-slate-300 bg-white shadow-md hover:border-slate-400' 
+                      : 'border-slate-800 bg-slate-900/90 shadow-lg hover:border-slate-700'
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <span
                     className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
                       node.type === 'trigger'
-                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                        ? isLight ? 'bg-amber-100 text-amber-950 border border-amber-300' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                         : node.type === 'condition'
-                        ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
-                        : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+                        ? isLight ? 'bg-cyan-100 text-cyan-950 border border-cyan-300' : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
+                        : isLight ? 'bg-indigo-100 text-indigo-950 border border-indigo-300' : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
                     }`}
                   >
                     {node.type}
@@ -510,7 +616,9 @@ export default function WorkflowCanvas({ currentMarket }) {
                         e.stopPropagation();
                         handleStartConnect(node.id);
                       }}
-                      className="p-1 rounded text-slate-400 hover:text-indigo-400 hover:bg-slate-800"
+                      className={`p-1 rounded transition ${
+                        isLight ? 'text-slate-500 hover:text-slate-900 hover:bg-slate-100' : 'text-slate-400 hover:text-indigo-400 hover:bg-slate-800'
+                      }`}
                     >
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
@@ -520,27 +628,37 @@ export default function WorkflowCanvas({ currentMarket }) {
                         e.stopPropagation();
                         handleDeleteNode(node.id);
                       }}
-                      className="p-1 rounded text-slate-400 hover:text-red-400 hover:bg-slate-800"
+                      className={`p-1 rounded transition ${
+                        isLight ? 'text-slate-500 hover:text-rose-600 hover:bg-slate-100' : 'text-slate-400 hover:text-red-400 hover:bg-slate-800'
+                      }`}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
 
-                <div className="text-xs font-semibold text-white mb-1.5 leading-snug">{node.label}</div>
+                <div className={`text-xs font-bold mb-1.5 leading-snug ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                  {node.label}
+                </div>
 
                 {node.config?.action_type && (
-                  <div className="text-[11px] text-slate-400 bg-slate-800/60 rounded px-2 py-1 font-mono">
+                  <div className={`text-[11px] rounded px-2 py-1 font-mono font-medium ${
+                    isLight ? 'text-slate-800 bg-slate-100 border border-slate-200' : 'text-slate-400 bg-slate-800/60'
+                  }`}>
                     action: {node.config.action_type}
                   </div>
                 )}
                 {node.config?.trigger_event && (
-                  <div className="text-[11px] text-slate-400 bg-slate-800/60 rounded px-2 py-1 font-mono">
+                  <div className={`text-[11px] rounded px-2 py-1 font-mono font-medium ${
+                    isLight ? 'text-slate-800 bg-slate-100 border border-slate-200' : 'text-slate-400 bg-slate-800/60'
+                  }`}>
                     event: {node.config.trigger_event}
                   </div>
                 )}
                 {node.config?.field && (
-                  <div className="text-[11px] text-slate-400 bg-slate-800/60 rounded px-2 py-1 font-mono">
+                  <div className={`text-[11px] rounded px-2 py-1 font-mono font-medium ${
+                    isLight ? 'text-slate-800 bg-slate-100 border border-slate-200' : 'text-slate-400 bg-slate-800/60'
+                  }`}>
                     if {node.config.field} == {node.config.value}
                   </div>
                 )}
@@ -551,20 +669,24 @@ export default function WorkflowCanvas({ currentMarket }) {
 
         {/* Simulation Execution Drawer / Modal */}
         {simulationResult && (
-          <div className="absolute bottom-0 left-0 right-0 max-h-80 border-t border-slate-800 bg-slate-900/95 backdrop-blur-md z-30 p-4 overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className={`absolute bottom-0 left-0 right-0 max-h-80 border-t backdrop-blur-md z-30 p-4 overflow-y-auto ${
+            isLight ? 'bg-white/95 border-slate-200 shadow-xl text-slate-900' : 'bg-slate-900/95 border-slate-800 text-white'
+          }`}>
+            <div className={`flex items-center justify-between pb-3 border-b ${isLight ? 'border-slate-200' : 'border-slate-800'}`}>
               <div className="flex items-center space-x-2">
-                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                <span className="text-sm font-bold text-white">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                <span className={`text-sm font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
                   Workflow Execution Trace: {simulationResult.workflow_name}
                 </span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-bold">
                   STATUS: {simulationResult.status}
                 </span>
               </div>
               <button
                 onClick={() => setSimulationResult(null)}
-                className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800"
+                className={`text-xs px-2 py-1 rounded transition ${
+                  isLight ? 'text-slate-600 hover:text-slate-900 bg-slate-100 border border-slate-300' : 'text-slate-400 hover:text-white bg-slate-800'
+                }`}
               >
                 Close Trace
               </button>
@@ -572,14 +694,18 @@ export default function WorkflowCanvas({ currentMarket }) {
 
             <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {simulationResult.logs?.map((step, idx) => (
-                <div key={idx} className="bg-slate-950/80 border border-slate-800 rounded-lg p-3 text-xs">
+                <div key={idx} className={`border rounded-lg p-3 text-xs ${
+                  isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/80 border-slate-800'
+                }`}>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="font-semibold text-slate-200 truncate">{step.node_label}</span>
-                    <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded font-mono">
+                    <span className={`font-bold truncate ${isLight ? 'text-slate-900' : 'text-slate-200'}`}>{step.node_label}</span>
+                    <span className="text-[10px] text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded font-mono font-bold">
                       {step.status}
                     </span>
                   </div>
-                  <pre className="text-[10px] text-slate-400 bg-slate-900 p-2 rounded overflow-x-auto font-mono max-h-24">
+                  <pre className={`text-[10px] p-2 rounded overflow-x-auto font-mono max-h-24 ${
+                    isLight ? 'text-slate-700 bg-white border border-slate-200' : 'text-slate-400 bg-slate-900'
+                  }`}>
                     {JSON.stringify(step.output, null, 2)}
                   </pre>
                 </div>
@@ -591,16 +717,20 @@ export default function WorkflowCanvas({ currentMarket }) {
 
       {/* Right Properties Drawer */}
       {selectedNode && (
-        <aside className="w-72 border-l border-slate-800 bg-slate-900/80 p-4 z-20 flex flex-col justify-between">
+        <aside className={`w-72 border-l p-4 z-20 flex flex-col justify-between transition-colors ${
+          isLight ? 'bg-white border-slate-200 text-slate-800 shadow-lg' : 'bg-slate-900/80 border-slate-800 text-white'
+        }`}>
           <div>
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-              <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-300 uppercase tracking-wider">
-                <Settings2 className="w-4 h-4 text-indigo-400" />
+            <div className={`flex items-center justify-between pb-3 border-b mb-4 ${isLight ? 'border-slate-200' : 'border-slate-800'}`}>
+              <div className={`flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider ${
+                isLight ? 'text-slate-800' : 'text-slate-300'
+              }`}>
+                <Settings2 className="w-4 h-4 text-indigo-500" />
                 <span>Node Inspector</span>
               </div>
               <button
                 onClick={() => setSelectedNode(null)}
-                className="text-xs text-slate-500 hover:text-slate-300"
+                className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-300"
               >
                 ✕
               </button>
@@ -608,7 +738,7 @@ export default function WorkflowCanvas({ currentMarket }) {
 
             <div className="space-y-4 text-xs">
               <div>
-                <label className="block text-slate-400 font-medium mb-1">Step Label</label>
+                <label className={`block font-semibold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Step Label</label>
                 <input
                   type="text"
                   value={selectedNode.label}
@@ -619,21 +749,27 @@ export default function WorkflowCanvas({ currentMarket }) {
                     );
                     setSelectedNode((prev) => ({ ...prev, label: val }));
                   }}
-                  className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white"
+                  className={`w-full rounded px-2.5 py-1.5 border ${
+                    isLight ? 'bg-slate-50 border-slate-300 text-slate-900 font-medium' : 'bg-slate-800 border-slate-700 text-white'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 font-medium mb-1">Node Type</label>
-                <div className="px-2.5 py-1.5 bg-slate-800/60 rounded text-slate-300 font-mono">
+                <label className={`block font-semibold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Node Type</label>
+                <div className={`px-2.5 py-1.5 rounded font-mono ${
+                  isLight ? 'bg-slate-100 text-slate-800 border border-slate-200' : 'bg-slate-800/60 text-slate-300'
+                }`}>
                   {selectedNode.type}
                 </div>
               </div>
 
               {selectedNode.type === 'action' && selectedNode.config?.action_type && (
                 <div>
-                  <label className="block text-slate-400 font-medium mb-1">Action Type</label>
-                  <div className="px-2.5 py-1.5 bg-slate-800/60 rounded text-indigo-300 font-mono">
+                  <label className={`block font-semibold mb-1 ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Action Type</label>
+                  <div className={`px-2.5 py-1.5 rounded font-mono ${
+                    isLight ? 'bg-indigo-50 text-indigo-900 border border-indigo-200 font-bold' : 'bg-slate-800/60 text-indigo-300'
+                  }`}>
                     {selectedNode.config.action_type}
                   </div>
                 </div>
