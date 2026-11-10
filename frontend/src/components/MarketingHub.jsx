@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE } from '../config';
-import { Radio, Share2, Users, Gift, Send, CheckCircle2, ShieldAlert, Sparkles, Filter, RefreshCw } from 'lucide-react';
+import { Radio, Share2, Users, Gift, Send, CheckCircle2, ShieldAlert, Sparkles, Filter, RefreshCw, Award } from 'lucide-react';
+import InfluencerAffiliatePortal from './InfluencerAffiliatePortal';
 
-export default function MarketingHub({ currentMarket }) {
+export default function MarketingHub({ currentMarket, storeTheme = 'light' }) {
+  const [hubTab, setHubTab] = useState('ads'); // 'ads' | 'influencers'
   const [metrics, setMetrics] = useState(null);
   const [events, setEvents] = useState([]);
   const [leads, setLeads] = useState([]);
@@ -86,6 +88,50 @@ export default function MarketingHub({ currentMarket }) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Top Navigation Tabs: Ads & Leads vs Influencer Program */}
+      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div>
+          <h1 className="text-xl font-black text-white tracking-tight">Marketing & Growth Automation Hub</h1>
+          <p className="text-xs text-slate-400 mt-0.5">Manage automated ad conversion signals, server-side tracking, and creator affiliate networks.</p>
+        </div>
+
+        <div className="flex items-center space-x-1 p-1 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">
+          <button
+            type="button"
+            onClick={() => setHubTab('ads')}
+            className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center space-x-1.5 ${
+              hubTab === 'ads'
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Radio className="w-3.5 h-3.5" />
+            <span>Ad APIs & Leads</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setHubTab('influencers')}
+            className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center space-x-1.5 ${
+              hubTab === 'influencers'
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5 text-amber-400" />
+            <span>Influencer & Affiliate Program</span>
+          </button>
+        </div>
+      </div>
+
+      {hubTab === 'influencers' ? (
+        <InfluencerAffiliatePortal 
+          currencySymbol="$" 
+          storeTheme={storeTheme} 
+          isAdminView={true} 
+        />
+      ) : (
+        <>
       {/* Metrics Banner */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
@@ -330,6 +376,8 @@ export default function MarketingHub({ currentMarket }) {
           )}
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

@@ -13,6 +13,10 @@ import {
 import { DEFAULT_STOREFRONT_CONFIG } from '../config/storefrontConfig';
 import { DEFAULT_CATALOG_PRODUCTS } from '../config/catalogProducts';
 import { getTypographyInlineStyle } from './WordDocsTypographyToolbar';
+import ShoppableVideoFeed from './ShoppableVideoFeed';
+import PersonalizedRecommendations from './PersonalizedRecommendations';
+import InfluencerAffiliatePortal from './InfluencerAffiliatePortal';
+import CustomerLoyaltyRewards from './CustomerLoyaltyRewards';
 
 const SAMPLE_VISTA_TEMPLATES = [
   {
@@ -577,6 +581,42 @@ export default function CustomerStorefront({
     setPromoCodeInput('VIP15-MEMBER');
     setVipRegisterSuccess(newCustomer);
     showPaymentToast(`Welcome ${newCustomer.name}! VIP Privileges & 15% Discount activated!`, 'success');
+  };
+
+  // Generic Quick Add to Bag (for Shoppable Reels & AI Recommendation Bundle)
+  const handleQuickAddGeneric = (prod) => {
+    const rawPrice = parseFloat(prod.price || prod.base_price_usd || 19.99);
+    setCart((prev) => [
+      ...prev,
+      {
+        cart_item_id: `ci-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        product_id: prod.id,
+        title: prod.title || prod.name,
+        unit_price: rawPrice,
+        quantity: 1,
+        size: 'L',
+        color: 'Default',
+        finish: 'Matte',
+        paperStock: prod.selectedPaperStock || 'Standard 16pt Matte',
+        corner: prod.selectedCorner || 'Standard Rectangular',
+        image_url: prod.image || prod.image_url || 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=400&q=80',
+        template_name: null,
+        artwork_preview: null
+      }
+    ]);
+    setIsCartOpen(true);
+  };
+
+  // Customer Royalty Reward Coupon Redemption
+  const handleApplyRewardDiscount = (reward) => {
+    if (reward.type === 'fixed_discount') {
+      setPromoCodeInput(reward.code);
+      setDiscountPercent(prev => Math.max(prev, Math.round((reward.discountAmount / 35) * 100)));
+      showPaymentToast(`Applied Reward Voucher: ${reward.code} ($${reward.discountAmount} Off)!`);
+    } else if (reward.type === 'free_shipping') {
+      setPromoCodeInput(reward.code);
+      showPaymentToast(`Applied Reward Voucher: Free Express Shipping!`);
+    }
   };
 
   const marketInfo = markets[currentMarket] || {
@@ -1305,6 +1345,20 @@ export default function CustomerStorefront({
                     </div>
                   );
                 })}
+
+                {/* Direct Shortcut to Shoppable Video Feed */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('video-feed');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-black bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 border border-rose-500/30 transition cursor-pointer shrink-0"
+                  title="Jump to Shoppable Creator Video Reels"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                  <span>Shoppable Reels</span>
+                </button>
               </div>
 
               {/* Live Search Active Feedback */}
@@ -1961,6 +2015,16 @@ export default function CustomerStorefront({
         </section>
       )}
 
+      {/* 3.3 Short-Form Video Feed / Shoppable Creator Reels (Requirement 1) */}
+      <div id="video-feed">
+        <ShoppableVideoFeed
+          currencySymbol={marketInfo.currency_symbol}
+          onAddToCart={handleQuickAddGeneric}
+          onSelectProduct={(prod) => setSelectedProduct(prod)}
+          storeTheme={storeTheme}
+        />
+      </div>
+
       {/* 4. Products Grid */}
       <main id="catalog-grid" className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${catalogPaddingClass} flex-1 relative z-10`}>
         {/* Category Filter Pills & Right-side Sort & Filter */}
@@ -2199,6 +2263,14 @@ export default function CustomerStorefront({
         </div>
       )}
       </main>
+
+      {/* 4.5 Personalized Product Recommendations Engine (Requirement 2) */}
+      <PersonalizedRecommendations
+        currencySymbol={marketInfo.currency_symbol}
+        currentMarket={currentMarket}
+        onAddToCart={handleQuickAddGeneric}
+        storeTheme={storeTheme}
+      />
 
       {/* 5. VistaPrint-Style Product Order Configurator, Template Picker & Design Uploader */}
       {selectedProduct && (() => {
@@ -3370,6 +3442,15 @@ export default function CustomerStorefront({
         </section>
       )}
 
+      {/* 7.5 Automated Influencer & Creator Program Banner (Requirement 3) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        <InfluencerAffiliatePortal
+          currencySymbol={marketInfo.currency_symbol}
+          storeTheme={storeTheme}
+          isAdminView={false}
+        />
+      </section>
+
       {/* 8. Footer */}
       <footer className={`py-10 text-xs border-t transition-colors relative z-10 ${
         isLight 
@@ -4038,6 +4119,14 @@ export default function CustomerStorefront({
           </div>
         </div>
       )}
+
+      {/* 10.8 Customer Royalty & Point System Component (Requirement 4) */}
+      <CustomerLoyaltyRewards
+        currencySymbol={marketInfo.currency_symbol}
+        storeTheme={storeTheme}
+        onApplyRewardDiscount={handleApplyRewardDiscount}
+        initialPoints={850}
+      />
 
       {/* 11. Customer Live Support Chat Widget & Human Moderator Routing (Requirement 1) */}
       {cfg.showLiveChat !== false && (
