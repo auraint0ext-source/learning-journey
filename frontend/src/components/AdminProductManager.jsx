@@ -5,7 +5,7 @@ import {
   Package, Plus, Trash2, CheckCircle2, AlertCircle, RefreshCw, 
   ExternalLink, DollarSign, Tag, Layers, ToggleLeft, ToggleRight,
   Sparkles, Image as ImageIcon, Box, Truck, Sun, Moon, Palette, HelpCircle,
-  Barcode, ScanBarcode, Printer, Copy, Check, Search, X, QrCode, Zap, Edit3, Save
+  Barcode, ScanBarcode, UploadCloud, Printer, Copy, Check, Search, X, QrCode, Zap, Edit3, Save
 } from 'lucide-react';
 
 const PRESET_MOCKUPS = [
@@ -1083,29 +1083,97 @@ export default function AdminProductManager({
                 ></textarea>
               </div>
 
-              {/* VistaPrint Substrate & Paper Stock Options Manager */}
-              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5">
+              {/* MOO Custom Printing & Material Specifications */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-white flex items-center space-x-1.5">
-                    <Layers className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>VistaPrint Material & Finishing Specifications</span>
+                    <Layers className="w-4 h-4 text-emerald-400" />
+                    <span>MOO Material & Custom Print Specifications</span>
                   </span>
-                  <span className="text-[10px] text-indigo-400 bg-indigo-950/60 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">
-                    POD Spec
+                  <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-mono">
+                    Storefront Live Sync
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-[11px]">
+
+                {/* Paper Stocks Selection */}
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                    Supported Paper Stocks & Weights:
+                  </label>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {[
+                      { id: 'Original 16pt (350 gsm)', desc: 'Smooth FSC Coated' },
+                      { id: 'Super 19pt (400 gsm)', desc: 'Soft-Touch Velvet' },
+                      { id: 'Luxe 32pt (600 gsm)', desc: 'Mohawk Quadruple Core' },
+                      { id: 'Cotton 18pt (298 gsm)', desc: '100% Recycled Fabric' }
+                    ].map((st) => (
+                      <div
+                        key={st.id}
+                        className="p-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs"
+                      >
+                        <div>
+                          <div className="font-bold text-[11px] text-emerald-400">{st.id}</div>
+                          <div className="text-[9px] text-slate-400">{st.desc}</div>
+                        </div>
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 ml-1" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Finishes & Corners Grid */}
+                <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label className="text-slate-400 block mb-1">Supported Paper Stocks:</label>
-                    <div className="text-slate-300 font-mono bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">
-                      Standard Matte, Glossy, Uncoated 16pt, Linen, Foil
+                    <label className="text-[11px] font-semibold text-slate-300 block mb-1">Protective Finishes:</label>
+                    <div className="space-y-1">
+                      {['Matte Glare-Free (Smooth)', 'Gloss UV Shine (High-Contrast)', 'Soft-Touch Velvet (+ .00)'].map(fin => (
+                        <div key={fin} className="flex items-center space-x-2 text-[11px] text-slate-300">
+                          <Check className="w-3 h-3 text-emerald-400 shrink-0" />
+                          <span>{fin}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
+
                   <div>
-                    <label className="text-slate-400 block mb-1">Corner Profiles:</label>
-                    <div className="text-slate-300 font-mono bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">
-                      Standard Rectangular, Rounded, Square
+                    <label className="text-[11px] font-semibold text-slate-300 block mb-1">Corner Profiles:</label>
+                    <div className="space-y-1">
+                      {['Square Cut Corners (90°)', 'Rounded 1/4" Corners (+ .00)'].map(cor => (
+                        <div key={cor} className="flex items-center space-x-2 text-[11px] text-slate-300">
+                          <Check className="w-3 h-3 text-emerald-400 shrink-0" />
+                          <span>{cor}</span>
+                        </div>
+                      ))}
                     </div>
+                  </div>
+                </div>
+
+                {/* Printfinity & Artwork Upload Switches */}
+                <div className="pt-2 border-t border-slate-900 grid grid-cols-2 gap-2">
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900/80 border border-slate-800">
+                    <div>
+                      <div className="text-[11px] font-bold text-white flex items-center space-x-1">
+                        <Sparkles className="w-3 h-3 text-indigo-400" />
+                        <span>MOO Printfinity™</span>
+                      </div>
+                      <div className="text-[9px] text-slate-400">Up to 5 different backs</div>
+                    </div>
+                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      Enabled
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900/80 border border-slate-800">
+                    <div>
+                      <div className="text-[11px] font-bold text-white flex items-center space-x-1">
+                        <UploadCloud className="w-3 h-3 text-emerald-400" />
+                        <span>Photo Upload</span>
+                      </div>
+                      <div className="text-[9px] text-slate-400">300 DPI Preflight Ready</div>
+                    </div>
+                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      Active
+                    </span>
                   </div>
                 </div>
               </div>
@@ -1285,29 +1353,97 @@ export default function AdminProductManager({
                 </button>
               </div>
 
-              {/* VistaPrint Substrate & Paper Stock Options Manager */}
-              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5">
+              {/* MOO Custom Printing & Material Specifications */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-white flex items-center space-x-1.5">
-                    <Layers className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>VistaPrint Material & Finishing Specifications</span>
+                    <Layers className="w-4 h-4 text-emerald-400" />
+                    <span>MOO Material & Custom Print Specifications</span>
                   </span>
-                  <span className="text-[10px] text-indigo-400 bg-indigo-950/60 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">
-                    POD Spec
+                  <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-mono">
+                    Storefront Live Sync
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-[11px]">
+
+                {/* Paper Stocks Selection */}
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                    Supported Paper Stocks & Weights:
+                  </label>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {[
+                      { id: 'Original 16pt (350 gsm)', desc: 'Smooth FSC Coated' },
+                      { id: 'Super 19pt (400 gsm)', desc: 'Soft-Touch Velvet' },
+                      { id: 'Luxe 32pt (600 gsm)', desc: 'Mohawk Quadruple Core' },
+                      { id: 'Cotton 18pt (298 gsm)', desc: '100% Recycled Fabric' }
+                    ].map((st) => (
+                      <div
+                        key={st.id}
+                        className="p-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs"
+                      >
+                        <div>
+                          <div className="font-bold text-[11px] text-emerald-400">{st.id}</div>
+                          <div className="text-[9px] text-slate-400">{st.desc}</div>
+                        </div>
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 ml-1" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Finishes & Corners Grid */}
+                <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label className="text-slate-400 block mb-1">Supported Paper Stocks:</label>
-                    <div className="text-slate-300 font-mono bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">
-                      Standard Matte, Glossy, Uncoated 16pt, Linen, Foil
+                    <label className="text-[11px] font-semibold text-slate-300 block mb-1">Protective Finishes:</label>
+                    <div className="space-y-1">
+                      {['Matte Glare-Free (Smooth)', 'Gloss UV Shine (High-Contrast)', 'Soft-Touch Velvet (+ .00)'].map(fin => (
+                        <div key={fin} className="flex items-center space-x-2 text-[11px] text-slate-300">
+                          <Check className="w-3 h-3 text-emerald-400 shrink-0" />
+                          <span>{fin}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
+
                   <div>
-                    <label className="text-slate-400 block mb-1">Corner Profiles:</label>
-                    <div className="text-slate-300 font-mono bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">
-                      Standard Rectangular, Rounded, Square
+                    <label className="text-[11px] font-semibold text-slate-300 block mb-1">Corner Profiles:</label>
+                    <div className="space-y-1">
+                      {['Square Cut Corners (90°)', 'Rounded 1/4" Corners (+ .00)'].map(cor => (
+                        <div key={cor} className="flex items-center space-x-2 text-[11px] text-slate-300">
+                          <Check className="w-3 h-3 text-emerald-400 shrink-0" />
+                          <span>{cor}</span>
+                        </div>
+                      ))}
                     </div>
+                  </div>
+                </div>
+
+                {/* Printfinity & Artwork Upload Switches */}
+                <div className="pt-2 border-t border-slate-900 grid grid-cols-2 gap-2">
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900/80 border border-slate-800">
+                    <div>
+                      <div className="text-[11px] font-bold text-white flex items-center space-x-1">
+                        <Sparkles className="w-3 h-3 text-indigo-400" />
+                        <span>MOO Printfinity™</span>
+                      </div>
+                      <div className="text-[9px] text-slate-400">Up to 5 different backs</div>
+                    </div>
+                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      Enabled
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900/80 border border-slate-800">
+                    <div>
+                      <div className="text-[11px] font-bold text-white flex items-center space-x-1">
+                        <UploadCloud className="w-3 h-3 text-emerald-400" />
+                        <span>Photo Upload</span>
+                      </div>
+                      <div className="text-[9px] text-slate-400">300 DPI Preflight Ready</div>
+                    </div>
+                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      Active
+                    </span>
                   </div>
                 </div>
               </div>
