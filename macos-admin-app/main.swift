@@ -225,11 +225,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDe
     }
 
     @objc func syncDeployAction() {
-        updateStatus("Building & Deploying to Cloud Live (GitHub & Vercel)...", isConnected: false)
+        updateStatus("Building & Deploying to Cloud Live...", isConnected: false)
         DispatchQueue.global(qos: .userInitiated).async {
             let task = Process()
             task.launchPath = "/bin/bash"
             task.arguments = ["/Users/mdarif/.gemini/antigravity/scratch/pod-ecommerce-platform/sync-to-cloud.sh"]
+            var env = ProcessInfo.processInfo.environment
+            env["PATH"] = "/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:" + (env["PATH"] ?? "")
+            task.environment = env
             task.launch()
             task.waitUntilExit()
 

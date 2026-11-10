@@ -252,12 +252,15 @@ def sync_to_cloud(payload: Dict[str, Any] = None):
             pass
 
     try:
-        # Run sync script
+        # Run sync script with full execution PATH and environment
+        env = os.environ.copy()
+        env["PATH"] = f"/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:{env.get('PATH', '')}"
         res = subprocess.run(
             ["/bin/bash", os.path.join(base_dir, "sync-to-cloud.sh")],
             cwd=base_dir,
             capture_output=True,
             text=True,
+            env=env,
             timeout=180
         )
         if res.returncode != 0:
